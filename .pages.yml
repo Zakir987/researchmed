@@ -12,6 +12,7 @@ content:
     label: Notice Board
     type: file
     path: content/notices.json
+    format: json
     fields:
       - name: items
         label: Notices
@@ -31,6 +32,7 @@ content:
     label: Videos
     type: file
     path: content/videos.json
+    format: json
     fields:
       - name: items
         label: Videos
@@ -53,6 +55,7 @@ content:
     label: Notes & Resources
     type: file
     path: content/notes.json
+    format: json
     fields:
       - name: items
         label: Notes
@@ -74,6 +77,7 @@ content:
     label: Publications
     type: file
     path: content/highlights.json
+    format: json
     fields:
       - name: items
         label: Published papers
@@ -103,6 +107,7 @@ content:
     label: Gallery
     type: file
     path: content/gallery.json
+    format: json
     fields:
       - name: items
         label: Photos
@@ -121,6 +126,7 @@ content:
     label: Updates & Announcements
     type: file
     path: content/updates.json
+    format: json
     fields:
       - name: items
         label: Updates
@@ -137,6 +143,7 @@ content:
     label: Site settings
     type: file
     path: content/settings.json
+    format: json
     fields:
       - { name: site_name, label: Site name, type: string }
       - { name: tagline, label: Tagline, type: string }
