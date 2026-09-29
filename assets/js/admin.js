@@ -124,6 +124,23 @@
       ],
       summary: (x) => [x.role, x.institution, x.order ? "#" + x.order : ""].filter(Boolean).join(" · "),
     },
+    testimonials: {
+      label: "Testimonials", file: "content/testimonials.json", list: true, noun: "testimonial",
+      hint: "Real feedback from people you have guided. Shown on the home page under 'What our learners say'. Only add a testimonial with the person's permission.",
+      fields: [
+        { k: "title", l: "Person's name (as they agree to show it)", t: "text", req: true, ph: "Dr. A. Sharma or Priya S." },
+        { k: "role", l: "Role / course (optional)", t: "text", ph: "M.Sc. Anaesthesia Technology student" },
+        { k: "institution", l: "Institution / city (optional)", t: "text" },
+        { k: "quote", l: "Their words", t: "area", req: true },
+        { k: "service", l: "Guidance received (optional)", t: "text", ph: "Publication guidance" },
+        { k: "rating", l: "Star rating 1–5 (optional)", t: "number" },
+        { k: "photo", l: "Photo (optional, square works best)", t: "image", folder: "media/people" },
+        { k: "order", l: "Order (1 = first, optional)", t: "number" },
+        { k: "date", l: "Date received", t: "date", def: today },
+        { k: "consent", l: "This person has given permission to publish their words and name", t: "check", req: true },
+      ],
+      summary: (x) => [x.role, x.rating ? x.rating + "★" : "", x.date].filter(Boolean).join(" · "),
+    },
     books: {
       label: "Books", file: "content/books.json", list: true, noun: "book",
       hint: "Books that need chapter authors. They show on the Books page and on the home page while open. Untick 'Open' or let the last date pass to close a call.",
@@ -251,7 +268,7 @@
     const id = "f-" + f.k;
     const val = v == null ? (f.def ? f.def() : "") : v;
     if (f.t === "check") return `<label class="check" for="${id}"><input id="${id}" type="checkbox" ${val ? "checked" : ""}> ${f.l}</label>`;
-    if (f.t === "area") return `<label for="${id}">${f.l}<textarea id="${id}" rows="3">${esc(val)}</textarea></label>`;
+    if (f.t === "area") return `<label for="${id}">${f.l}${f.req ? " *" : ""}<textarea id="${id}" rows="${f.req ? 5 : 3}" ${f.req ? "required" : ""}>${esc(val)}</textarea></label>`;
     if (f.t === "tags") return `<label for="${id}">${f.l}<input id="${id}" value="${esc(Array.isArray(val) ? val.join(", ") : val)}" placeholder="${esc(f.ph || "")}"></label>`;
     if (f.t === "image" || f.t === "file") {
       const opts = f.reuse && logos.size ? `<select id="${id}-pick"><option value="">— or reuse a logo already uploaded —</option>${[...logos].map((l) => `<option value="${esc(l)}" ${l === val ? "selected" : ""}>${esc(l.split("/").pop())}</option>`).join("")}</select>` : "";
@@ -305,7 +322,7 @@
     const out = { ...base };
     for (const f of fields) {
       const el = $("#f-" + f.k);
-      if (f.t === "check") out[f.k] = el.checked;
+      if (f.t === "check") { out[f.k] = el.checked; if (f.req && !el.checked) throw new Error("Please tick: " + f.l); }
       else if (f.t === "number") out[f.k] = el.value === "" ? "" : Number(el.value);
       else if (f.t === "tags") out[f.k] = el.value.split(",").map((v) => v.trim()).filter(Boolean);
       else if (f.t === "image" || f.t === "file") {

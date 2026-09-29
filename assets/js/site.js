@@ -512,6 +512,28 @@
     });
   }
 
+  // ---------- Testimonials (home page) ----------
+  function testimonials(all) {
+    const sec = $("#home-testimonials-section"), grid = $("#home-testimonials");
+    if (!sec || !grid) return;
+    const list = (all || []).filter((t) => t.quote && t.consent !== false)
+      .sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999) || byDate(a, b));
+    if (!list.length) { sec.hidden = true; return; }
+    const initials = (n) => String(n || "").replace(/^(dr|mr|ms|mrs|prof)\.?\s+/i, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
+    grid.innerHTML = list.slice(0, 9).map((t) => {
+      const r = Math.max(0, Math.min(5, Math.round(Number(t.rating) || 0)));
+      const stars = r ? `<div class="tst-stars" role="img" aria-label="${r} out of 5 stars">${"★".repeat(r)}<span>${"★".repeat(5 - r)}</span></div>` : "";
+      const who = [t.role, t.institution].filter(Boolean).map(esc).join(", ");
+      return `<figure class="tst-card">
+        ${stars}
+        <blockquote>${esc(t.quote)}</blockquote>
+        ${t.service ? `<span class="tst-service">${esc(t.service)}</span>` : ""}
+        <figcaption>${t.photo ? `<img src="${esc(media(t.photo))}" alt="" loading="lazy">` : `<span class="tst-init" aria-hidden="true">${esc(initials(t.title))}</span>`}
+          <span><b>${esc(t.title)}</b>${who ? `<small>${who}</small>` : ""}</span></figcaption>
+      </figure>`;
+    }).join("");
+  }
+
   // ---------- Contributors (home page) ----------
   function contributors(all) {
     const sec = $("#home-team-section"), grid = $("#home-team");
@@ -553,12 +575,12 @@
 
   // ---------- Boot ----------
   (async function boot() {
-    const names = ["videos", "notes", "highlights", "gallery", "updates", "notices", "contributors", "books"];
+    const names = ["videos", "notes", "highlights", "gallery", "updates", "notices", "contributors", "books", "testimonials"];
     const [settings, ...lists] = await Promise.all(["settings", ...names].map(load));
     const data = {}; names.forEach((n, i) => (data[n] = lists[i]));
     const counts = {}; names.forEach((n) => (counts[n] = data[n].length));
     renderLayout(settings, counts);
-    if (PAGE === "home") { home(settings, data); noticeBoard(data.notices); contributors(data.contributors); }
+    if (PAGE === "home") { home(settings, data); noticeBoard(data.notices); contributors(data.contributors); testimonials(data.testimonials); }
     if (PAGE === "videos") {
       if (settings.show_videos === true) listing({ items: data.videos, mount: "#list", card: videoCard, noun: "videos" });
       else $("#list").innerHTML = `<div class="empty"><strong>Video sessions are available on request</strong>Tell us the topic you need and we will arrange a recorded or live session. <a href="contact.html">Send an enquiry</a>.</div>`;

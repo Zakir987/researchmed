@@ -494,3 +494,17 @@ a.tk-item:hover .tk-title { text-decoration: underline; }
 .aud p { color: var(--muted); font-size: .95rem; }
 @media (max-width: 860px) { .experts { grid-template-columns: 1fr; } }
 @media (max-width: 420px) { .cred b { font-size: 1.8rem; } .cred { padding: 18px 14px; } }
+
+/* Testimonials */
+.tst-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 20px; }
+.tst-card { margin: 0; position: relative; display: flex; flex-direction: column; gap: 14px; padding: 28px 24px 22px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+.tst-card::before { content: "\201C"; position: absolute; top: 4px; right: 18px; font-family: var(--font-display); font-size: 5rem; line-height: 1; color: var(--teal-soft); pointer-events: none; }
+.tst-stars { color: #e3a008; letter-spacing: 2px; font-size: 1.05rem; }
+.tst-stars span { color: var(--line); }
+.tst-card blockquote { margin: 0; font-size: 1.02rem; line-height: 1.6; white-space: pre-line; position: relative; }
+.tst-service { align-self: flex-start; font-size: .74rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--teal); background: var(--teal-soft); padding: 3px 10px; border-radius: 999px; }
+.tst-card figcaption { margin-top: auto; display: flex; gap: 12px; align-items: center; padding-top: 14px; border-top: 1px solid var(--line); }
+.tst-card figcaption img, .tst-init { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; flex: none; }
+.tst-init { display: grid; place-items: center; background: var(--teal-soft); color: var(--teal); font-weight: 800; }
+.tst-card figcaption span { display: grid; gap: 2px; min-width: 0; }
+.tst-card figcaption small { color: var(--muted); font-size: .88rem; }
