@@ -7,6 +7,25 @@ media:
   output: /media
 
 content:
+  # ---------------- Notice board (floats on the home page) ----------------
+  - name: notices
+    label: Notice Board
+    type: file
+    path: content/notices.json
+    fields:
+      - name: items
+        label: Notices
+        type: object
+        list: true
+        fields:
+          - { name: title, label: Notice, type: string, required: true }
+          - { name: date, label: Date, type: date, required: true }
+          - { name: details, label: Short details (optional), type: string }
+          - { name: link, label: Link (optional), type: string, description: "A web address, or contact.html to open the enquiry page" }
+          - { name: new, label: Show a blinking NEW tag, type: boolean }
+          - { name: pinned, label: Keep at the top, type: boolean }
+          - { name: expires, label: Hide after this date (optional), type: date }
+
   # ---------------- Videos ----------------
   - name: videos
     label: Videos

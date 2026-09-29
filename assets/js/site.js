@@ -476,14 +476,43 @@
     });
   }
 
+  // ---------- Floating notice board (home page) ----------
+  function noticeBoard(all) {
+    const today = new Date().toISOString().slice(0, 10);
+    const items = (all || []).filter((n) => !n.expires || String(n.expires) >= today)
+      .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || byDate(a, b));
+    if (!items.length) return;
+    const box = document.createElement("aside");
+    box.className = "notice-board";
+    box.setAttribute("aria-label", "Notice board");
+    const row = (n) => {
+      const inner = `<span class="nb-date">${fmtDate(n.date)}</span><span class="nb-title">${n.new ? '<span class="nb-new">New</span>' : ""}${esc(n.title)}</span>${n.details ? `<span class="nb-details">${esc(n.details)}</span>` : ""}`;
+      return n.link ? `<li><a href="${esc(safeUrl(n.link))}" ${/^https?:/i.test(n.link) ? 'target="_blank" rel="noopener"' : ""}>${inner}</a></li>` : `<li><div>${inner}</div></li>`;
+    };
+    const scroll = items.length > 3;
+    box.innerHTML = `
+      <button class="nb-head" type="button" aria-expanded="true">
+        <span class="nb-bell" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></span>
+        <span class="nb-label">Notice Board</span><span class="nb-count">${items.length}</span><span class="nb-toggle" aria-hidden="true">–</span>
+      </button>
+      <div class="nb-body"><ul class="nb-list ${scroll ? "nb-scroll" : ""}">${items.map(row).join("")}${scroll ? items.map(row).join("").replace(/<li>/g, '<li aria-hidden="true">') : ""}</ul></div>`;
+    document.body.append(box);
+    const head = $(".nb-head", box);
+    const set = (open) => { box.classList.toggle("nb-min", !open); head.setAttribute("aria-expanded", open); $(".nb-toggle", box).textContent = open ? "–" : "+"; try { sessionStorage.setItem("rmc-nb", open ? "1" : "0"); } catch (e) {} };
+    let open = window.innerWidth > 700;
+    try { const v = sessionStorage.getItem("rmc-nb"); if (v) open = v === "1"; } catch (e) {}
+    set(open);
+    head.addEventListener("click", () => set(box.classList.contains("nb-min")));
+  }
+
   // ---------- Boot ----------
   (async function boot() {
-    const names = ["videos", "notes", "highlights", "gallery", "updates"];
+    const names = ["videos", "notes", "highlights", "gallery", "updates", "notices"];
     const [settings, ...lists] = await Promise.all(["settings", ...names].map(load));
     const data = {}; names.forEach((n, i) => (data[n] = lists[i]));
     const counts = {}; names.forEach((n) => (counts[n] = data[n].length));
     renderLayout(settings, counts);
-    if (PAGE === "home") home(settings, data);
+    if (PAGE === "home") { home(settings, data); noticeBoard(data.notices); }
     if (PAGE === "videos") {
       if (settings.show_videos === true) listing({ items: data.videos, mount: "#list", card: videoCard, noun: "videos" });
       else $("#list").innerHTML = `<div class="empty"><strong>Video sessions are available on request</strong>Tell us the topic you need and we will arrange a recorded or live session. <a href="contact.html">Send an enquiry</a>.</div>`;
