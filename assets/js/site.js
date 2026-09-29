@@ -269,17 +269,22 @@
     const l = indexList(h);
     return l.length ? `<div class="idx-row">${l.map((x) => `<span class="idx idx-${slug(x)}">${esc(x)}</span>`).join("")}</div>` : "";
   }
-  function highlightCard(h, feature) {
-    return `<a class="card hl-card ${feature && h.image ? "hl-feature" : ""}" href="${link("highlights", h)}">
-      ${h.image ? `<div class="card-media"><img src="${esc(media(h.image))}" alt="" loading="lazy"></div>` : ""}
+  function pubIssue(h) {
+    return [h.volume, h.year].filter(Boolean).map(esc).join(" · ");
+  }
+  function highlightCard(h) {
+    const short = h.journal_short || h.journal || "";
+    return `<a class="card pub-card" href="${link("highlights", h)}">
+      <div class="pub-head">
+        ${h.logo ? `<img class="pub-logo" src="${esc(media(h.logo))}" alt="${esc(short)} logo" loading="lazy">` : `<span class="pub-logo pub-logo-txt">${esc(short.slice(0, 5))}</span>`}
+        <div class="pub-j"><span class="pub-short">${esc(short)}</span>${pubIssue(h) ? `<span class="pub-issue">${pubIssue(h)}</span>` : ""}</div>
+      </div>
       <div class="card-body">
         <div class="card-meta"><span class="tag tag-highlight">Published</span>${h.study_type ? `<span>${esc(h.study_type)}</span>` : ""}</div>
-        ${indexBadges(h)}
-        ${citeLine(h) ? `<div class="cite-line">${citeLine(h)}</div>` : ""}
         <h3>${esc(h.title)}</h3>
-        ${h.authors ? `<div class="authors">${esc(h.authors)}</div>` : ""}
-        ${feature ? findingsList(h, 3) : h.summary ? `<p>${esc(plain(h.summary))}</p>` : findingsList(h, 2)}
-        ${h.doi ? `<div class="doi">DOI: ${esc(String(h.doi).replace(/^https?:\/\/(dx\.)?doi\.org\//, ""))}</div>` : ""}
+        ${h.summary ? `<p>${esc(plain(h.summary))}</p>` : ""}
+        ${indexBadges(h)}
+        <span class="pub-more">View publication →</span>
       </div></a>`;
   }
   function empty(what, hint) {
@@ -350,6 +355,13 @@
     } else hide("#latest-wrap");
 
     const hl = [...highlights].sort(featuredFirst);
+    const journals = [];
+    hl.forEach((h) => { const k = h.journal_short || h.journal; if (k && !journals.some((j) => j.k === k)) journals.push({ k, logo: h.logo, name: h.journal }); });
+    if (hl.length && $("#home-proof")) {
+      const years = [...new Set(hl.map((h) => (String(h.date || "").match(/\d{4}/) || [""])[0]).filter(Boolean))].sort();
+      $("#proof-stats").innerHTML = `<div><b>${hl.length}</b><span>research paper${hl.length > 1 ? "s" : ""} published</span></div><div><b>${journals.length}</b><span>peer-reviewed journal${journals.length > 1 ? "s" : ""}</span></div>${years.length ? `<div><b>${esc(years[years.length - 1])}</b><span>latest publication year</span></div>` : ""}`;
+      $("#proof-logos").innerHTML = journals.map((j) => `<a href="highlights.html" class="proof-logo" title="${esc(j.name || j.k)}">${j.logo ? `<img src="${esc(media(j.logo))}" alt="${esc(j.name || j.k)}">` : `<span>${esc(j.k)}</span>`}<small>${esc(j.k)}</small></a>`).join("");
+    } else hide("#home-proof");
     if (hl.length) {
       $("#home-highlights").innerHTML = hl.slice(0, 6).map((h) => highlightCard(h)).join("");
     } else hide("#home-highlights-section");
@@ -369,8 +381,8 @@
     if (!["videos", "notes", "highlights"].includes(c)) { root.innerHTML = empty("item found", "This link may be out of date. <a href='index.html'>Go to the home page</a>."); return; }
     const items = await load(c);
     const it = items.find((x) => x._id === id);
-    const back = { videos: ["videos.html", "All videos"], notes: ["notes.html", "All notes"], highlights: ["highlights.html", "All research highlights"] }[c];
-    if (!it) { root.innerHTML = `<a class="back" href="${back[0]}">← ${back[1]}</a><div class="empty" style="margin-top:20px"><strong>This item is no longer available</strong>It may have been renamed or removed.</div>`; return; }
+    const back = { videos: ["videos.html", "All videos"], notes: ["notes.html", "All notes"], highlights: ["highlights.html", "All publications"] }[c];
+    if (!it) { $("#item-hero").innerHTML = "<h1>Not found</h1>"; root.innerHTML = `<a class="back" href="${back[0]}">← ${back[1]}</a><div class="empty" style="margin-top:20px"><strong>This item is no longer available</strong>It may have been renamed or removed.</div>`; return; }
     document.title = `${it.title} | ResearchMed Connect`;
     const meta = [];
     let main = "";
@@ -392,19 +404,19 @@
       main = `${it.image ? `<div class="detail-media"><img src="${esc(media(it.image))}" alt=""></div>` : ""}
         ${it.summary ? `<div class="prose" style="margin-top:20px"><h2>Summary</h2>${md(it.summary)}</div>` : ""}
         ${findingsList(it) ? `<div class="prose" style="margin-top:20px"><h2>Key findings</h2>${findingsList(it)}</div>` : ""}
-        ${it.body ? `<div class="prose" style="margin-top:20px">${md(it.body)}</div>` : ""}`;
-      if (it.authors) meta.push(["Authors", esc(it.authors)]);
+        ${it.body ? `<div class="prose" style="margin-top:20px">${md(it.body)}</div>` : ""}
+        <div class="cta" style="margin-top:28px"><h2 style="font-size:1.5rem">Want to publish your research too?</h2><p>We guide you from study design to manuscript writing, journal selection and reviewer responses.</p><div class="btn-row"><a class="btn btn-primary" href="contact.html">Send an enquiry</a></div></div>`;
       if (it.journal) meta.push(["Journal", esc(it.journal)]);
       if (it.year || it.volume) meta.push(["Published", esc([it.year, it.volume].filter(Boolean).join(", "))]);
       if (it.study_type) meta.push(["Study type", esc(it.study_type)]);
-      if (indexList(it).length) meta.push(["Indexed in", esc(indexList(it).join(", "))]);
+      if (indexList(it).length) meta.push(["Recognition", esc(indexList(it).join(", "))]);
       if (it.doi) meta.push(["DOI", `<a class="doi" href="${esc(doiHref(it.doi))}" target="_blank" rel="noopener">${esc(String(it.doi).replace(/^https?:\/\/(dx\.)?doi\.org\//, ""))}</a>`]);
-      if (it.url) meta.push(["Full text", `<a href="${esc(safeUrl(it.url))}" target="_blank" rel="noopener">Read the paper ↗</a>`]);
+      if (it.url) meta.push(["Full text", `<a class="btn btn-primary btn-sm" href="${esc(safeUrl(it.url))}" target="_blank" rel="noopener">Read the paper ↗</a>`]);
       if (it.pdf) meta.push(["PDF", `<a class="btn btn-primary btn-sm" href="${esc(media(it.pdf))}" target="_blank" rel="noopener">Download PDF</a>`]);
     }
     meta.unshift(["Date", fmtDate(it.date)]);
     const tag = { videos: '<span class="tag tag-video">Video lecture</span>', notes: '<span class="tag tag-note">Notes</span>', highlights: '<span class="tag tag-highlight">Published research</span>' }[c];
-    $("#item-hero").innerHTML = `<a class="back" href="${back[0]}">← ${back[1]}</a>${tag}<h1>${esc(it.title)}</h1>${c === "highlights" && citeLine(it) ? `<p class="cite-line" style="font-size:1rem">${citeLine(it)}</p>` : ""}${c === "highlights" ? indexBadges(it) : ""}`;
+    $("#item-hero").innerHTML = `<a class="back" href="${back[0]}">← ${back[1]}</a>${tag}<h1>${esc(it.title)}</h1>${c === "highlights" && citeLine(it) ? `<p class="cite-line" style="font-size:1rem">${citeLine(it)}</p>` : ""}${c === "highlights" ? indexBadges(it) : ""}${c === "highlights" && it.logo ? `<img class="pub-logo pub-logo-lg" src="${esc(media(it.logo))}" alt="${esc(it.journal_short || it.journal || "")} logo">` : ""}`;
     root.innerHTML = `<div class="detail"><div style="min-width:0">${main}</div>
       <aside><dl>${meta.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
       <button class="btn btn-ghost btn-sm" type="button" id="share">Copy link</button></aside></div>`;
@@ -474,7 +486,7 @@
       else $("#list").innerHTML = `<div class="empty"><strong>Video sessions are available on request</strong>Tell us the topic you need and we will arrange a recorded or live session. <a href="contact.html">Send an enquiry</a>.</div>`;
     }
     if (PAGE === "notes") listing({ items: data.notes, mount: "#list", card: noteCard, noun: "notes" });
-    if (PAGE === "highlights") listing({ items: data.highlights, mount: "#list", card: (h) => highlightCard(h), noun: "publications", chipsOf: indexList });
+    if (PAGE === "highlights") listing({ items: data.highlights, mount: "#list", card: (h) => highlightCard(h), noun: "publications", chipsOf: indexList, gridClass: "grid grid-2" });
     if (PAGE === "gallery") listing({ items: data.gallery, mount: "#list", card: galleryFigure, noun: "photos", gridClass: "masonry" });
     if (PAGE === "updates") updatesPage();
     if (PAGE === "item") item();

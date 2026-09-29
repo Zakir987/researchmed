@@ -63,17 +63,13 @@ content:
         fields:
           - { name: title, label: Paper title, type: string, required: true }
           - { name: date, label: Publication date, type: date, required: true }
-          - { name: authors, label: Authors, type: string }
           - { name: journal, label: Journal, type: string }
-          - { name: year, label: Year, type: string }
+          - { name: year, label: Published (month / year), type: string }
           - { name: volume, label: "Volume / issue / pages", type: string, description: "e.g. 12(3):45-52" }
           - { name: study_type, label: Study type, type: string, description: "e.g. Original article, Review, Case report" }
-          - name: indexed_in
-            label: Indexed in
-            type: select
-            options:
-              multiple: true
-              values: [Scopus, Embase, PubMed, Web of Science]
+          - { name: journal_short, label: Journal short name, type: string, description: "e.g. IJNRD" }
+          - { name: logo, label: Journal logo, type: image }
+          - { name: indexed_in, label: "Indexing / recognition", type: string, list: true, description: "One per line, e.g. Scopus, PubMed, Peer-reviewed, UGC Approved" }
           - { name: doi, label: DOI, type: string, description: "e.g. 10.4103/xxxx" }
           - { name: url, label: Link to full text, type: string }
           - { name: pdf, label: PDF, type: file }

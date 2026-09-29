@@ -320,3 +320,30 @@ dialog.lightbox .close { position: fixed; top: 16px; right: 16px; width: 44px; h
 .wa-fab:hover { background: #188a49; color: #fff; }
 @media (max-width: 520px) { .wa-fab span { display: none; } .wa-fab { padding: 14px; } }
 [hidden] { display: none !important; }
+
+/* Publications */
+.pub-card { position: relative; }
+.pub-head { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border-bottom: 1px solid var(--line); background: var(--band); }
+.pub-logo { width: 56px; height: 56px; border-radius: 10px; background: #fff; object-fit: contain; border: 1px solid var(--line); flex: none; }
+.pub-logo-txt { display: grid; place-items: center; font-weight: 800; font-size: .8rem; color: var(--primary); }
+.pub-logo-lg { width: 88px; height: 88px; }
+.pub-j { display: grid; gap: 2px; min-width: 0; }
+.pub-short { font-weight: 700; letter-spacing: .02em; }
+.pub-issue { font-size: .86rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pub-card h3 { font-size: 1.14rem; line-height: 1.35; }
+.pub-more { font-weight: 600; color: var(--primary); font-size: .95rem; margin-top: 4px; }
+.proof { background: var(--surface); border-bottom: 1px solid var(--line); padding-block: 28px; }
+.proof-grid { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 20px 48px; align-items: center; }
+.proof-stats { display: flex; gap: 32px; flex-wrap: wrap; }
+.proof-stats div { display: grid; }
+.proof-stats b { font-family: var(--font-display); font-size: 2.4rem; line-height: 1; color: var(--primary); font-variant-numeric: tabular-nums; }
+.proof-stats span { font-size: .9rem; color: var(--muted); margin-top: 6px; }
+.proof-right { display: grid; gap: 12px; justify-items: start; }
+.proof-logos { display: flex; flex-wrap: wrap; gap: 14px; }
+.proof-logo { display: grid; justify-items: center; gap: 6px; text-decoration: none; color: var(--muted); }
+.proof-logo img { width: 72px; height: 72px; object-fit: contain; background: #fff; border-radius: 12px; border: 1px solid var(--line); padding: 4px; transition: transform .2s; }
+.proof-logo:hover img { transform: translateY(-2px); }
+.proof-logo small { font-size: .78rem; font-weight: 700; letter-spacing: .04em; }
+@media (max-width: 760px) { .proof-grid { grid-template-columns: 1fr; } .proof-stats { gap: 24px; } .proof-stats b { font-size: 2rem; } }
+.idx:not(.idx-scopus):not(.idx-embase):not(.idx-pubmed):not(.idx-web-of-science) { color: var(--teal); border-color: color-mix(in srgb, var(--teal) 40%, transparent); }
+.grid-2 { grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr)); }

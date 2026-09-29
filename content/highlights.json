@@ -1,3 +1,95 @@
 {
-  "items": []
+  "items": [
+    {
+      "title": "Impact of Artificial Intelligence on Student Learning Outcomes in Healthcare Education: A Cross-Sectional Study",
+      "date": "2026-09-07",
+      "journal": "International Journal of Novel Research and Development (IJNRD)",
+      "journal_short": "IJNRD",
+      "logo": "/media/logos/logo-ijnrd.webp",
+      "year": "September 2026",
+      "volume": "Vol. 11, Issue 9, pp. a370–a374",
+      "study_type": "Cross-sectional study",
+      "indexed_in": [
+        "Peer-reviewed",
+        "Open access",
+        "ISSN 2456-4184"
+      ],
+      "url": "https://ijnrd.org/viewpaperforall.php?paper=IJNRD2609034",
+      "featured": true,
+      "summary": "",
+      "doi": "",
+      "pdf": "",
+      "image": "",
+      "key_findings": [],
+      "body": ""
+    },
+    {
+      "title": "Effect of Lung-Protective Ventilation Strategies on Clinical Outcomes among Mechanically Ventilated Adult Patients in the Intensive Care Unit",
+      "date": "2026-09-06",
+      "journal": "International Journal of Research and Analytical Reviews (IJRAR)",
+      "journal_short": "IJRAR",
+      "logo": "/media/logos/logo-ijrar.webp",
+      "year": "September 2026",
+      "volume": "Vol. 13, Issue 3, pp. 362–369",
+      "study_type": "Original research",
+      "indexed_in": [
+        "Peer-reviewed",
+        "UGC Approved",
+        "E-ISSN 2348-1269"
+      ],
+      "url": "http://www.ijrar.org/viewfull.php?&p_id=IJRAR26C2438",
+      "featured": true,
+      "summary": "",
+      "doi": "",
+      "pdf": "",
+      "image": "",
+      "key_findings": [],
+      "body": ""
+    },
+    {
+      "title": "Assessment of Knowledge and Preparedness Regarding Difficult-Airway Equipment and Emergency Airway Algorithms Among Operation Theatre Professionals: A Cross-Sectional Study",
+      "date": "2026-09-05",
+      "journal": "IJSRT Multidisciplinary Journal",
+      "journal_short": "IJSRT",
+      "logo": "/media/logos/logo-ijsrt.webp",
+      "year": "2026",
+      "volume": "Vol. 3, Issue 9",
+      "study_type": "Cross-sectional study",
+      "indexed_in": [
+        "Google Scholar",
+        "Crossref"
+      ],
+      "url": "https://www.ijsrtjournal.com",
+      "featured": true,
+      "summary": "",
+      "doi": "",
+      "pdf": "",
+      "image": "",
+      "key_findings": [],
+      "body": ""
+    },
+    {
+      "title": "Ergonomics and Occupational Hazards: Assessing the Prevalence of Musculoskeletal Disorders among Operation Theatre Technologists and Evaluating the Long-Term Efficacy of Ergonomic Interventions",
+      "date": "2026-09-04",
+      "journal": "International Journal For Multidisciplinary Research (IJFMR)",
+      "journal_short": "IJFMR",
+      "logo": "/media/logos/logo-ijfmr.webp",
+      "year": "September–October 2026",
+      "volume": "Vol. 8, Issue 5",
+      "study_type": "Original research",
+      "indexed_in": [
+        "Peer-reviewed",
+        "Open access",
+        "E-ISSN 2582-2160"
+      ],
+      "url": "https://www.ijfmr.com",
+      "featured": true,
+      "summary": "",
+      "doi": "",
+      "pdf": "",
+      "image": "",
+      "key_findings": [],
+      "body": ""
+    }
+  ]
 }
