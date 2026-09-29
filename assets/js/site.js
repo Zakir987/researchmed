@@ -469,7 +469,9 @@
         status.hidden = false;
       } catch (err) {
         status.className = "form-status err";
-        status.textContent = "Sorry, your message could not be sent right now. Please try again in a moment" + (settings.whatsapp ? " or message us on WhatsApp at " + settings.whatsapp + "." : ".");
+        const wa = (settings.whatsapp || "").replace(/\D/g, "");
+        const waText = encodeURIComponent(`Hello ResearchMed Connect,\n\nName: ${d.name}\nEmail: ${d.email}\nPhone: ${d.phone || "-"}\nNeed help with: ${d.service}\n\n${d.message}`);
+        status.innerHTML = `<strong>We couldn't send this by email just now.</strong> Please send the same message on WhatsApp instead. It only takes one tap.${wa ? `<div class="btn-row" style="margin-top:12px"><a class="btn btn-primary" href="https://wa.me/${wa}?text=${waText}" target="_blank" rel="noopener">Send on WhatsApp</a></div>` : ""}`;
         status.hidden = false;
         btn.disabled = false; btn.textContent = "Send enquiry";
       }
