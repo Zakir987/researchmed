@@ -105,6 +105,7 @@
     return [
       ["index.html", "Home", "home", true],
       ["highlights.html", "Publications", "highlights", n.highlights > 0],
+      ["books.html", "Books", "books", true],
       ["videos.html", "Videos", "videos", s.show_videos === true && n.videos > 0],
       ["notes.html", "Notes", "notes", n.notes > 0],
       ["gallery.html", "Gallery", "gallery", n.gallery > 0],
@@ -287,6 +288,42 @@
         <span class="pub-more">View publication →</span>
       </div></a>`;
   }
+  // ---------- Books: call for chapter authors ----------
+  function bookOpen(b) {
+    if (b.open === false) return false;
+    if (!b.deadline) return true;
+    const d = new Date(b.deadline + "T23:59:59");
+    return isNaN(d) || d >= new Date();
+  }
+  function bookCard(b) {
+    const open = bookOpen(b);
+    const ch = String(b.chapters || "").split(/\n+/).map((x) => x.replace(/^\s*[-•*\d.)]+\s*/, "").trim()).filter(Boolean);
+    const shown = ch.slice(0, 6), more = ch.slice(6);
+    const li = (x) => `<li>${esc(x)}</li>`;
+    const apply = b.apply_link ? safeUrl(b.apply_link) : `contact.html?service=${encodeURIComponent("Book chapter authorship")}&book=${encodeURIComponent(b.title)}`;
+    const ext = /^https?:/i.test(apply) ? ' target="_blank" rel="noopener"' : "";
+    const cover = b.cover ? `<img src="${esc(media(b.cover))}" alt="Cover of ${esc(b.title)}" loading="lazy">` : `<span class="bk-fallback"><span>${esc(b.title)}</span></span>`;
+    return `<article class="bk-card" id="${esc(b._id)}">
+      <div class="bk-cover">${cover}</div>
+      <div class="bk-body">
+        <span class="bk-status ${open ? "is-open" : "is-closed"}">${open ? "Open for authors" : "Closed"}</span>
+        <h3>${esc(b.title)}</h3>
+        ${b.subtitle ? `<p class="bk-sub">${esc(b.subtitle)}</p>` : ""}
+        ${b.description ? `<p class="bk-desc">${esc(b.description)}</p>` : ""}
+        ${ch.length ? `<div class="bk-ch"><strong>Chapters open for authors</strong><ul>${shown.map(li).join("")}</ul>${more.length ? `<details><summary>+ ${more.length} more chapter${more.length > 1 ? "s" : ""}</summary><ul>${more.map(li).join("")}</ul></details>` : ""}</div>` : ""}
+        <dl class="bk-meta">${b.deadline ? `<div><dt>Last date</dt><dd>${fmtDate(b.deadline)}</dd></div>` : ""}${b.publisher ? `<div><dt>Publisher</dt><dd>${esc(b.publisher)}</dd></div>` : ""}${b.fee ? `<div><dt>Author fee</dt><dd>${esc(b.fee)}</dd></div>` : ""}</dl>
+        ${open ? `<div class="btn-row"><a class="btn btn-primary" href="${esc(apply)}"${ext}>Apply as author</a>${b.brochure ? `<a class="btn btn-ghost" href="${esc(media(b.brochure))}" target="_blank" rel="noopener">Details (PDF)</a>` : ""}</div>` : ""}
+      </div>
+    </article>`;
+  }
+  function booksPage(all) {
+    const root = $("#list");
+    if (!root) return;
+    const list = [...all].sort((a, b) => bookOpen(b) - bookOpen(a));
+    root.innerHTML = list.length ? `<div class="bk-list">${list.map(bookCard).join("")}</div>` : `<div class="empty"><strong>No open calls right now</strong>New book projects will be announced here. <a href="contact.html">Send an enquiry</a> to be told first.</div>`;
+    if (location.hash) { const el = document.getElementById(decodeURIComponent(location.hash.slice(1))); if (el) el.scrollIntoView(); }
+  }
+
   function empty(what, hint) {
     return `<div class="empty"><strong>No ${what} yet</strong>${hint || "New items appear here as soon as they are published."}</div>`;
   }
@@ -372,6 +409,9 @@
     else hide("#home-videos-section");
     if (notes.length) $("#home-notes").innerHTML = [...notes].sort(featuredFirst).slice(0, 3).map(noteCard).join("");
     else hide("#home-notes-section");
+    const openBooks = (data.books || []).filter(bookOpen);
+    if (openBooks.length && $("#home-books")) $("#home-books").innerHTML = `<div class="bk-list">${openBooks.slice(0, 2).map(bookCard).join("")}</div>`;
+    else hide("#home-books-section");
     if (gallery.length) {
       $("#home-gallery").innerHTML = gallery.slice(0, 6).map((g) => `<a href="gallery.html" aria-label="${esc(g.title)}"><img src="${esc(media(g.image))}" alt="${esc(g.alt || g.title)}" loading="lazy"></a>`).join("");
     } else hide("#home-gallery-section");
@@ -440,6 +480,10 @@
     if (!f) return;
     const status = $("#form-status");
     const btn = $("button[type=submit]", f);
+    const qs = new URLSearchParams(location.search);
+    const sel = $("#c-service", f), want = qs.get("service");
+    if (sel && want && [...sel.options].some((o) => o.text === want)) sel.value = want;
+    if (qs.get("book") && $("#c-msg", f)) $("#c-msg", f).value = `I would like to contribute a chapter to the book "${qs.get("book")}".\n\nPreferred chapter: \nMy qualification / designation: \nInstitution: `;
     // Enquiries go to a Google Form owned by ResearchMed (responses + email alerts in Google Forms).
     const GF = "https://docs.google.com/forms/d/e/1FAIpQLSdumIJAeqsSZZCUFKqghbr1VBIYvdFIL2km4LpQd3TFqzxZIA/formResponse";
     const ENTRY = { name: "entry.110128786", email: "entry.575945302", phone: "entry.369296902", service: "entry.177691295", message: "entry.1096489302" };
@@ -509,7 +553,7 @@
 
   // ---------- Boot ----------
   (async function boot() {
-    const names = ["videos", "notes", "highlights", "gallery", "updates", "notices", "contributors"];
+    const names = ["videos", "notes", "highlights", "gallery", "updates", "notices", "contributors", "books"];
     const [settings, ...lists] = await Promise.all(["settings", ...names].map(load));
     const data = {}; names.forEach((n, i) => (data[n] = lists[i]));
     const counts = {}; names.forEach((n) => (counts[n] = data[n].length));
@@ -523,6 +567,7 @@
     if (PAGE === "highlights") listing({ items: data.highlights, mount: "#list", card: (h) => highlightCard(h), noun: "publications", chipsOf: indexList, gridClass: "grid grid-2" });
     if (PAGE === "gallery") listing({ items: data.gallery, mount: "#list", card: galleryFigure, noun: "photos", gridClass: "masonry" });
     if (PAGE === "updates") updatesPage();
+    if (PAGE === "books") booksPage(data.books);
     if (PAGE === "item") item();
     if (PAGE === "contact") contactForm(settings);
   })();
