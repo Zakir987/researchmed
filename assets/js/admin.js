@@ -55,7 +55,7 @@
   const SECTIONS = {
     notices: {
       label: "Notice Board", file: "content/notices.json", list: true, noun: "notice",
-      hint: "Notices float on the home page. Tick NEW to show a blinking tag.",
+      hint: "Notices scroll across the top of the home page. Tick NEW to show a blinking tag.",
       fields: [
         { k: "title", l: "Notice", t: "text", req: true },
         { k: "date", l: "Date", t: "date", def: today },

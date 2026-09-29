@@ -490,33 +490,29 @@
     }).join("");
   }
 
-  // ---------- Floating notice board (home page) ----------
+  // ---------- Scrolling notice ticker (top of home page) ----------
   function noticeBoard(all) {
     const today = new Date().toISOString().slice(0, 10);
     const items = (all || []).filter((n) => !n.expires || String(n.expires) >= today)
       .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || byDate(a, b));
-    if (!items.length) return;
-    const box = document.createElement("aside");
-    box.className = "notice-board";
-    box.setAttribute("aria-label", "Notice board");
-    const row = (n) => {
-      const inner = `<span class="nb-date">${fmtDate(n.date)}</span><span class="nb-title">${n.new ? '<span class="nb-new">New</span>' : ""}${esc(n.title)}</span>${n.details ? `<span class="nb-details">${esc(n.details)}</span>` : ""}`;
-      return n.link ? `<li><a href="${esc(safeUrl(n.link))}" ${/^https?:/i.test(n.link) ? 'target="_blank" rel="noopener"' : ""}>${inner}</a></li>` : `<li><div>${inner}</div></li>`;
+    const header = $(".site-header");
+    if (!items.length || !header) return;
+    const one = (n) => {
+      const txt = `${n.new ? '<span class="tk-new">New</span>' : ""}<span class="tk-title">${esc(n.title)}</span>${n.details ? `<span class="tk-details"> — ${esc(n.details)}</span>` : ""}`;
+      return n.link ? `<a class="tk-item" href="${esc(safeUrl(n.link))}" ${/^https?:/i.test(n.link) ? 'target="_blank" rel="noopener"' : ""}>${txt}</a>` : `<span class="tk-item">${txt}</span>`;
     };
-    const scroll = items.length > 3;
-    box.innerHTML = `
-      <button class="nb-head" type="button" aria-expanded="true">
-        <span class="nb-bell" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></span>
-        <span class="nb-label">Notice Board</span><span class="nb-count">${items.length}</span><span class="nb-toggle" aria-hidden="true">–</span>
-      </button>
-      <div class="nb-body"><ul class="nb-list ${scroll ? "nb-scroll" : ""}">${items.map(row).join("")}${scroll ? items.map(row).join("").replace(/<li>/g, '<li aria-hidden="true">') : ""}</ul></div>`;
-    document.body.append(box);
-    const head = $(".nb-head", box);
-    const set = (open) => { box.classList.toggle("nb-min", !open); head.setAttribute("aria-expanded", open); $(".nb-toggle", box).textContent = open ? "–" : "+"; try { sessionStorage.setItem("rmc-nb", open ? "1" : "0"); } catch (e) {} };
-    let open = window.innerWidth > 700;
-    try { const v = sessionStorage.getItem("rmc-nb"); if (v) open = v === "1"; } catch (e) {}
-    set(open);
-    head.addEventListener("click", () => set(box.classList.contains("nb-min")));
+    const run = items.map(one).join('<span class="tk-sep" aria-hidden="true">✦</span>') + '<span class="tk-sep" aria-hidden="true">✦</span>';
+    const bar = document.createElement("div");
+    bar.className = "ticker";
+    bar.setAttribute("role", "region");
+    bar.setAttribute("aria-label", "Notice board");
+    bar.innerHTML = `<span class="tk-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>Notice</span>
+      <div class="tk-viewport"><div class="tk-track"><div class="tk-run">${run}</div><div class="tk-run" aria-hidden="true">${run}</div></div></div>`;
+    header.append(bar);
+    const track = $(".tk-track", bar), first = $(".tk-run", bar);
+    const speed = 70; // pixels per second
+    const set = () => { track.style.animationDuration = Math.max(12, first.scrollWidth / speed) + "s"; };
+    set(); window.addEventListener("resize", set);
   }
 
   // ---------- Boot ----------
