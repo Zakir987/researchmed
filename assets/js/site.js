@@ -476,6 +476,20 @@
     });
   }
 
+  // ---------- Contributors (home page) ----------
+  function contributors(all) {
+    const sec = $("#home-team-section"), grid = $("#home-team");
+    if (!sec || !grid) return;
+    const list = (all || []).slice().sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999));
+    if (!list.length) { sec.hidden = true; return; }
+    const initials = (n) => String(n || "").replace(/^(dr|mr|ms|mrs|prof)\.?\s+/i, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
+    grid.innerHTML = list.map((p) => {
+      const inner = `${p.photo ? `<img class="tm-photo" src="${esc(media(p.photo))}" alt="" loading="lazy">` : `<span class="tm-photo tm-init" aria-hidden="true">${esc(initials(p.title))}</span>`}
+        <span class="tm-name">${esc(p.title)}</span>${p.role ? `<span class="tm-role">${esc(p.role)}</span>` : ""}${p.institution ? `<span class="tm-inst">${esc(p.institution)}</span>` : ""}`;
+      return p.link ? `<a class="tm-card" href="${esc(safeUrl(p.link))}" target="_blank" rel="noopener">${inner}</a>` : `<div class="tm-card">${inner}</div>`;
+    }).join("");
+  }
+
   // ---------- Floating notice board (home page) ----------
   function noticeBoard(all) {
     const today = new Date().toISOString().slice(0, 10);
@@ -507,12 +521,12 @@
 
   // ---------- Boot ----------
   (async function boot() {
-    const names = ["videos", "notes", "highlights", "gallery", "updates", "notices"];
+    const names = ["videos", "notes", "highlights", "gallery", "updates", "notices", "contributors"];
     const [settings, ...lists] = await Promise.all(["settings", ...names].map(load));
     const data = {}; names.forEach((n, i) => (data[n] = lists[i]));
     const counts = {}; names.forEach((n) => (counts[n] = data[n].length));
     renderLayout(settings, counts);
-    if (PAGE === "home") { home(settings, data); noticeBoard(data.notices); }
+    if (PAGE === "home") { home(settings, data); noticeBoard(data.notices); contributors(data.contributors); }
     if (PAGE === "videos") {
       if (settings.show_videos === true) listing({ items: data.videos, mount: "#list", card: videoCard, noun: "videos" });
       else $("#list").innerHTML = `<div class="empty"><strong>Video sessions are available on request</strong>Tell us the topic you need and we will arrange a recorded or live session. <a href="contact.html">Send an enquiry</a>.</div>`;

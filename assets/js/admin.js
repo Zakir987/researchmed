@@ -110,6 +110,19 @@
       ],
       summary: (x) => [x.category, x.date, x.pdf ? "file attached" : ""].filter(Boolean).join(" · "),
     },
+    contributors: {
+      label: "Contributors", file: "content/contributors.json", list: true, noun: "contributor", append: true,
+      hint: "People shown in the Contributors section of the home page. Lower 'Order' numbers appear first.",
+      fields: [
+        { k: "title", l: "Full name", t: "text", req: true, ph: "Dr. A. Sharma" },
+        { k: "role", l: "Role / designation", t: "text", ph: "Research Mentor" },
+        { k: "institution", l: "Institution / department (optional)", t: "text" },
+        { k: "photo", l: "Photo (square works best)", t: "image", folder: "media/people" },
+        { k: "link", l: "Profile link (optional)", t: "text", ph: "LinkedIn, Google Scholar or ORCID link" },
+        { k: "order", l: "Order (1 = first)", t: "number" },
+      ],
+      summary: (x) => [x.role, x.institution, x.order ? "#" + x.order : ""].filter(Boolean).join(" · "),
+    },
     settings: {
       label: "Numbers & contact", file: "content/settings.json", list: false,
       hint: "Home page numbers, contact details and the thin announcement bar at the top of every page.",
@@ -291,7 +304,7 @@
     const s = SECTIONS[current];
     await busy(e.submitter || $("#edit button[type=submit]"), async () => {
       const item = await collect(s.fields, editing >= 0 ? doc.items[editing] : {});
-      if (editing >= 0) doc.items[editing] = item; else doc.items.unshift(item);
+      if (editing >= 0) doc.items[editing] = item; else if (s.append) doc.items.push(item); else doc.items.unshift(item);
       if (current === "highlights") { if (item.featured === undefined) item.featured = true; if (item.logo) logos.add(item.logo); }
       await commit(`${editing >= 0 ? "Update" : "Add"} ${s.noun}: ${item.title || ""}`.slice(0, 70));
       editing = -1; renderSection();
