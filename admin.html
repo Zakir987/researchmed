@@ -21,29 +21,14 @@
 <section class="page-hero"><div class="wrap">
   <span class="eyebrow pill-eyebrow">Admin</span>
   <h1>Edit the website</h1>
-  <p>Add videos, notes, research highlights, photos and updates, or change the home page text and contact details.</p>
+  <p>Post notices, add publications and photos, or change numbers and contact details. Changes go live in about a minute.</p>
 </div></section>
-<section class="section" style="padding-top:40px"><div class="wrap" style="display:grid;gap:24px;max-width:760px;margin-inline:0">
-  <div class="contact-card">
-    <h2 style="font-size:1.4rem">Owner access only</h2>
-    <p class="muted">Editing is locked to the site owner's account. Anyone else who opens the editor cannot see or change the content.</p>
-    <div class="admin-actions">
-      <a class="btn btn-primary" href="https://app.pagescms.org/Zakir987/researchmed/main/file/notices" target="_blank" rel="noopener">Post a notice</a>
-      <a class="btn btn-ghost" href="https://app.pagescms.org/Zakir987/researchmed/main/file/highlights" target="_blank" rel="noopener">Add a publication</a>
-      <a class="btn btn-ghost" href="https://app.pagescms.org/Zakir987/researchmed/main/file/settings" target="_blank" rel="noopener">Change numbers, email &amp; home text</a>
-      <a class="btn btn-ghost" href="https://app.pagescms.org/Zakir987/researchmed/main/file/notes" target="_blank" rel="noopener">Add notes / PDFs</a>
-      <a class="btn btn-ghost" href="https://app.pagescms.org/Zakir987/researchmed/main/file/gallery" target="_blank" rel="noopener">Add photos</a>
-      <a class="btn btn-ghost" href="https://app.pagescms.org/Zakir987/researchmed/main" target="_blank" rel="noopener">Open full editor</a>
-    </div>
-    <ol class="muted" style="margin:0;padding-left:1.2em;display:grid;gap:4px">
-      <li>Click a button above and sign in with GitHub (first time only).</li>
-      <li>Click <strong>Add an entry</strong> (or edit an existing one) and fill in the boxes.</li>
-      <li>Click <strong>Save</strong>. The website updates by itself in about a minute.</li>
-    </ol>
-    <p class="muted" style="font-size:.95rem">Tip: bookmark this page on your phone and computer. To let an assistant help you edit, add them under Collaborators in the editor using their email address.</p>
-  </div>
+<section class="section" style="padding-top:32px"><div class="wrap">
+  <div id="admin"><div class="skeleton" style="min-height:160px"></div></div>
 </div></section>
+<div id="toast" class="toast" role="status" hidden></div>
 </main>
 <script src="assets/js/site.js" defer></script>
+<script src="assets/js/admin.js" defer></script>
 </body>
 </html>

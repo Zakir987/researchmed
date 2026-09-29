@@ -1,0 +1,323 @@
+/* ResearchMed Connect — simple built-in admin panel.
+   Saves changes straight to the GitHub repository with the owner's personal key
+   (kept only in this browser). GitHub Pages republishes the site in about a minute. */
+(function () {
+  "use strict";
+  const OWNER = "Zakir987", REPO = "researchmed", BRANCH = "main";
+  const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
+  const KEY = "rmc-admin-key";
+  const $ = (s, r = document) => r.querySelector(s);
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const today = () => new Date().toISOString().slice(0, 10);
+  let token = "";
+  try { token = localStorage.getItem(KEY) || ""; } catch (e) {}
+
+  // ---------- GitHub helpers ----------
+  async function gh(path, opts = {}) {
+    const r = await fetch(API + path, {
+      ...opts,
+      headers: { Accept: "application/vnd.github+json", Authorization: "token " + token, ...(opts.headers || {}) },
+    });
+    if (!r.ok) {
+      let msg = r.status + "";
+      try { msg = (await r.json()).message || msg; } catch (e) {}
+      const err = new Error(msg); err.status = r.status; throw err;
+    }
+    return r.status === 204 ? null : r.json();
+  }
+  const b64ToText = (b) => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\n/g, "")), (c) => c.charCodeAt(0)));
+  function bytesToB64(bytes) {
+    let s = ""; const n = 0x8000;
+    for (let i = 0; i < bytes.length; i += n) s += String.fromCharCode.apply(null, bytes.subarray(i, i + n));
+    return btoa(s);
+  }
+  const textToB64 = (t) => bytesToB64(new TextEncoder().encode(t));
+  async function readJson(path) {
+    const f = await gh(`/contents/${path}?ref=${BRANCH}`);
+    return { data: JSON.parse(b64ToText(f.content)), sha: f.sha };
+  }
+  async function writeFile(path, b64, sha, message) {
+    const body = { message, content: b64, branch: BRANCH };
+    if (sha) body.sha = sha;
+    const r = await gh(`/contents/${path}`, { method: "PUT", body: JSON.stringify(body) });
+    return r.content.sha;
+  }
+  async function uploadFile(file, folder = "media/uploads") {
+    if (file.size > 25 * 1024 * 1024) throw new Error("This file is larger than 25 MB. Please use a smaller file (or a YouTube / Google Drive link).");
+    const clean = file.name.toLowerCase().replace(/[^a-z0-9.]+/g, "-").replace(/^-+|-+$/g, "");
+    const path = `${folder}/${Date.now().toString(36)}-${clean}`;
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    await writeFile(path, bytesToB64(bytes), null, `Upload ${clean} via admin`);
+    return "/" + path;
+  }
+
+  // ---------- Section definitions ----------
+  const SECTIONS = {
+    notices: {
+      label: "Notice Board", file: "content/notices.json", list: true, noun: "notice",
+      hint: "Notices float on the home page. Tick NEW to show a blinking tag.",
+      fields: [
+        { k: "title", l: "Notice", t: "text", req: true },
+        { k: "date", l: "Date", t: "date", def: today },
+        { k: "details", l: "Short details (optional)", t: "text" },
+        { k: "link", l: "Link (optional)", t: "text", ph: "https://… or contact.html" },
+        { k: "new", l: "Show blinking NEW tag", t: "check" },
+        { k: "pinned", l: "Keep at the top", t: "check" },
+        { k: "expires", l: "Hide after this date (optional)", t: "date" },
+      ],
+      summary: (x) => [x.date, x.new ? "NEW" : "", x.pinned ? "Pinned" : "", x.expires ? "until " + x.expires : ""].filter(Boolean).join(" · "),
+    },
+    highlights: {
+      label: "Publications", file: "content/highlights.json", list: true, noun: "publication",
+      hint: "Author names are never shown. Upload the journal logo once; later papers in the same journal can reuse it.",
+      fields: [
+        { k: "title", l: "Paper title", t: "text", req: true },
+        { k: "journal", l: "Journal full name", t: "text" },
+        { k: "journal_short", l: "Journal short name (e.g. IJNRD)", t: "text" },
+        { k: "volume", l: "Volume / issue / pages", t: "text", ph: "Vol. 11, Issue 9, pp. 10–15" },
+        { k: "year", l: "Published (month / year)", t: "text", ph: "September 2026" },
+        { k: "date", l: "Publication date", t: "date", def: today },
+        { k: "study_type", l: "Study type", t: "text", ph: "Original research" },
+        { k: "url", l: "Link to the paper", t: "text", ph: "https://…" },
+        { k: "indexed_in", l: "Badges (separate with commas)", t: "tags", ph: "Peer-reviewed, Scopus, UGC Approved" },
+        { k: "logo", l: "Journal logo", t: "image", folder: "media/logos", reuse: true },
+        { k: "summary", l: "Short summary (optional)", t: "area" },
+      ],
+      summary: (x) => [x.journal_short || x.journal, x.year].filter(Boolean).join(" · "),
+    },
+    gallery: {
+      label: "Photos", file: "content/gallery.json", list: true, noun: "photo",
+      hint: "Photos appear in the Gallery and on the home page.",
+      fields: [
+        { k: "image", l: "Photo", t: "image", req: true },
+        { k: "title", l: "Title", t: "text", req: true },
+        { k: "album", l: "Album / event", t: "text", ph: "Workshops" },
+        { k: "date", l: "Date", t: "date", def: today },
+        { k: "caption", l: "Caption (optional)", t: "area" },
+      ],
+      summary: (x) => [x.album, x.date].filter(Boolean).join(" · "),
+    },
+    notes: {
+      label: "Notes & PDFs", file: "content/notes.json", list: true, noun: "note",
+      hint: "Upload a PDF, Word or PowerPoint file, or paste a Google Drive link.",
+      fields: [
+        { k: "title", l: "Title", t: "text", req: true },
+        { k: "category", l: "Subject", t: "text", ph: "Research Methodology" },
+        { k: "date", l: "Date", t: "date", def: today },
+        { k: "summary", l: "Short summary", t: "area" },
+        { k: "pdf", l: "File (PDF / Word / PowerPoint)", t: "file" },
+        { k: "link", l: "Or a link (optional)", t: "text", ph: "https://drive.google.com/…" },
+      ],
+      summary: (x) => [x.category, x.date, x.pdf ? "file attached" : ""].filter(Boolean).join(" · "),
+    },
+    settings: {
+      label: "Numbers & contact", file: "content/settings.json", list: false,
+      hint: "Home page numbers, contact details and the thin announcement bar at the top of every page.",
+      fields: [
+        { k: "papers_submitted", l: "Papers submitted", t: "number" },
+        { k: "papers_published", l: "Papers published", t: "number" },
+        { k: "enquiry_email", l: "Enquiries are emailed to", t: "text" },
+        { k: "email", l: "Email shown on the website", t: "text" },
+        { k: "whatsapp", l: "WhatsApp number", t: "text" },
+        { k: "announcement", l: "Announcement bar text (leave empty to hide)", t: "text" },
+        { k: "announcement_link", l: "Announcement link", t: "text" },
+        { k: "hero_title", l: "Home page headline", t: "text" },
+        { k: "hero_text", l: "Home page intro", t: "area" },
+        { k: "youtube_channel", l: "YouTube channel link", t: "text" },
+        { k: "linkedin", l: "LinkedIn link", t: "text" },
+      ],
+    },
+  };
+
+  // ---------- State ----------
+  let current = "notices", doc = null, sha = null, editing = -1;
+  const logos = new Set();
+
+  // ---------- Rendering ----------
+  const root = $("#admin");
+  function show(html) { root.innerHTML = html; }
+  function toast(msg, bad) {
+    const t = $("#toast");
+    t.textContent = msg; t.className = "toast " + (bad ? "bad" : "ok"); t.hidden = false;
+    clearTimeout(toast.h); toast.h = setTimeout(() => (t.hidden = true), 6000);
+  }
+
+  function renderLogin(err) {
+    show(`
+      <div class="contact-card">
+        <h2 style="font-size:1.4rem">Connect this browser (one time)</h2>
+        <ol class="steps">
+          <li>Click <strong>Get my key</strong>. GitHub opens with everything filled in.</li>
+          <li>On that page set <strong>Expiration</strong> to <strong>No expiration</strong>, scroll down, click the green <strong>Generate token</strong> button, then copy the key (it starts with ghp_).</li>
+          <li>Come back here, paste the key below and click <strong>Connect</strong>.</li>
+        </ol>
+        <div class="btn-row"><a class="btn btn-ghost" target="_blank" rel="noopener" href="https://github.com/settings/tokens/new?scopes=repo&description=ResearchMed%20website%20admin">Get my key ↗</a></div>
+        <form id="login" class="form">
+          <label for="key">Paste your key<input id="key" type="password" autocomplete="off" placeholder="ghp_…" required></label>
+          <button class="btn btn-primary" type="submit">Connect</button>
+        </form>
+        ${err ? `<p class="form-status err">${esc(err)}</p>` : ""}
+        <p class="muted" style="font-size:.92rem">The key stays only in this browser. Anyone without it cannot change your website. Use <strong>Sign out</strong> on shared computers.</p>
+      </div>`);
+    $("#login").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      token = $("#key").value.trim();
+      try {
+        const repo = await gh("");
+        if (!repo.permissions || !repo.permissions.push) throw new Error("This key cannot edit the website.");
+        try { localStorage.setItem(KEY, token); } catch (er) {}
+        start();
+      } catch (er) {
+        token = "";
+        renderLogin(er.status === 401 ? "That key was not accepted. Please copy it again." : er.message);
+      }
+    });
+  }
+
+  function tabs() {
+    return `<div class="admin-tabs" role="tablist">${Object.entries(SECTIONS).map(([k, s]) =>
+      `<button type="button" role="tab" data-tab="${k}" aria-selected="${k === current}">${s.label}</button>`).join("")}
+      <button type="button" class="signout" id="signout">Sign out</button></div>`;
+  }
+
+  async function start(tab) {
+    if (tab) current = tab;
+    editing = -1;
+    show(`${tabs()}<div class="admin-panel"><div class="skeleton" style="min-height:160px"></div></div>`);
+    bindTabs();
+    try {
+      const r = await readJson(SECTIONS[current].file);
+      doc = r.data; sha = r.sha;
+      if (current === "highlights") (doc.items || []).forEach((x) => x.logo && logos.add(x.logo));
+      if (current === "settings") {} // nothing extra
+      renderSection();
+    } catch (e) {
+      if (e.status === 401) { signOut(); renderLogin("Your key has expired or was removed. Please connect again."); return; }
+      if (e.status === 404 && SECTIONS[current].list) { doc = { items: [] }; sha = null; renderSection(); return; }
+      $(".admin-panel").innerHTML = `<p class="form-status err">Could not load: ${esc(e.message)}</p>`;
+    }
+  }
+  function bindTabs() {
+    root.querySelectorAll("[data-tab]").forEach((b) => b.addEventListener("click", () => start(b.dataset.tab)));
+    $("#signout").addEventListener("click", () => { signOut(); renderLogin(); });
+  }
+  function signOut() { token = ""; try { localStorage.removeItem(KEY); } catch (e) {} }
+
+  function field(f, v) {
+    const id = "f-" + f.k;
+    const val = v == null ? (f.def ? f.def() : "") : v;
+    if (f.t === "check") return `<label class="check" for="${id}"><input id="${id}" type="checkbox" ${val ? "checked" : ""}> ${f.l}</label>`;
+    if (f.t === "area") return `<label for="${id}">${f.l}<textarea id="${id}" rows="3">${esc(val)}</textarea></label>`;
+    if (f.t === "tags") return `<label for="${id}">${f.l}<input id="${id}" value="${esc(Array.isArray(val) ? val.join(", ") : val)}" placeholder="${esc(f.ph || "")}"></label>`;
+    if (f.t === "image" || f.t === "file") {
+      const opts = f.reuse && logos.size ? `<select id="${id}-pick"><option value="">— or reuse a logo already uploaded —</option>${[...logos].map((l) => `<option value="${esc(l)}" ${l === val ? "selected" : ""}>${esc(l.split("/").pop())}</option>`).join("")}</select>` : "";
+      return `<div class="upl"><span class="upl-l">${f.l}${f.req ? " *" : ""}</span>
+        ${val ? `<span class="upl-cur">${f.t === "image" ? `<img src="${esc(val.replace(/^\//, ""))}" alt="">` : ""}<span>${esc(String(val).split("/").pop())}</span></span>` : ""}
+        <input id="${id}" type="file" ${f.t === "image" ? 'accept="image/*"' : 'accept=".pdf,.doc,.docx,.ppt,.pptx"'}>
+        ${opts}<input type="hidden" id="${id}-old" value="${esc(val || "")}"></div>`;
+    }
+    const type = f.t === "date" ? "date" : f.t === "number" ? "number" : "text";
+    return `<label for="${id}">${f.l}${f.req ? " *" : ""}<input id="${id}" type="${type}" value="${esc(val)}" placeholder="${esc(f.ph || "")}" ${f.req ? "required" : ""}></label>`;
+  }
+
+  function renderSection() {
+    const s = SECTIONS[current];
+    const panel = $(".admin-panel");
+    if (!s.list) {
+      panel.innerHTML = `<p class="muted">${s.hint}</p><form id="edit" class="form admin-form">${s.fields.map((f) => field(f, doc[f.k])).join("")}
+        <div class="btn-row"><button class="btn btn-primary" type="submit">Save changes</button></div></form>`;
+      $("#edit").addEventListener("submit", saveSingle);
+      return;
+    }
+    const items = doc.items || (doc.items = []);
+    panel.innerHTML = `
+      <p class="muted">${s.hint}</p>
+      <div class="btn-row"><button class="btn btn-primary" id="add" type="button">+ Add ${s.noun}</button></div>
+      <div id="formwrap"></div>
+      <ul class="admin-list">${items.length ? items.map((x, i) => `
+        <li><div class="al-main"><strong>${esc(x.title || "(untitled)")}</strong><span class="muted">${esc(s.summary ? s.summary(x) : "")}</span></div>
+          <div class="al-btns">
+            <button type="button" data-edit="${i}">Edit</button>
+            <button type="button" data-del="${i}" class="danger">Delete</button>
+          </div></li>`).join("") : `<li class="muted">Nothing here yet. Click “Add ${s.noun}”.</li>`}</ul>`;
+    $("#add").addEventListener("click", () => openForm(-1));
+    panel.querySelectorAll("[data-edit]").forEach((b) => b.addEventListener("click", () => openForm(+b.dataset.edit)));
+    panel.querySelectorAll("[data-del]").forEach((b) => b.addEventListener("click", () => confirmDelete(+b.dataset.del, b)));
+  }
+
+  function openForm(i) {
+    editing = i;
+    const s = SECTIONS[current], x = i >= 0 ? doc.items[i] : {};
+    $("#formwrap").innerHTML = `<form id="edit" class="form admin-form contact-card">
+      <h3>${i >= 0 ? "Edit" : "New"} ${s.noun}</h3>
+      ${s.fields.map((f) => field(f, i >= 0 ? x[f.k] : undefined)).join("")}
+      <div class="btn-row"><button class="btn btn-primary" type="submit">Save &amp; publish</button><button class="btn btn-ghost" type="button" id="cancel">Cancel</button></div></form>`;
+    $("#cancel").addEventListener("click", () => { $("#formwrap").innerHTML = ""; editing = -1; });
+    $("#edit").addEventListener("submit", saveItem);
+    $("#edit").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  async function collect(fields, base) {
+    const out = { ...base };
+    for (const f of fields) {
+      const el = $("#f-" + f.k);
+      if (f.t === "check") out[f.k] = el.checked;
+      else if (f.t === "number") out[f.k] = el.value === "" ? "" : Number(el.value);
+      else if (f.t === "tags") out[f.k] = el.value.split(",").map((v) => v.trim()).filter(Boolean);
+      else if (f.t === "image" || f.t === "file") {
+        const file = el.files && el.files[0];
+        const pick = $("#f-" + f.k + "-pick");
+        if (file) out[f.k] = await uploadFile(file, f.folder);
+        else if (pick && pick.value) out[f.k] = pick.value;
+        else out[f.k] = $("#f-" + f.k + "-old").value;
+        if (f.req && !out[f.k]) throw new Error(`Please choose a ${f.l.toLowerCase()}.`);
+      } else out[f.k] = el.value.trim();
+    }
+    return out;
+  }
+
+  async function busy(btn, fn) {
+    const label = btn.textContent; btn.disabled = true; btn.textContent = "Saving…";
+    try { await fn(); } catch (e) { toast(e.status === 409 ? "The website changed in another window. Please reload and try again." : "Could not save: " + e.message, true); btn.disabled = false; btn.textContent = label; }
+  }
+  async function commit(msg) {
+    const text = JSON.stringify(doc, null, 2) + "\n";
+    sha = await writeFile(SECTIONS[current].file, textToB64(text), sha, msg);
+    toast("Saved. The website will show it in about a minute.");
+  }
+
+  async function saveItem(e) {
+    e.preventDefault();
+    const s = SECTIONS[current];
+    await busy(e.submitter || $("#edit button[type=submit]"), async () => {
+      const item = await collect(s.fields, editing >= 0 ? doc.items[editing] : {});
+      if (editing >= 0) doc.items[editing] = item; else doc.items.unshift(item);
+      if (current === "highlights") { if (item.featured === undefined) item.featured = true; if (item.logo) logos.add(item.logo); }
+      await commit(`${editing >= 0 ? "Update" : "Add"} ${s.noun}: ${item.title || ""}`.slice(0, 70));
+      editing = -1; renderSection();
+    });
+  }
+  async function saveSingle(e) {
+    e.preventDefault();
+    await busy(e.submitter || $("#edit button[type=submit]"), async () => {
+      doc = await collect(SECTIONS.settings.fields, doc);
+      await commit("Update site settings");
+      $("#edit button[type=submit]").disabled = false; $("#edit button[type=submit]").textContent = "Save changes";
+    });
+  }
+  function confirmDelete(i, btn) {
+    if (btn.dataset.sure) {
+      busyList(async () => { const t = doc.items[i].title; doc.items.splice(i, 1); await commit(`Delete ${SECTIONS[current].noun}: ${t}`.slice(0, 70)); });
+    } else { btn.dataset.sure = "1"; btn.textContent = "Sure? Click again"; setTimeout(() => { if (btn.isConnected) { delete btn.dataset.sure; btn.textContent = "Delete"; } }, 4000); }
+  }
+  function move(i, d) {
+    busyList(async () => { const a = doc.items; [a[i], a[i + d]] = [a[i + d], a[i]]; await commit(`Reorder ${SECTIONS[current].label}`); });
+  }
+  async function busyList(fn) {
+    root.querySelectorAll(".al-btns button").forEach((b) => (b.disabled = true));
+    try { await fn(); } catch (e) { toast("Could not save: " + e.message, true); }
+    renderSection();
+  }
+
+  if (token) start(); else renderLogin();
+})();
