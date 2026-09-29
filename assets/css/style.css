@@ -347,3 +347,7 @@ dialog.lightbox .close { position: fixed; top: 16px; right: 16px; width: 44px; h
 @media (max-width: 760px) { .proof-grid { grid-template-columns: 1fr; } .proof-stats { gap: 24px; } .proof-stats b { font-size: 2rem; } }
 .idx:not(.idx-scopus):not(.idx-embase):not(.idx-pubmed):not(.idx-web-of-science) { color: var(--teal); border-color: color-mix(in srgb, var(--teal) 40%, transparent); }
 .grid-2 { grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr)); }
+.proof-txt { width: 72px; height: 72px; display: grid; place-items: center; border-radius: 12px; border: 1px solid var(--line); background: #fff; font-weight: 800; font-size: .82rem; letter-spacing: .02em; text-align: center; padding: 4px; }
+.proof-scopus { color: #c05a00; border-color: color-mix(in srgb, #c05a00 45%, transparent); }
+.proof-elsevier { color: #e9711c; border-color: color-mix(in srgb, #e9711c 45%, transparent); }
+.proof-logo small { max-width: 96px; text-align: center; line-height: 1.25; }

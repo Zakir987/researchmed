@@ -127,6 +127,16 @@ content:
       - { name: hero_text_2, label: Home page second line, type: text }
       - { name: announcement, label: Announcement bar text, type: string, description: "Shown at the top of every page. Leave empty to hide." }
       - { name: announcement_link, label: Announcement link, type: string }
+      - { name: papers_submitted, label: Papers submitted (home page number), type: number }
+      - { name: papers_published, label: Papers published (home page number), type: number }
+      - name: also_published_in
+        label: Also published in (home page tiles)
+        type: object
+        list: true
+        fields:
+          - { name: name, label: Short name, type: string }
+          - { name: label, label: Caption under tile, type: string }
+          - { name: logo, label: Logo (optional), type: image }
       - { name: show_videos, label: Show the Videos section on the website, type: boolean, description: "Leave off to keep videos on request only." }
       - { name: email, label: Contact email, type: string }
       - { name: enquiry_email, label: Send website enquiries to, type: string, description: "Enquiries from the contact form are emailed here." }

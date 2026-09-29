@@ -8,6 +8,20 @@
   "announcement": "",
   "announcement_link": "",
   "show_videos": false,
+  "papers_submitted": 35,
+  "papers_published": 28,
+  "also_published_in": [
+    {
+      "name": "Scopus",
+      "label": "Scopus-indexed",
+      "logo": ""
+    },
+    {
+      "name": "Elsevier",
+      "label": "Elsevier",
+      "logo": ""
+    }
+  ],
   "email": "aesthesia090@gmail.com",
   "whatsapp": "+91 70068 69559",
   "enquiry_email": "zakirhussain090@gmail.com",

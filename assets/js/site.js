@@ -359,8 +359,11 @@
     hl.forEach((h) => { const k = h.journal_short || h.journal; if (k && !journals.some((j) => j.k === k)) journals.push({ k, logo: h.logo, name: h.journal }); });
     if (hl.length && $("#home-proof")) {
       const years = [...new Set(hl.map((h) => (String(h.date || "").match(/\d{4}/) || [""])[0]).filter(Boolean))].sort();
-      $("#proof-stats").innerHTML = `<div><b>${hl.length}</b><span>research paper${hl.length > 1 ? "s" : ""} published</span></div><div><b>${journals.length}</b><span>peer-reviewed journal${journals.length > 1 ? "s" : ""}</span></div>${years.length ? `<div><b>${esc(years[years.length - 1])}</b><span>latest publication year</span></div>` : ""}`;
-      $("#proof-logos").innerHTML = journals.map((j) => `<a href="highlights.html" class="proof-logo" title="${esc(j.name || j.k)}">${j.logo ? `<img src="${esc(media(j.logo))}" alt="${esc(j.name || j.k)}">` : `<span>${esc(j.k)}</span>`}<small>${esc(j.k)}</small></a>`).join("");
+      const nSub = Number(s.papers_submitted) || 0, nPub = Number(s.papers_published) || hl.length;
+      $("#proof-stats").innerHTML = `${nSub ? `<div><b>${nSub}</b><span>papers submitted</span></div>` : ""}<div><b>${nPub}</b><span>papers published</span></div>${years.length ? `<div><b>${esc(years[years.length - 1])}</b><span>latest publication year</span></div>` : ""}`;
+      const extra = (Array.isArray(s.also_published_in) ? s.also_published_in : []).filter((x) => x && x.name).map((x) => ({ k: x.name, logo: x.logo, name: x.label || x.name, cap: x.label || x.name }));
+      const tiles = [...extra, ...journals];
+      $("#proof-logos").innerHTML = tiles.map((j) => `<a href="highlights.html" class="proof-logo" title="${esc(j.name || j.k)}">${j.logo ? `<img src="${esc(media(j.logo))}" alt="${esc(j.name || j.k)}">` : `<span class="proof-txt proof-${slug(j.k)}">${esc(j.k)}</span>`}<small>${esc(j.cap || j.k)}</small></a>`).join("");
     } else hide("#home-proof");
     if (hl.length) {
       $("#home-highlights").innerHTML = hl.slice(0, 6).map((h) => highlightCard(h)).join("");
