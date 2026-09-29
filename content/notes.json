@@ -1,0 +1,15 @@
+{
+  "items": [
+    {
+      "title": "Sample notes: Research proposal checklist",
+      "date": "2026-09-29",
+      "category": "Research Methodology",
+      "summary": "This is a sample entry. Upload a PDF or write your notes in the admin panel, then replace or delete this item.",
+      "pdf": "",
+      "cover": "",
+      "link": "",
+      "featured": true,
+      "body": "## Sections to include\n- Title and background\n- Aims and objectives\n- Methodology and sample size\n- Ethical considerations\n- References"
+    }
+  ]
+}

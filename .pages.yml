@@ -1,0 +1,132 @@
+# Pages CMS configuration — https://pagescms.org
+# Sign in at https://app.pagescms.org with GitHub, open this repository,
+# and every section below appears as an editable form with file/image uploads.
+
+media:
+  input: media
+  output: /media
+
+content:
+  # ---------------- Videos ----------------
+  - name: videos
+    label: Videos
+    type: file
+    path: content/videos.json
+    fields:
+      - name: items
+        label: Videos
+        type: object
+        list: true
+        fields:
+          - { name: title, label: Title, type: string, required: true }
+          - { name: date, label: Date, type: date, required: true }
+          - { name: category, label: Topic / category, type: string, description: "e.g. Research Methodology, Biostatistics, Publication" }
+          - { name: video_url, label: Video link, type: string, description: "YouTube, Vimeo or Google Drive link. Best option for long videos." }
+          - { name: video_file, label: Or upload a video file, type: file, description: "MP4 recommended. Keep uploads under 25 MB; use a YouTube link for bigger videos." }
+          - { name: thumbnail, label: Thumbnail image, type: image, description: "Optional. YouTube videos get a thumbnail automatically." }
+          - { name: duration, label: Duration, type: string, description: "e.g. 12:45" }
+          - { name: speaker, label: Presenter, type: string }
+          - { name: featured, label: Feature on home page, type: boolean }
+          - { name: description, label: Description, type: text }
+
+  # ---------------- Notes ----------------
+  - name: notes
+    label: Notes & Resources
+    type: file
+    path: content/notes.json
+    fields:
+      - name: items
+        label: Notes
+        type: object
+        list: true
+        fields:
+          - { name: title, label: Title, type: string, required: true }
+          - { name: date, label: Date, type: date, required: true }
+          - { name: category, label: Subject / category, type: string }
+          - { name: summary, label: Short summary, type: text }
+          - { name: pdf, label: File (PDF, DOCX, PPTX), type: file }
+          - { name: cover, label: Cover image, type: image }
+          - { name: link, label: External link, type: string, description: "Optional, e.g. a Google Drive link" }
+          - { name: featured, label: Feature on home page, type: boolean }
+          - { name: body, label: Notes text, type: text, description: "Optional. Supports simple formatting: ## Heading, - bullet, **bold**, [link](https://...)" }
+
+  # ---------------- Research highlights ----------------
+  - name: highlights
+    label: Research Highlights
+    type: file
+    path: content/highlights.json
+    fields:
+      - name: items
+        label: Published papers
+        type: object
+        list: true
+        fields:
+          - { name: title, label: Paper title, type: string, required: true }
+          - { name: date, label: Publication date, type: date, required: true }
+          - { name: authors, label: Authors, type: string }
+          - { name: journal, label: Journal, type: string }
+          - { name: year, label: Year, type: string }
+          - { name: volume, label: "Volume / issue / pages", type: string, description: "e.g. 12(3):45-52" }
+          - { name: study_type, label: Study type, type: string, description: "e.g. Original article, Review, Case report" }
+          - { name: doi, label: DOI, type: string, description: "e.g. 10.4103/xxxx" }
+          - { name: url, label: Link to full text, type: string }
+          - { name: pdf, label: PDF, type: file }
+          - { name: image, label: Image / graphical abstract, type: image }
+          - { name: featured, label: Feature on home page, type: boolean }
+          - { name: summary, label: Summary, type: text }
+          - { name: key_findings, label: Key findings, type: string, list: true }
+          - { name: body, label: More details, type: text }
+
+  # ---------------- Gallery ----------------
+  - name: gallery
+    label: Gallery
+    type: file
+    path: content/gallery.json
+    fields:
+      - name: items
+        label: Photos
+        type: object
+        list: true
+        fields:
+          - { name: title, label: Title, type: string, required: true }
+          - { name: image, label: Image, type: image, required: true }
+          - { name: date, label: Date, type: date }
+          - { name: album, label: Album / event, type: string, description: "Used for the filter buttons, e.g. Workshops, Conferences" }
+          - { name: caption, label: Caption, type: text }
+          - { name: alt, label: Image description (for accessibility), type: string }
+
+  # ---------------- Updates ----------------
+  - name: updates
+    label: Updates & Announcements
+    type: file
+    path: content/updates.json
+    fields:
+      - name: items
+        label: Updates
+        type: object
+        list: true
+        fields:
+          - { name: title, label: Title, type: string, required: true }
+          - { name: date, label: Date, type: date, required: true }
+          - { name: body, label: Text, type: text }
+          - { name: link, label: Link, type: string }
+
+  # ---------------- Site settings ----------------
+  - name: settings
+    label: Site settings
+    type: file
+    path: content/settings.json
+    fields:
+      - { name: site_name, label: Site name, type: string }
+      - { name: tagline, label: Tagline, type: string }
+      - { name: hero_eyebrow, label: Home page small heading, type: string }
+      - { name: hero_title, label: Home page title, type: string }
+      - { name: hero_text, label: Home page intro, type: text }
+      - { name: hero_text_2, label: Home page second line, type: text }
+      - { name: announcement, label: Announcement bar text, type: string, description: "Shown at the top of every page. Leave empty to hide." }
+      - { name: announcement_link, label: Announcement link, type: string }
+      - { name: email, label: Contact email, type: string }
+      - { name: whatsapp, label: WhatsApp number, type: string }
+      - { name: youtube_channel, label: YouTube channel URL, type: string }
+      - { name: linkedin, label: LinkedIn URL, type: string }
+      - { name: footer_about, label: Footer description, type: text }

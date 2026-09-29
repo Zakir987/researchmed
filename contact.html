@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact | ResearchMed Connect</title>
+<meta name="description" content="Contact ResearchMed Connect for research and publication guidance.">
+<meta property="og:title" content="Contact | ResearchMed Connect">
+<meta property="og:description" content="Contact ResearchMed Connect for research and publication guidance.">
+<meta name="theme-color" content="#1b5896">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>try{var t=localStorage.getItem("rmc-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-page="contact">
+<main id="main">
+<section class="page-hero"><div class="wrap">
+  <span class="eyebrow pill-eyebrow">Contact</span>
+  <h1>Get guidance</h1>
+  <p>Tell us what you are working on and we will get back to you.</p>
+</div></section>
+
+<section class="section" style="padding-top:40px"><div class="wrap contact-grid">
+  <div class="contact-card">
+    <h2 style="font-size:1.4rem">Reach us directly</h2>
+    <div><div class="muted">Email</div><a data-email href="#"></a></div>
+    <div><div class="muted">WhatsApp</div><a data-whatsapp href="#" target="_blank" rel="noopener"></a></div>
+    <p class="muted">We usually reply within one to two working days.</p>
+  </div>
+  <form class="contact-card form" id="contact-form">
+    <h2 style="font-size:1.4rem">Send a message</h2>
+    <label for="c-name">Your name<input id="c-name" name="name" required autocomplete="name"></label>
+    <label for="c-service">I need help with
+      <select id="c-service" name="service">
+        <option>Research guidance</option><option>Publication guidance</option><option>Book publication</option><option>Student research support</option><option>Something else</option>
+      </select></label>
+    <label for="c-msg">Message<textarea id="c-msg" name="message" required placeholder="Briefly describe your project and what you need."></textarea></label>
+    <div class="btn-row"><button class="btn btn-primary" type="submit" value="whatsapp">Send on WhatsApp</button><button class="btn btn-ghost" type="submit" value="email">Send by email</button></div>
+  </form>
+</div></section>
+</main>
+<script src="assets/js/site.js" defer></script>
+</body>
+</html>
