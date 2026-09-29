@@ -180,7 +180,7 @@
             <li><a href="highlights.html">Research highlights</a></li><li><a href="gallery.html">Gallery</a></li><li><a href="updates.html">Updates</a></li></ul></div>
           <div><h4>Explore</h4><ul>
             <li><a href="about.html">About us</a></li><li><a href="services.html">Services</a></li>
-            <li><a href="faqs.html">FAQs</a></li><li><a href="contact.html">Contact</a></li><li><a href="disclaimer.html">Disclaimer</a></li></ul></div>
+            <li><a href="faqs.html">FAQs</a></li><li><a href="contact.html">Contact</a></li><li><a href="disclaimer.html">Disclaimer</a></li><li><a href="admin.html">Admin</a></li></ul></div>
           <div><h4>Connect</h4><ul>
             ${email ? `<li>Email: <a href="mailto:${esc(email)}">${esc(email)}</a></li>` : ""}
             ${wa ? `<li>WhatsApp: <a href="https://wa.me/${esc(wa.replace(/\D/g, ""))}" target="_blank" rel="noopener">${esc(wa)}</a></li>` : ""}
@@ -406,15 +406,40 @@
   function contactForm(settings) {
     const f = $("#contact-form");
     if (!f) return;
-    f.addEventListener("submit", (e) => {
+    const status = $("#form-status");
+    const btn = $("button[type=submit]", f);
+    const to = settings.enquiry_email || "zakirhussain090@gmail.com";
+    f.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const d = new FormData(f);
-      const text = `Hello ResearchMed Connect,%0A%0AName: ${encodeURIComponent(d.get("name"))}%0AService: ${encodeURIComponent(d.get("service"))}%0A%0A${encodeURIComponent(d.get("message"))}`;
-      const via = e.submitter && e.submitter.value;
-      if (via === "whatsapp" && settings.whatsapp) {
-        window.open(`https://wa.me/${settings.whatsapp.replace(/\D/g, "")}?text=${text}`, "_blank", "noopener");
-      } else if (settings.email) {
-        location.href = `mailto:${settings.email}?subject=${encodeURIComponent("Enquiry: " + d.get("service"))}&body=${text}`;
+      const d = Object.fromEntries(new FormData(f));
+      if (d._honey) return;
+      btn.disabled = true; btn.textContent = "Sending…";
+      status.hidden = true;
+      try {
+        const r = await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(to), {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({
+            Name: d.name, Email: d.email, Phone: d.phone || "-", "Needs help with": d.service, Message: d.message,
+            email: d.email,
+            _subject: "New enquiry from " + d.name + " (ResearchMed Connect)",
+            _replyto: d.email,
+            _template: "table",
+            _captcha: "false",
+            _autoresponse: "Thank you for connecting with ResearchMed Connect. We have received your enquiry and will get back to you soon.",
+          }),
+        });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || String(j.success) !== "true") throw new Error(j.message || "Send failed");
+        f.hidden = true;
+        status.className = "form-status ok";
+        status.innerHTML = "<strong>Thank you for connecting!</strong> We have received your enquiry and will get back to you soon.";
+        status.hidden = false;
+      } catch (err) {
+        status.className = "form-status err";
+        status.textContent = "Sorry, your message could not be sent right now. Please try again in a moment" + (settings.whatsapp ? " or message us on WhatsApp at " + settings.whatsapp + "." : ".");
+        status.hidden = false;
+        btn.disabled = false; btn.textContent = "Send enquiry";
       }
     });
   }

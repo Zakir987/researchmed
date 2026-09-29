@@ -126,6 +126,7 @@ content:
       - { name: announcement, label: Announcement bar text, type: string, description: "Shown at the top of every page. Leave empty to hide." }
       - { name: announcement_link, label: Announcement link, type: string }
       - { name: email, label: Contact email, type: string }
+      - { name: enquiry_email, label: Send website enquiries to, type: string, description: "Enquiries from the contact form are emailed here." }
       - { name: whatsapp, label: WhatsApp number, type: string }
       - { name: youtube_channel, label: YouTube channel URL, type: string }
       - { name: linkedin, label: LinkedIn URL, type: string }

@@ -30,16 +30,22 @@
     <div><div class="muted">WhatsApp</div><a data-whatsapp href="#" target="_blank" rel="noopener"></a></div>
     <p class="muted">We usually reply within one to two working days.</p>
   </div>
-  <form class="contact-card form" id="contact-form">
-    <h2 style="font-size:1.4rem">Send a message</h2>
+  <div class="contact-card">
+  <form class="form" id="contact-form">
+    <h2 style="font-size:1.4rem">Send an enquiry</h2>
     <label for="c-name">Your name<input id="c-name" name="name" required autocomplete="name"></label>
+    <label for="c-email">Email<input id="c-email" name="email" type="email" required autocomplete="email"></label>
+    <label for="c-phone">Phone / WhatsApp (optional)<input id="c-phone" name="phone" type="tel" autocomplete="tel"></label>
     <label for="c-service">I need help with
       <select id="c-service" name="service">
         <option>Research guidance</option><option>Publication guidance</option><option>Book publication</option><option>Student research support</option><option>Something else</option>
       </select></label>
     <label for="c-msg">Message<textarea id="c-msg" name="message" required placeholder="Briefly describe your project and what you need."></textarea></label>
-    <div class="btn-row"><button class="btn btn-primary" type="submit" value="whatsapp">Send on WhatsApp</button><button class="btn btn-ghost" type="submit" value="email">Send by email</button></div>
+    <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+    <div class="btn-row"><button class="btn btn-primary" type="submit">Send enquiry</button></div>
   </form>
+  <div id="form-status" class="form-status" role="status" hidden></div>
+  </div>
 </div></section>
 </main>
 <script src="assets/js/site.js" defer></script>
