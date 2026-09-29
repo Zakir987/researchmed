@@ -1,3 +1,16 @@
 {
-  "items": []
+  "items": [
+    {
+      "title": "Ms Usha Gopal",
+      "role": "Assistant Professor Radiology",
+      "institution": "KMC Institute of Health Sciences",
+      "quote": "I’m happy to share my publication certificate for my first research publication as the 3rd Co-Author.\n📖 Topic: “AI-Generated Radiology Reports: Opportunities for Efficiency, Diagnostic Support, and Risks to Patient Safety”\nA special thanks to Zakir Hussain Parray for his valuable support, guidance, and encouragement throughout this journey. 🙏\nGrateful for this opportunity and excited to continue my journey in research, radiography, and medical imaging. ✨",
+      "service": "Publication Guidance",
+      "rating": 5,
+      "photo": "/media/people/mumurpmz-screenshot-2026-09-29-211935.png",
+      "order": 1,
+      "date": "2026-09-22",
+      "consent": true
+    }
+  ]
 }
