@@ -53,6 +53,7 @@
 
   // ---------- Section definitions ----------
   const SECTIONS = {
+    enquiries: { label: "Enquiries", static: true },
     notices: {
       label: "Notice Board", file: "content/notices.json", list: true, noun: "notice",
       hint: "Notices scroll across the top of the home page. Tick NEW to show a blinking tag.",
@@ -143,7 +144,7 @@
   };
 
   // ---------- State ----------
-  let current = "notices", doc = null, sha = null, editing = -1;
+  let current = "enquiries", doc = null, sha = null, editing = -1;
   const logos = new Set();
 
   // ---------- Rendering ----------
@@ -198,6 +199,7 @@
     editing = -1;
     show(`${tabs()}<div class="admin-panel"><div class="skeleton" style="min-height:160px"></div></div>`);
     bindTabs();
+    if (SECTIONS[current].static) { $(".admin-panel").innerHTML = enquiriesPanel(); return; }
     try {
       const r = await readJson(SECTIONS[current].file);
       doc = r.data; sha = r.sha;
@@ -209,6 +211,17 @@
       if (e.status === 404 && SECTIONS[current].list) { doc = { items: [] }; sha = null; renderSection(); return; }
       $(".admin-panel").innerHTML = `<p class="form-status err">Could not load: ${esc(e.message)}</p>`;
     }
+  }
+  // Enquiries from the Contact page are stored in Google Forms (with an email alert for each one).
+  function enquiriesPanel() {
+    const F = "https://docs.google.com/forms/d/17CFhG9P5h2U1AHCGWT1M3T0yWSy5tmHP-QlMuffXQU8/edit#responses";
+    const S = "https://docs.google.com/spreadsheets/d/14VFul76dwsgvovxH2GtAHDFkz2cwcv6wzYX2NY5P1mo/edit";
+    return `<p class="muted">Every enquiry sent from the website's Contact page is saved in your Google Form and a Google Sheet, and Google emails you a copy each time. Open them while signed in to Google as zakirhussain090@gmail.com.</p>
+      <div class="btn-row" style="margin-top:14px">
+        <a class="btn btn-primary" href="${S}" target="_blank" rel="noopener">Open enquiries sheet</a>
+        <a class="btn btn-ghost" href="${F}" target="_blank" rel="noopener">Open form responses</a>
+      </div>
+      <p class="muted" style="margin-top:14px">Tip: reply to a person by clicking their email address in the sheet.</p>`;
   }
   function bindTabs() {
     root.querySelectorAll("[data-tab]").forEach((b) => b.addEventListener("click", () => start(b.dataset.tab)));

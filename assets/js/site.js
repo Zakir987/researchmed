@@ -440,7 +440,9 @@
     if (!f) return;
     const status = $("#form-status");
     const btn = $("button[type=submit]", f);
-    const to = settings.enquiry_email || "zakirhussain090@gmail.com";
+    // Enquiries go to a Google Form owned by ResearchMed (responses + email alerts in Google Forms).
+    const GF = "https://docs.google.com/forms/d/e/1FAIpQLSdumIJAeqsSZZCUFKqghbr1VBIYvdFIL2km4LpQd3TFqzxZIA/formResponse";
+    const ENTRY = { name: "entry.110128786", email: "entry.575945302", phone: "entry.369296902", service: "entry.177691295", message: "entry.1096489302" };
     f.addEventListener("submit", async (e) => {
       e.preventDefault();
       const d = Object.fromEntries(new FormData(f));
@@ -448,21 +450,9 @@
       btn.disabled = true; btn.textContent = "Sending…";
       status.hidden = true;
       try {
-        const r = await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(to), {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({
-            Name: d.name, Email: d.email, Phone: d.phone || "-", "Needs help with": d.service, Message: d.message,
-            email: d.email,
-            _subject: "New enquiry from " + d.name + " (ResearchMed Connect)",
-            _replyto: d.email,
-            _template: "table",
-            _captcha: "false",
-            _autoresponse: "Thank you for connecting with ResearchMed Connect. We have received your enquiry and will get back to you soon.",
-          }),
-        });
-        const j = await r.json().catch(() => ({}));
-        if (!r.ok || String(j.success) !== "true") throw new Error(j.message || "Send failed");
+        const body = new URLSearchParams();
+        for (const [k, id] of Object.entries(ENTRY)) body.append(id, d[k] || (k === "phone" ? "-" : ""));
+        await fetch(GF, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
         f.hidden = true;
         status.className = "form-status ok";
         status.innerHTML = "<strong>Thank you for connecting!</strong> We have received your enquiry and will get back to you soon.";
@@ -471,7 +461,7 @@
         status.className = "form-status err";
         const wa = (settings.whatsapp || "").replace(/\D/g, "");
         const waText = encodeURIComponent(`Hello ResearchMed Connect,\n\nName: ${d.name}\nEmail: ${d.email}\nPhone: ${d.phone || "-"}\nNeed help with: ${d.service}\n\n${d.message}`);
-        status.innerHTML = `<strong>We couldn't send this by email just now.</strong> Please send the same message on WhatsApp instead. It only takes one tap.${wa ? `<div class="btn-row" style="margin-top:12px"><a class="btn btn-primary" href="https://wa.me/${wa}?text=${waText}" target="_blank" rel="noopener">Send on WhatsApp</a></div>` : ""}`;
+        status.innerHTML = `<strong>We couldn't send this just now (check your internet connection).</strong> Please send the same message on WhatsApp instead. It only takes one tap.${wa ? `<div class="btn-row" style="margin-top:12px"><a class="btn btn-primary" href="https://wa.me/${wa}?text=${waText}" target="_blank" rel="noopener">Send on WhatsApp</a></div>` : ""}`;
         status.hidden = false;
         btn.disabled = false; btn.textContent = "Send enquiry";
       }
