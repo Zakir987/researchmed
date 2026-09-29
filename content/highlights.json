@@ -1,21 +1,3 @@
 {
-  "items": [
-    {
-      "title": "Sample highlight: Title of your published paper",
-      "date": "2026-09-29",
-      "authors": "Author One, Author Two",
-      "journal": "Journal name",
-      "year": "2026",
-      "volume": "",
-      "study_type": "Original article",
-      "doi": "",
-      "url": "",
-      "pdf": "",
-      "image": "",
-      "featured": true,
-      "summary": "This is a sample entry. Add your published paper's details in the admin panel and delete this item.",
-      "key_findings": ["First key finding goes here", "Second key finding goes here"],
-      "body": ""
-    }
-  ]
+  "items": []
 }

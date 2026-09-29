@@ -95,23 +95,29 @@
     search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
     moon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>',
     sun: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+    wa: '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.3.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.2-.2-.4-.3z"/></svg>',
     menu: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
   };
 
   // ---------- Layout (header + footer shared by every page) ----------
-  const NAV = [
-    ["index.html", "Home", "home"],
-    ["videos.html", "Videos", "videos"],
-    ["notes.html", "Notes", "notes"],
-    ["highlights.html", "Research Highlights", "highlights"],
-    ["gallery.html", "Gallery", "gallery"],
-    ["services.html", "Services", "services"],
-    ["contact.html", "Contact", "contact"],
-  ];
-  const MORE = [["about.html", "About Us", "about"], ["updates.html", "Updates", "updates"], ["faqs.html", "FAQs", "faqs"]];
+  const INDEXES = ["Scopus", "Embase", "PubMed", "Web of Science"];
+  function navItems(s, n) {
+    return [
+      ["index.html", "Home", "home", true],
+      ["highlights.html", "Publications", "highlights", n.highlights > 0],
+      ["videos.html", "Videos", "videos", s.show_videos === true && n.videos > 0],
+      ["notes.html", "Notes", "notes", n.notes > 0],
+      ["gallery.html", "Gallery", "gallery", n.gallery > 0],
+      ["services.html", "Services", "services", true],
+      ["about.html", "About", "about", true],
+      ["faqs.html", "FAQs", "faqs", true],
+      ["updates.html", "Updates", "updates", n.updates > 0],
+    ].filter((x) => x[3]);
+  }
 
-  function renderLayout(settings) {
+  function renderLayout(settings, counts) {
     const s = settings || {};
+    const NAV = navItems(s, counts || {});
     const header = document.createElement("header");
     header.className = "site-header";
     header.innerHTML = `
@@ -122,12 +128,7 @@
         </a>
         <nav class="nav" id="site-nav" aria-label="Main">
           ${NAV.map(([h, t, k]) => `<a href="${h}" ${k === PAGE ? 'aria-current="page"' : ""}>${t}</a>`).join("")}
-          <div class="nav-more">
-            <button type="button" aria-expanded="false" aria-controls="more-menu">More ▾</button>
-            <div class="menu" id="more-menu" hidden>
-              ${MORE.map(([h, t, k]) => `<a href="${h}" ${k === PAGE ? 'aria-current="page"' : ""}>${t}</a>`).join("")}
-            </div>
-          </div>
+          <a class="nav-cta" href="contact.html" ${PAGE === "contact" ? 'aria-current="page"' : ""}>Enquire now</a>
         </nav>
         <button class="theme-toggle" type="button" aria-label="Toggle dark mode">${ICON.moon}</button>
         <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">${ICON.menu}</button>
@@ -147,9 +148,6 @@
     // Menus
     const nav = $("#site-nav"), mt = $(".menu-toggle");
     mt.addEventListener("click", () => { const o = nav.classList.toggle("open"); mt.setAttribute("aria-expanded", o); });
-    const moreBtn = $(".nav-more > button"), moreMenu = $("#more-menu");
-    moreBtn.addEventListener("click", (e) => { e.stopPropagation(); moreMenu.hidden = !moreMenu.hidden; moreBtn.setAttribute("aria-expanded", !moreMenu.hidden); });
-    document.addEventListener("click", () => { if (!moreMenu.hidden && window.innerWidth > 1020) { moreMenu.hidden = true; moreBtn.setAttribute("aria-expanded", "false"); } });
 
     // Theme
     const tt = $(".theme-toggle");
@@ -175,12 +173,10 @@
             <span>${esc(s.tagline || "Research. Learn. Publish. Grow.")}</span>
             <p>${esc(s.footer_about || "Educational and academic guidance for healthcare professionals, students, researchers, and aspiring authors.")}</p>
           </div>
-          <div><h4>Learn</h4><ul>
-            <li><a href="videos.html">Video lectures</a></li><li><a href="notes.html">Notes &amp; resources</a></li>
-            <li><a href="highlights.html">Research highlights</a></li><li><a href="gallery.html">Gallery</a></li><li><a href="updates.html">Updates</a></li></ul></div>
           <div><h4>Explore</h4><ul>
-            <li><a href="about.html">About us</a></li><li><a href="services.html">Services</a></li>
-            <li><a href="faqs.html">FAQs</a></li><li><a href="contact.html">Contact</a></li><li><a href="disclaimer.html">Disclaimer</a></li><li><a href="admin.html">Admin</a></li></ul></div>
+            ${NAV.map(([h, t]) => `<li><a href="${h}">${t}</a></li>`).join("")}</ul></div>
+          <div><h4>Get in touch</h4><ul>
+            <li><a href="contact.html">Send an enquiry</a></li><li><a href="services.html">Our services</a></li><li><a href="disclaimer.html">Disclaimer</a></li></ul></div>
           <div><h4>Connect</h4><ul>
             ${email ? `<li>Email: <a href="mailto:${esc(email)}">${esc(email)}</a></li>` : ""}
             ${wa ? `<li>WhatsApp: <a href="https://wa.me/${esc(wa.replace(/\D/g, ""))}" target="_blank" rel="noopener">${esc(wa)}</a></li>` : ""}
@@ -194,6 +190,15 @@
         </div>
       </div>`;
     document.body.append(footer);
+    if (wa && PAGE !== "contact") {
+      const fab = document.createElement("a");
+      fab.className = "wa-fab";
+      fab.href = "https://wa.me/" + wa.replace(/\D/g, "") + "?text=" + encodeURIComponent("Hello ResearchMed Connect, I would like guidance with ");
+      fab.target = "_blank"; fab.rel = "noopener";
+      fab.setAttribute("aria-label", "Chat with us on WhatsApp");
+      fab.innerHTML = ICON.wa + "<span>Chat with us</span>";
+      document.body.append(fab);
+    }
 
     // Contact placeholders on static pages
     $$("[data-email]").forEach((el) => { el.textContent = email; if (el.tagName === "A") el.href = "mailto:" + email; });
@@ -255,11 +260,21 @@
     if (max) f = f.slice(0, max);
     return f.length ? `<ul class="findings">${f.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : "";
   }
+  function indexList(h) {
+    let v = h.indexed_in;
+    if (typeof v === "string") v = v.split(/[,;\n]/);
+    return (v || []).map((x) => String(x).trim()).filter(Boolean);
+  }
+  function indexBadges(h) {
+    const l = indexList(h);
+    return l.length ? `<div class="idx-row">${l.map((x) => `<span class="idx idx-${slug(x)}">${esc(x)}</span>`).join("")}</div>` : "";
+  }
   function highlightCard(h, feature) {
     return `<a class="card hl-card ${feature && h.image ? "hl-feature" : ""}" href="${link("highlights", h)}">
       ${h.image ? `<div class="card-media"><img src="${esc(media(h.image))}" alt="" loading="lazy"></div>` : ""}
       <div class="card-body">
         <div class="card-meta"><span class="tag tag-highlight">Published</span>${h.study_type ? `<span>${esc(h.study_type)}</span>` : ""}</div>
+        ${indexBadges(h)}
         ${citeLine(h) ? `<div class="cite-line">${citeLine(h)}</div>` : ""}
         <h3>${esc(h.title)}</h3>
         ${h.authors ? `<div class="authors">${esc(h.authors)}</div>` : ""}
@@ -286,19 +301,19 @@
   }
 
   // ---------- Listing page (search + category chips) ----------
-  function listing({ items, mount, card, noun, gridClass = "grid grid-3" }) {
+  function listing({ items, mount, card, noun, gridClass = "grid grid-3", chipsOf = (i) => [i.category || i.album] }) {
     const root = $(mount);
     if (!root) return;
-    const cats = [...new Set(items.map((i) => i.category || i.album).filter(Boolean))].sort();
+    const cats = [...new Set(items.flatMap((i) => chipsOf(i)).filter(Boolean))].sort();
     root.innerHTML = `
       <div class="toolbar">
         <label class="search">${ICON.search}<span class="sr-only">Search ${noun}</span><input id="q" type="search" placeholder="Search ${noun}…"></label>
-        ${cats.length > 1 ? `<div class="chips" role="group" aria-label="Filter by category"><button class="chip" aria-pressed="true" data-cat="">All</button>${cats.map((c) => `<button class="chip" aria-pressed="false" data-cat="${esc(c)}">${esc(c)}</button>`).join("")}</div>` : ""}
+        ${cats.length > 0 && items.length > 1 ? `<div class="chips" role="group" aria-label="Filter by category"><button class="chip" aria-pressed="true" data-cat="">All</button>${cats.map((c) => `<button class="chip" aria-pressed="false" data-cat="${esc(c)}">${esc(c)}</button>`).join("")}</div>` : ""}
       </div>
       <div class="${gridClass}" id="results"></div>`;
     let cat = "", q = "";
     const draw = () => {
-      const f = items.filter((i) => (!cat || (i.category || i.album) === cat) && (!q || JSON.stringify(i).toLowerCase().includes(q)));
+      const f = items.filter((i) => (!cat || chipsOf(i).includes(cat)) && (!q || JSON.stringify(i).toLowerCase().includes(q)));
       $("#results", root).innerHTML = f.length ? f.map(card).join("") : items.length ? `<div class="empty"><strong>No matches</strong>Try a different search or category.</div>` : empty(noun);
       if (noun === "photos") bindGallery(root, f);
     };
@@ -315,35 +330,36 @@
   }
 
   // ---------- Pages ----------
-  async function home(settings) {
+  async function home(settings, data) {
     const s = settings;
     const setText = (sel, v) => { const el = $(sel); if (el && v) el.textContent = v; };
     setText("#hero-eyebrow", s.hero_eyebrow);
     setText("#hero-title", s.hero_title);
     setText("#hero-lead", s.hero_text);
     setText("#hero-sub", s.hero_text_2);
+    const { videos, notes, highlights, gallery, updates } = data;
+    const showVideos = s.show_videos === true;
+    const hide = (id) => { const el = $(id); if (el) el.hidden = true; };
 
-    const [videos, notes, highlights, gallery, updates] = await Promise.all(["videos", "notes", "highlights", "gallery", "updates"].map(load));
-
-    // Latest feed (mixed)
+    // Latest feed (only when there is something to show)
     const tagFor = { videos: ["tag-video", "Video"], notes: ["tag-note", "Notes"], highlights: ["tag-highlight", "Paper"], gallery: ["tag-gallery", "Photo"], updates: ["tag-update", "Update"] };
     const hrefFor = (it) => (it._c === "gallery" ? "gallery.html" : it._c === "updates" ? "updates.html#" + it._id : link(it._c, it));
-    const mixed = [...videos, ...notes, ...highlights, ...updates, ...gallery].sort(byDate).slice(0, 5);
-    $("#latest-feed").innerHTML = mixed.length
-      ? mixed.map((it) => `<a href="${hrefFor(it)}"><span class="tag ${tagFor[it._c][0]}">${tagFor[it._c][1]}</span><span class="t">${esc(it.title)}</span><span class="m">${fmtDate(it.date)}</span></a>`).join("")
-      : `<p class="muted" style="padding:10px">New videos, notes and research highlights will appear here as they are added.</p>`;
-    $("#stats").innerHTML = `<span><b>${videos.length}</b> videos</span><span><b>${notes.length}</b> notes</span><span><b>${highlights.length}</b> published papers</span>`;
+    const mixed = [...(showVideos ? videos : []), ...notes, ...updates].sort(byDate).slice(0, 4);
+    if (mixed.length) {
+      $("#latest-feed").innerHTML = mixed.map((it) => `<a href="${hrefFor(it)}"><span class="tag ${tagFor[it._c][0]}">${tagFor[it._c][1]}</span><span class="t">${esc(it.title)}</span><span class="m">${fmtDate(it.date)}</span></a>`).join("");
+    } else hide("#latest-wrap");
 
     const hl = [...highlights].sort(featuredFirst);
-    $("#home-highlights").innerHTML = hl.length
-      ? `${highlightCard(hl[0], true)}${hl.length > 1 ? `<div class="grid grid-3">${hl.slice(1, 4).map((h) => highlightCard(h)).join("")}</div>` : ""}`
-      : empty("research highlights");
-    $("#home-videos").innerHTML = videos.length ? [...videos].sort(featuredFirst).slice(0, 3).map(videoCard).join("") : empty("videos");
-    $("#home-notes").innerHTML = notes.length ? [...notes].sort(featuredFirst).slice(0, 3).map(noteCard).join("") : empty("notes");
-    const gsec = $("#home-gallery-section");
+    if (hl.length) {
+      $("#home-highlights").innerHTML = hl.slice(0, 6).map((h) => highlightCard(h)).join("");
+    } else hide("#home-highlights-section");
+    if (showVideos && videos.length) $("#home-videos").innerHTML = [...videos].sort(featuredFirst).slice(0, 3).map(videoCard).join("");
+    else hide("#home-videos-section");
+    if (notes.length) $("#home-notes").innerHTML = [...notes].sort(featuredFirst).slice(0, 3).map(noteCard).join("");
+    else hide("#home-notes-section");
     if (gallery.length) {
       $("#home-gallery").innerHTML = gallery.slice(0, 6).map((g) => `<a href="gallery.html" aria-label="${esc(g.title)}"><img src="${esc(media(g.image))}" alt="${esc(g.alt || g.title)}" loading="lazy"></a>`).join("");
-    } else if (gsec) gsec.hidden = true;
+    } else hide("#home-gallery-section");
   }
 
   async function item() {
@@ -381,13 +397,14 @@
       if (it.journal) meta.push(["Journal", esc(it.journal)]);
       if (it.year || it.volume) meta.push(["Published", esc([it.year, it.volume].filter(Boolean).join(", "))]);
       if (it.study_type) meta.push(["Study type", esc(it.study_type)]);
+      if (indexList(it).length) meta.push(["Indexed in", esc(indexList(it).join(", "))]);
       if (it.doi) meta.push(["DOI", `<a class="doi" href="${esc(doiHref(it.doi))}" target="_blank" rel="noopener">${esc(String(it.doi).replace(/^https?:\/\/(dx\.)?doi\.org\//, ""))}</a>`]);
       if (it.url) meta.push(["Full text", `<a href="${esc(safeUrl(it.url))}" target="_blank" rel="noopener">Read the paper ↗</a>`]);
       if (it.pdf) meta.push(["PDF", `<a class="btn btn-primary btn-sm" href="${esc(media(it.pdf))}" target="_blank" rel="noopener">Download PDF</a>`]);
     }
     meta.unshift(["Date", fmtDate(it.date)]);
     const tag = { videos: '<span class="tag tag-video">Video lecture</span>', notes: '<span class="tag tag-note">Notes</span>', highlights: '<span class="tag tag-highlight">Published research</span>' }[c];
-    $("#item-hero").innerHTML = `<a class="back" href="${back[0]}">← ${back[1]}</a>${tag}<h1>${esc(it.title)}</h1>${c === "highlights" && citeLine(it) ? `<p class="cite-line" style="font-size:1rem">${citeLine(it)}</p>` : ""}`;
+    $("#item-hero").innerHTML = `<a class="back" href="${back[0]}">← ${back[1]}</a>${tag}<h1>${esc(it.title)}</h1>${c === "highlights" && citeLine(it) ? `<p class="cite-line" style="font-size:1rem">${citeLine(it)}</p>` : ""}${c === "highlights" ? indexBadges(it) : ""}`;
     root.innerHTML = `<div class="detail"><div style="min-width:0">${main}</div>
       <aside><dl>${meta.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
       <button class="btn btn-ghost btn-sm" type="button" id="share">Copy link</button></aside></div>`;
@@ -446,13 +463,19 @@
 
   // ---------- Boot ----------
   (async function boot() {
-    const settings = await load("settings");
-    renderLayout(settings);
-    if (PAGE === "home") home(settings);
-    if (PAGE === "videos") listing({ items: await load("videos"), mount: "#list", card: videoCard, noun: "videos" });
-    if (PAGE === "notes") listing({ items: await load("notes"), mount: "#list", card: noteCard, noun: "notes" });
-    if (PAGE === "highlights") listing({ items: await load("highlights"), mount: "#list", card: (h) => highlightCard(h), noun: "research highlights" });
-    if (PAGE === "gallery") listing({ items: await load("gallery"), mount: "#list", card: galleryFigure, noun: "photos", gridClass: "masonry" });
+    const names = ["videos", "notes", "highlights", "gallery", "updates"];
+    const [settings, ...lists] = await Promise.all(["settings", ...names].map(load));
+    const data = {}; names.forEach((n, i) => (data[n] = lists[i]));
+    const counts = {}; names.forEach((n) => (counts[n] = data[n].length));
+    renderLayout(settings, counts);
+    if (PAGE === "home") home(settings, data);
+    if (PAGE === "videos") {
+      if (settings.show_videos === true) listing({ items: data.videos, mount: "#list", card: videoCard, noun: "videos" });
+      else $("#list").innerHTML = `<div class="empty"><strong>Video sessions are available on request</strong>Tell us the topic you need and we will arrange a recorded or live session. <a href="contact.html">Send an enquiry</a>.</div>`;
+    }
+    if (PAGE === "notes") listing({ items: data.notes, mount: "#list", card: noteCard, noun: "notes" });
+    if (PAGE === "highlights") listing({ items: data.highlights, mount: "#list", card: (h) => highlightCard(h), noun: "publications", chipsOf: indexList });
+    if (PAGE === "gallery") listing({ items: data.gallery, mount: "#list", card: galleryFigure, noun: "photos", gridClass: "masonry" });
     if (PAGE === "updates") updatesPage();
     if (PAGE === "item") item();
     if (PAGE === "contact") contactForm(settings);

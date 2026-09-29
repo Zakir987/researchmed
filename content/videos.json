@@ -1,16 +1,3 @@
 {
-  "items": [
-    {
-      "title": "Sample video: How to choose a research topic",
-      "date": "2026-09-29",
-      "category": "Research Methodology",
-      "duration": "",
-      "speaker": "",
-      "video_url": "",
-      "video_file": "",
-      "thumbnail": "",
-      "featured": true,
-      "description": "This is a sample entry. Open the admin panel, paste a YouTube link or upload a video file, then replace this text or delete this item."
-    }
-  ]
+  "items": []
 }

@@ -52,7 +52,7 @@ content:
 
   # ---------------- Research highlights ----------------
   - name: highlights
-    label: Research Highlights
+    label: Publications
     type: file
     path: content/highlights.json
     fields:
@@ -68,6 +68,12 @@ content:
           - { name: year, label: Year, type: string }
           - { name: volume, label: "Volume / issue / pages", type: string, description: "e.g. 12(3):45-52" }
           - { name: study_type, label: Study type, type: string, description: "e.g. Original article, Review, Case report" }
+          - name: indexed_in
+            label: Indexed in
+            type: select
+            options:
+              multiple: true
+              values: [Scopus, Embase, PubMed, Web of Science]
           - { name: doi, label: DOI, type: string, description: "e.g. 10.4103/xxxx" }
           - { name: url, label: Link to full text, type: string }
           - { name: pdf, label: PDF, type: file }
@@ -125,6 +131,7 @@ content:
       - { name: hero_text_2, label: Home page second line, type: text }
       - { name: announcement, label: Announcement bar text, type: string, description: "Shown at the top of every page. Leave empty to hide." }
       - { name: announcement_link, label: Announcement link, type: string }
+      - { name: show_videos, label: Show the Videos section on the website, type: boolean, description: "Leave off to keep videos on request only." }
       - { name: email, label: Contact email, type: string }
       - { name: enquiry_email, label: Send website enquiries to, type: string, description: "Enquiries from the contact form are emailed here." }
       - { name: whatsapp, label: WhatsApp number, type: string }
