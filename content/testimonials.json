@@ -1,6 +1,18 @@
 {
   "items": [
     {
+      "title": "Dr Hashim",
+      "role": "Assistant professor  Department of Anesthesia and operation theater technology",
+      "institution": "ERA University Lucknow",
+      "quote": "I received useful guidance regarding manuscript preparation, authorship, formatting, and publication requirements. The overall experience was professional and well coordinated.",
+      "service": "Publication Guidance",
+      "rating": 5,
+      "photo": "",
+      "order": 4,
+      "date": "2026-09-30",
+      "consent": true
+    },
+    {
       "title": "Ms Seerat",
       "role": "Assistant professor  Department of Anesthesia and operation theater technology",
       "institution": "ERA University Lucknow",
