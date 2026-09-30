@@ -522,3 +522,9 @@ a.tk-item:hover .tk-title { text-decoration: underline; }
 .fd-chip { font-size: .9rem; font-weight: 600; padding: 5px 12px; border-radius: 999px; background: var(--teal-soft); color: var(--teal); }
 .fd-msg { margin: 4px 0 0; padding: 14px 18px; border-left: 4px solid var(--primary); background: var(--band); border-radius: 0 10px 10px 0; font-family: var(--font-display); font-style: italic; font-size: 1.08rem; max-width: 68ch; }
 @media (max-width: 760px) { .founder { grid-template-columns: 1fr; padding: 22px; } .fd-photo { max-width: 240px; } }
+
+/* Research papers: co-authors wanted */
+.pp-card { grid-template-columns: 240px 1fr; }
+.pp-img { aspect-ratio: 4 / 3; }
+.pp-card .idx-row { margin: 0; }
+@media (max-width: 640px) { .pp-card { grid-template-columns: 1fr; } .pp-card .pp-img { width: 100%; max-width: 360px; } }

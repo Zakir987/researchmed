@@ -106,6 +106,7 @@
       ["index.html", "Home", "home", true],
       ["highlights.html", "Publications", "highlights", n.highlights > 0],
       ["books.html", "Books", "books", true],
+      ["papers.html", "Join a Paper", "papers", n.papers > 0],
       ["videos.html", "Videos", "videos", s.show_videos === true && n.videos > 0],
       ["notes.html", "Notes", "notes", n.notes > 0],
       ["gallery.html", "Gallery", "gallery", n.gallery > 0],
@@ -324,6 +325,38 @@
     if (location.hash) { const el = document.getElementById(decodeURIComponent(location.hash.slice(1))); if (el) el.scrollIntoView(); }
   }
 
+  // ---------- Research papers: call for co-authors ----------
+  function paperCard(p) {
+    const open = bookOpen(p);
+    const roles = String(p.roles || "").split(/\n+/).map((x) => x.replace(/^\s*[-•*\d.)]+\s*/, "").trim()).filter(Boolean);
+    const idx = (Array.isArray(p.indexing) ? p.indexing : String(p.indexing || "").split(",")).map((x) => String(x).trim()).filter(Boolean);
+    const apply = p.apply_link ? safeUrl(p.apply_link) : `contact.html?service=${encodeURIComponent("Publication guidance")}&paper=${encodeURIComponent(p.title)}`;
+    const ext = /^https?:/i.test(apply) ? ' target="_blank" rel="noopener"' : "";
+    const img = p.image ? `<img src="${esc(media(p.image))}" alt="" loading="lazy">` : `<span class="bk-fallback"><span>${esc(p.field || "Research paper")}</span></span>`;
+    const tags = [p.study_type, p.field].filter(Boolean);
+    return `<article class="bk-card pp-card" id="${esc(p._id)}">
+      <div class="bk-cover pp-img">${img}</div>
+      <div class="bk-body">
+        <span class="bk-status ${open ? "is-open" : "is-closed"}">${open ? "Authors wanted" : "Closed"}</span>
+        <h3>${esc(p.title)}</h3>
+        ${tags.length ? `<p class="bk-sub">${tags.map(esc).join(" · ")}</p>` : ""}
+        ${p.description ? `<p class="bk-desc">${esc(p.description)}</p>` : ""}
+        ${roles.length ? `<div class="bk-ch"><strong>Author positions open</strong><ul>${roles.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>` : ""}
+        ${p.requirements ? `<p class="bk-desc"><strong>Who can apply:</strong> ${esc(p.requirements)}</p>` : ""}
+        ${idx.length ? `<div class="idx-row">${idx.map((x) => `<span class="idx idx-${slug(x)}">${esc(x)}</span>`).join("")}</div>` : ""}
+        <dl class="bk-meta">${p.authors_needed ? `<div><dt>Authors needed</dt><dd>${esc(p.authors_needed)}</dd></div>` : ""}${p.target_journal ? `<div><dt>Target journal</dt><dd>${esc(p.target_journal)}</dd></div>` : ""}${p.status ? `<div><dt>Stage</dt><dd>${esc(p.status)}</dd></div>` : ""}${p.deadline ? `<div><dt>Last date</dt><dd>${fmtDate(p.deadline)}</dd></div>` : ""}${p.fee ? `<div><dt>Author fee</dt><dd>${esc(p.fee)}</dd></div>` : ""}</dl>
+        ${open ? `<div class="btn-row"><a class="btn btn-primary" href="${esc(apply)}"${ext}>Apply as co-author</a>${p.details_pdf ? `<a class="btn btn-ghost" href="${esc(media(p.details_pdf))}" target="_blank" rel="noopener">Details (PDF)</a>` : ""}</div>` : ""}
+      </div>
+    </article>`;
+  }
+  function papersPage(all) {
+    const root = $("#list");
+    if (!root) return;
+    const list = [...all].sort((a, b) => bookOpen(b) - bookOpen(a));
+    root.innerHTML = list.length ? `<div class="bk-list">${list.map(paperCard).join("")}</div>` : `<div class="empty"><strong>No open calls right now</strong>New papers needing co-authors will be announced here. <a href="contact.html">Send an enquiry</a> to be told first.</div>`;
+    if (location.hash) { const el = document.getElementById(decodeURIComponent(location.hash.slice(1))); if (el) el.scrollIntoView(); }
+  }
+
   function empty(what, hint) {
     return `<div class="empty"><strong>No ${what} yet</strong>${hint || "New items appear here as soon as they are published."}</div>`;
   }
@@ -412,6 +445,9 @@
     const openBooks = (data.books || []).filter(bookOpen);
     if (openBooks.length && $("#home-books")) $("#home-books").innerHTML = `<div class="bk-list">${openBooks.slice(0, 2).map(bookCard).join("")}</div>`;
     else hide("#home-books-section");
+    const openPapers = (data.papers || []).filter(bookOpen);
+    if (openPapers.length && $("#home-papers")) $("#home-papers").innerHTML = `<div class="bk-list">${openPapers.slice(0, 3).map(paperCard).join("")}</div>`;
+    else hide("#home-papers-section");
     if (gallery.length) {
       $("#home-gallery").innerHTML = gallery.slice(0, 6).map((g) => `<a href="gallery.html" aria-label="${esc(g.title)}"><img src="${esc(media(g.image))}" alt="${esc(g.alt || g.title)}" loading="lazy"></a>`).join("");
     } else hide("#home-gallery-section");
@@ -484,6 +520,7 @@
     const sel = $("#c-service", f), want = qs.get("service");
     if (sel && want && [...sel.options].some((o) => o.text === want)) sel.value = want;
     if (qs.get("book") && $("#c-msg", f)) $("#c-msg", f).value = `I would like to contribute a chapter to the book "${qs.get("book")}".\n\nPreferred chapter: \nMy qualification / designation: \nInstitution: `;
+    if (qs.get("paper") && $("#c-msg", f)) $("#c-msg", f).value = `I would like to join as a co-author on the research paper "${qs.get("paper")}".\n\nPreferred author position / role: \nMy qualification / designation: \nInstitution: `;
     // Enquiries go to a Google Form owned by ResearchMed (responses + email alerts in Google Forms).
     const GF = "https://docs.google.com/forms/d/e/1FAIpQLSdumIJAeqsSZZCUFKqghbr1VBIYvdFIL2km4LpQd3TFqzxZIA/formResponse";
     const ENTRY = { name: "entry.110128786", email: "entry.575945302", phone: "entry.369296902", service: "entry.177691295", message: "entry.1096489302" };
@@ -605,7 +642,7 @@
 
   // ---------- Boot ----------
   (async function boot() {
-    const names = ["videos", "notes", "highlights", "gallery", "updates", "notices", "contributors", "books", "testimonials"];
+    const names = ["videos", "notes", "highlights", "gallery", "updates", "notices", "contributors", "books", "testimonials", "papers"];
     const [settings, ...lists] = await Promise.all(["settings", ...names].map(load));
     const data = {}; names.forEach((n, i) => (data[n] = lists[i]));
     const counts = {}; names.forEach((n) => (counts[n] = data[n].length));
@@ -621,6 +658,7 @@
     if (PAGE === "gallery") listing({ items: data.gallery, mount: "#list", card: galleryFigure, noun: "photos", gridClass: "masonry" });
     if (PAGE === "updates") updatesPage();
     if (PAGE === "books") booksPage(data.books);
+    if (PAGE === "papers") papersPage(data.papers);
     if (PAGE === "item") item();
     if (PAGE === "contact") contactForm(settings);
   })();
