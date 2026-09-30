@@ -1,6 +1,18 @@
 {
   "items": [
     {
+      "title": "Ms Seerat",
+      "role": "Assistant professor  Department of Anesthesia and operation theater technology",
+      "institution": "ERA University Lucknow",
+      "quote": "The team provided clear guidance throughout the research and publication process. Communication was timely, and every stage was explained in a simple and professional manner.",
+      "service": "Publication Guidance",
+      "rating": 5,
+      "photo": "",
+      "order": 3,
+      "date": "2026-09-30",
+      "consent": true
+    },
+    {
       "title": "Mr Aadil Ahmad Wani",
       "role": "Assistant Professor Radiology and Imaging Technology",
       "institution": "Swami Vivekananda University Mohali",
