@@ -160,6 +160,27 @@
       ],
       summary: (x) => [x.open === false ? "Closed" : "Open", x.deadline ? "last date " + x.deadline : "", x.chapters ? String(x.chapters).split(/\n+/).filter(Boolean).length + " chapters" : ""].filter(Boolean).join(" · "),
     },
+    founder: {
+      label: "Founder", file: "content/founder.json", list: false,
+      hint: "Your profile as Founder &amp; Managing Director. It appears on the home page and the About page. Leave any box empty to hide that line.",
+      fields: [
+        { k: "show", l: "Show the founder section on the website", t: "check", def: () => true },
+        { k: "name", l: "Full name", t: "text", ph: "Dr. Zakir Hussain Parray" },
+        { k: "designation", l: "Designation", t: "text", ph: "Founder & Managing Director" },
+        { k: "qualifications", l: "Qualifications", t: "text", ph: "Ph.D., M.Sc. Anaesthesia & OT Technology" },
+        { k: "position", l: "Current position / institution (optional)", t: "text" },
+        { k: "photo", l: "Photo (portrait or square works best)", t: "image", folder: "media/people" },
+        { k: "bio", l: "About the founder (a blank line starts a new paragraph)", t: "area" },
+        { k: "highlights", l: "Key achievements (one per line)", t: "area", ph: "7+ years of teaching and research" },
+        { k: "expertise", l: "Areas of expertise (separate with commas)", t: "tags", ph: "Anaesthesia Technology, Research Methodology, Medical Education" },
+        { k: "message", l: "Message from the founder (optional quote)", t: "area" },
+        { k: "email", l: "Email (optional)", t: "text" },
+        { k: "linkedin", l: "LinkedIn link (optional)", t: "text" },
+        { k: "scholar", l: "Google Scholar link (optional)", t: "text" },
+        { k: "orcid", l: "ORCID link (optional)", t: "text" },
+        { k: "researchgate", l: "ResearchGate link (optional)", t: "text" },
+      ],
+    },
     settings: {
       label: "Numbers & contact", file: "content/settings.json", list: false,
       hint: "Home page numbers, contact details and the thin announcement bar at the top of every page.",
@@ -243,7 +264,7 @@
       renderSection();
     } catch (e) {
       if (e.status === 401) { signOut(); renderLogin("Your key has expired or was removed. Please connect again."); return; }
-      if (e.status === 404 && SECTIONS[current].list) { doc = { items: [] }; sha = null; renderSection(); return; }
+      if (e.status === 404) { doc = SECTIONS[current].list ? { items: [] } : {}; sha = null; renderSection(); return; }
       $(".admin-panel").innerHTML = `<p class="form-status err">Could not load: ${esc(e.message)}</p>`;
     }
   }
@@ -361,8 +382,8 @@
   async function saveSingle(e) {
     e.preventDefault();
     await busy(e.submitter || $("#edit button[type=submit]"), async () => {
-      doc = await collect(SECTIONS.settings.fields, doc);
-      await commit("Update site settings");
+      doc = await collect(SECTIONS[current].fields, doc);
+      await commit(current === "founder" ? "Update founder profile" : "Update site settings");
       $("#edit button[type=submit]").disabled = false; $("#edit button[type=submit]").textContent = "Save changes";
     });
   }

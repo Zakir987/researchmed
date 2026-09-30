@@ -214,7 +214,7 @@
       .then((r) => (r.ok ? r.json() : {}))
       .catch(() => ({}))
       .then((j) => {
-        if (name === "settings") return j || {};
+        if (name === "settings" || name === "founder") return j || {};
         const items = Array.isArray(j) ? j : (j && j.items) || [];
         const seen = {};
         return items.filter((it) => it && it.title && it.draft !== true).map((it) => {
@@ -534,6 +534,36 @@
     }).join("");
   }
 
+  // ---------- Founder & Managing Director (home + about) ----------
+  function founder(f) {
+    const sec = $("#founder-section"), box = $("#founder");
+    if (!sec || !box) return;
+    f = f || {};
+    if (f.show === false || !f.name) { sec.hidden = true; return; }
+    const initials = String(f.name).replace(/^(dr|mr|ms|mrs|prof)\.?\s+/i, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
+    const paras = String(f.bio || "").split(/\n\s*\n/).map((t) => t.trim()).filter(Boolean);
+    const hl = String(f.highlights || "").split(/\n+/).map((t) => t.replace(/^[-•*]\s*/, "").trim()).filter(Boolean);
+    const tags = (Array.isArray(f.expertise) ? f.expertise : String(f.expertise || "").split(",")).map((t) => String(t).trim()).filter(Boolean);
+    const tick = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+    const links = [["linkedin", "LinkedIn"], ["scholar", "Google Scholar"], ["orcid", "ORCID"], ["researchgate", "ResearchGate"]]
+      .filter(([k]) => safeUrl(f[k])).map(([k, l]) => `<a class="btn btn-ghost btn-sm" href="${esc(safeUrl(f[k]))}" target="_blank" rel="noopener">${l} ↗</a>`);
+    if (f.email) links.unshift(`<a class="btn btn-ghost btn-sm" href="mailto:${esc(f.email)}">Email</a>`);
+    box.innerHTML = `
+      <div class="fd-photo">${f.photo ? `<img src="${esc(media(f.photo))}" alt="${esc(f.name)}" loading="lazy">` : `<span class="fd-init" aria-hidden="true">${esc(initials)}</span>`}</div>
+      <div class="fd-body">
+        <span class="eyebrow">${esc(f.designation || "Founder & Managing Director")}</span>
+        <h2 class="fd-name">${esc(f.name)}</h2>
+        ${f.qualifications ? `<p class="fd-qual">${esc(f.qualifications)}</p>` : ""}
+        ${f.position ? `<p class="fd-pos">${esc(f.position)}</p>` : ""}
+        ${paras.map((t) => `<p class="fd-bio">${esc(t)}</p>`).join("")}
+        ${hl.length ? `<ul class="ticks fd-hl">${hl.map((t) => `<li>${tick}${esc(t)}</li>`).join("")}</ul>` : ""}
+        ${tags.length ? `<div class="fd-tags">${tags.map((t) => `<span class="fd-chip">${esc(t)}</span>`).join("")}</div>` : ""}
+        ${f.message ? `<blockquote class="fd-msg">${esc(f.message)}</blockquote>` : ""}
+        ${links.length ? `<div class="btn-row">${links.join("")}</div>` : ""}
+      </div>`;
+    sec.hidden = false;
+  }
+
   // ---------- Contributors (home page) ----------
   function contributors(all) {
     const sec = $("#home-team-section"), grid = $("#home-team");
@@ -580,6 +610,7 @@
     const data = {}; names.forEach((n, i) => (data[n] = lists[i]));
     const counts = {}; names.forEach((n) => (counts[n] = data[n].length));
     renderLayout(settings, counts);
+    if (PAGE === "home" || PAGE === "about") load("founder").then(founder);
     if (PAGE === "home") { home(settings, data); noticeBoard(data.notices); contributors(data.contributors); testimonials(data.testimonials); }
     if (PAGE === "videos") {
       if (settings.show_videos === true) listing({ items: data.videos, mount: "#list", card: videoCard, noun: "videos" });
