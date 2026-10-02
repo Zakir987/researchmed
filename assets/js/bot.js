@@ -14,15 +14,25 @@
 
   // ---------- Styles (use the site's colour tokens, so light/dark both work) ----------
   const css = `
-  .rb-fab{position:fixed;right:18px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:55;width:58px;height:58px;border-radius:50%;border:0;cursor:pointer;background:var(--primary,#1b5896);color:var(--on-primary,#fff);box-shadow:0 8px 24px rgba(0,0,0,.28);display:grid;place-items:center;transition:transform .15s}
-  .rb-fab:hover{transform:scale(1.06)} .rb-fab svg{width:28px;height:28px}
-  .rb-dot{position:absolute;top:4px;right:4px;width:12px;height:12px;border-radius:50%;background:#e5484d;border:2px solid var(--surface,#fff)}
-  .rb-tease{position:fixed;right:86px;bottom:calc(94px + env(safe-area-inset-bottom,0px));z-index:55;max-width:230px;background:var(--surface,#fff);color:var(--ink,#102338);border:1px solid var(--line,#d9e3ed);border-radius:14px 14px 4px 14px;padding:10px 32px 10px 14px;font-size:.92rem;box-shadow:0 8px 24px rgba(0,0,0,.18);cursor:pointer;animation:rb-in .3s ease-out}
+  .rb-fab{position:fixed;right:16px;bottom:calc(82px + env(safe-area-inset-bottom,0px));z-index:55;width:66px;height:66px;border-radius:50%;border:3px solid #fff;cursor:pointer;background:radial-gradient(circle at 30% 25%,#2f7fd0,#1b5896 55%,#0e3d6b);box-shadow:0 10px 26px rgba(14,61,107,.45),0 0 0 0 rgba(46,230,197,.55);display:grid;place-items:center;padding:0;animation:rb-float 3.2s ease-in-out infinite,rb-ring 3.2s ease-out infinite}
+  .rb-fab:hover{animation-play-state:paused} .rb-fab:hover .rb-face{transform:rotate(-8deg) scale(1.06)}
+  .rb-fab .rb-face{width:50px;height:50px;transition:transform .2s;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
+  .rb-eye{transform-box:fill-box;transform-origin:center;animation:rb-blink 4.5s infinite}
+  .rb-eyes{animation:rb-look 9s ease-in-out infinite}
+  .rb-tip{transform-box:fill-box;transform-origin:center;animation:rb-glow 1.8s ease-in-out infinite}
+  @keyframes rb-blink{0%,90%,100%{transform:scaleY(1)}93%{transform:scaleY(.12)}96%{transform:scaleY(1)}}
+  @keyframes rb-look{0%,30%,100%{transform:translateX(0)}38%,48%{transform:translateX(-2px)}56%,66%{transform:translateX(2px)}}
+  @keyframes rb-glow{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.85)}}
+  @keyframes rb-float{0%,100%{translate:0 0}50%{translate:0 -5px}}
+  @keyframes rb-ring{0%{box-shadow:0 10px 26px rgba(14,61,107,.45),0 0 0 0 rgba(46,230,197,.55)}70%,100%{box-shadow:0 10px 26px rgba(14,61,107,.45),0 0 0 14px rgba(46,230,197,0)}}
+  @media (prefers-reduced-motion:reduce){.rb-fab,.rb-eye,.rb-eyes,.rb-tip{animation:none}}
+  .rb-dot{position:absolute;top:2px;right:2px;width:12px;height:12px;border-radius:50%;background:#e5484d;border:2px solid var(--surface,#fff)}
+  .rb-tease{position:fixed;right:92px;bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:55;max-width:230px;background:var(--surface,#fff);color:var(--ink,#102338);border:1px solid var(--line,#d9e3ed);border-radius:14px 14px 4px 14px;padding:10px 32px 10px 14px;font-size:.92rem;box-shadow:0 8px 24px rgba(0,0,0,.18);cursor:pointer;animation:rb-in .3s ease-out}
   .rb-tease button{position:absolute;top:4px;right:6px;border:0;background:none;color:var(--muted,#52657b);font-size:1.1rem;cursor:pointer}
   .rb-panel{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:60;width:min(380px,calc(100vw - 24px));height:min(600px,calc(100vh - 36px));background:var(--surface,#fff);color:var(--ink,#102338);border:1px solid var(--line,#d9e3ed);border-radius:18px;box-shadow:0 18px 50px rgba(8,19,30,.32);display:flex;flex-direction:column;overflow:hidden;animation:rb-in .25s ease-out}
   @keyframes rb-in{from{opacity:0;transform:translateY(12px)}}
   .rb-head{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--primary,#1b5896);color:var(--on-primary,#fff)}
-  .rb-av{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.18);display:grid;place-items:center;font-weight:800;flex:none}
+  .rb-av{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.16);display:grid;place-items:center;flex:none} .rb-av .rb-face{width:36px;height:36px}
   .rb-head b{display:block;font-size:1rem} .rb-head small{opacity:.85;font-size:.78rem}
   .rb-x{margin-left:auto;border:0;background:rgba(255,255,255,.15);color:inherit;width:34px;height:34px;border-radius:50%;font-size:1.2rem;cursor:pointer}
   .rb-log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--bg,#f6f9fc)}
@@ -40,14 +50,29 @@
   .rb-foot input{flex:1;min-width:0;font:inherit;padding:10px 12px;border-radius:10px;border:1px solid var(--line,#d9e3ed);background:var(--bg,#f6f9fc);color:var(--ink,#102338)}
   .rb-foot button{border:0;border-radius:10px;padding:0 14px;background:var(--primary,#1b5896);color:var(--on-primary,#fff);font-weight:700;cursor:pointer}
   .rb-note{font-size:.72rem;color:var(--muted,#52657b);text-align:center;padding:0 10px 8px;background:var(--surface,#fff)}
-  @media (max-width:520px){.rb-fab{bottom:calc(80px + env(safe-area-inset-bottom,0px))}.rb-panel{right:12px;bottom:12px;height:calc(100vh - 24px)}.rb-tease{right:84px}}
+  @media (max-width:520px){.rb-fab{bottom:calc(80px + env(safe-area-inset-bottom,0px))}.rb-panel{right:12px;bottom:12px;height:calc(100vh - 24px)}.rb-tease{right:90px}}
   @media print{.rb-fab,.rb-panel,.rb-tease{display:none}}`;
   const st = document.createElement("style"); st.textContent = css; document.head.append(st);
 
-  const ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h.01M12 10h.01M16 10h.01"/></svg>';
+  // Friendly robot face (original artwork) — blinking eyes, glowing antenna, medical-cross tip
+  let rbN = 0;
+  const FACE = () => { const n = ++rbN; return `<svg class="rb-face" viewBox="0 0 64 64" aria-hidden="true">
+    <defs><linearGradient id="rbh${n}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dbe8f6"/></linearGradient>
+    <radialGradient id="rbe${n}"><stop offset="0" stop-color="#e8fdff"/><stop offset=".55" stop-color="#5ef2ff"/><stop offset="1" stop-color="#18b8d6"/></radialGradient></defs>
+    <line x1="32" y1="8" x2="32" y2="14" stroke="#cfe0f2" stroke-width="2.5" stroke-linecap="round"/>
+    <circle class="rb-tip" cx="32" cy="6.5" r="4.6" fill="#2ee6c5"/>
+    <path d="M32 4.4v4.2M29.9 6.5h4.2" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+    <rect x="5" y="28" width="6" height="13" rx="3" fill="#2ee6c5"/><rect x="53" y="28" width="6" height="13" rx="3" fill="#2ee6c5"/>
+    <rect x="9.5" y="13.5" width="45" height="40" rx="15" fill="url(#rbh${n})"/>
+    <rect x="15.5" y="21" width="33" height="21" rx="10.5" fill="#0b2540"/>
+    <g class="rb-eyes"><rect class="rb-eye" x="21.5" y="26" width="7" height="10" rx="3.5" fill="url(#rbe${n})"/><rect class="rb-eye" x="35.5" y="26" width="7" height="10" rx="3.5" fill="url(#rbe${n})"/>
+    <circle cx="23.6" cy="28.4" r="1.2" fill="#fff"/><circle cx="37.6" cy="28.4" r="1.2" fill="#fff"/></g>
+    <path d="M27.5 38.2q4.5 2.8 9 0" stroke="#5ef2ff" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <circle cx="17.5" cy="46.5" r="3" fill="#ff8fab" opacity=".55"/><circle cx="46.5" cy="46.5" r="3" fill="#ff8fab" opacity=".55"/>
+    <rect x="27" y="45" width="10" height="3" rx="1.5" fill="#b9cde2"/></svg>`; };
   const fab = document.createElement("button");
   fab.className = "rb-fab"; fab.type = "button"; fab.setAttribute("aria-label", "Chat with ResearchMed Assistant");
-  fab.innerHTML = ICON + '<span class="rb-dot" aria-hidden="true"></span>';
+  fab.innerHTML = FACE() + '<span class="rb-dot" aria-hidden="true"></span>';
   document.body.append(fab);
 
   let panel, log, input, flow = null, opened = false;
@@ -75,7 +100,7 @@
   function build() {
     panel = document.createElement("section");
     panel.className = "rb-panel"; panel.setAttribute("role", "dialog"); panel.setAttribute("aria-label", "ResearchMed Assistant");
-    panel.innerHTML = `<div class="rb-head"><span class="rb-av">R+</span><div><b>ResearchMed Assistant</b><small>Usually replies instantly</small></div><button class="rb-x" type="button" aria-label="Close chat">×</button></div>
+    panel.innerHTML = `<div class="rb-head"><span class="rb-av">${FACE()}</span><div><b>ResearchMed Assistant</b><small>Usually replies instantly</small></div><button class="rb-x" type="button" aria-label="Close chat">×</button></div>
       <div class="rb-log" aria-live="polite"></div>
       <form class="rb-foot"><input type="text" placeholder="Type your question…" aria-label="Your message" autocomplete="off"><button type="submit">Send</button></form>
       <div class="rb-note">Automated assistant · Your details go only to ResearchMed Connect</div>`;
