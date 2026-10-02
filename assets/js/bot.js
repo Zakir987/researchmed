@@ -73,7 +73,7 @@
   const fab = document.createElement("button");
   fab.className = "rb-fab"; fab.type = "button"; fab.setAttribute("aria-label", "Chat with ResearchMed Assistant");
   fab.innerHTML = FACE() + '<span class="rb-dot" aria-hidden="true"></span>';
-  document.body.append(fab);
+  const fabWrap = document.createElement("aside"); fabWrap.setAttribute("aria-label", "Chat assistant"); fabWrap.append(fab); document.body.append(fabWrap);
 
   let panel, log, input, flow = null, opened = false;
 

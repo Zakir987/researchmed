@@ -48,7 +48,7 @@
       const l = raw.trim();
       let m;
       if (!l) { flushP(); flushL(); continue; }
-      if ((m = l.match(/^(#{1,3})\s+(.*)$/))) { flushP(); flushL(); const n = Math.min(m[1].length + 1, 4); html += `<h${n}>${inline(m[2])}</h${n}>`; continue; }
+      if ((m = l.match(/^(#{1,3})\s+(.*)$/))) { flushP(); flushL(); const n = Math.min(Math.max(m[1].length, 2), 4); html += `<h${n}>${inline(m[2])}</h${n}>`; continue; }
       if ((m = l.match(/^[-*•]\s+(.*)$/))) { flushP(); if (!list || list.t !== "ul") { flushL(); list = { t: "ul", items: [] }; } list.items.push(m[1]); continue; }
       if ((m = l.match(/^\d+[.)]\s+(.*)$/))) { flushP(); if (!list || list.t !== "ol") { flushL(); list = { t: "ol", items: [] }; } list.items.push(m[1]); continue; }
       flushL(); para.push(l);
@@ -176,11 +176,11 @@
             <span>${esc(s.tagline || "Research. Learn. Publish. Grow.")}</span>
             <p>${esc(s.footer_about || "Educational and academic guidance for healthcare professionals, students, researchers, and aspiring authors.")}</p>
           </div>
-          <div><h4>Explore</h4><ul>
+          <div><h2>Explore</h2><ul>
             ${NAV.map(([h, t]) => `<li><a href="${h}">${t}</a></li>`).join("")}</ul></div>
-          <div><h4>Get in touch</h4><ul>
+          <div><h2>Get in touch</h2><ul>
             <li><a href="contact.html">Send an enquiry</a></li><li><a href="services.html">Our services</a></li><li><a href="disclaimer.html">Disclaimer</a></li><li><a href="privacy.html">Privacy Policy</a></li><li><a href="terms.html">Terms of Use</a></li></ul></div>
-          <div><h4>Connect</h4><ul>
+          <div><h2>Connect</h2><ul>
             ${email ? `<li>Email: <a href="mailto:${esc(email)}">${esc(email)}</a></li>` : ""}
             ${wa ? `<li>WhatsApp: <a href="https://wa.me/${esc(wa.replace(/\D/g, ""))}" target="_blank" rel="noopener">${esc(wa)}</a></li>` : ""}
             ${s.youtube_channel ? `<li><a href="${esc(safeUrl(s.youtube_channel))}" target="_blank" rel="noopener">YouTube channel ↗</a></li>` : ""}
@@ -200,7 +200,7 @@
       fab.target = "_blank"; fab.rel = "noopener";
       fab.setAttribute("aria-label", "Chat with us on WhatsApp");
       fab.innerHTML = ICON.wa + "<span>Chat with us</span>";
-      document.body.append(fab);
+      const qc = document.createElement("aside"); qc.setAttribute("aria-label", "Quick contact"); qc.append(fab); document.body.append(qc);
     }
 
     // Contact placeholders on static pages
@@ -686,10 +686,25 @@
     if (PAGE === "contact") contactForm(settings);
   })();
 
+  // ---------- Accessibility: keep heading levels in order (h1 → h2 → h3) ----------
+  function fixHeadingOrder() {
+    const main = document.getElementById("main"); if (!main) return;
+    const LABEL = { services: "Our services", books: "Books and chapter calls", papers: "Open research papers", highlights: "Published papers", notes: "All notes", updates: "Latest updates", videos: "Videos", gallery: "Photos" };
+    const hs = [...main.querySelectorAll("h1, h2, h3")];
+    const i = hs.findIndex((h) => h.tagName === "H1");
+    if (i < 0 || !hs[i + 1] || hs[i + 1].tagName !== "H3") return;
+    const h2 = document.createElement("h2"); h2.className = "sr-only"; h2.textContent = LABEL[PAGE] || "Details";
+    const sec = hs[i + 1].closest("section") || hs[i + 1].parentElement;
+    const box = sec.querySelector(":scope > .wrap") || sec;
+    box.prepend(h2);
+  }
+  // Content is drawn after data loads, so check once it has settled.
+  window.addEventListener("load", () => setTimeout(fixHeadingOrder, 600));
+
   // ---------- Chat assistant (every public page) ----------
   if (PAGE !== "admin") {
     const sc = document.createElement("script");
-    sc.src = "assets/js/bot.js?v=20261002e"; sc.defer = true;
+    sc.src = "assets/js/bot.js?v=20261002f"; sc.defer = true;
     document.body.append(sc);
   }
 })();
