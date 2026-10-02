@@ -538,3 +538,6 @@ a.tk-item:hover .tk-title { text-decoration: underline; }
 .foot-legal a { display: inline-block; padding: 6px 0; }
 .legal h2 { font-size: 1.25rem; margin-top: 1.6em; }
 .legal .updated { color: var(--muted); font-size: .95rem; }
+.form fieldset.rating { border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0; }
+.form fieldset.rating legend { font-weight: 600; font-size: .95rem; padding: 0 6px; }
+.form fieldset.rating label { display: flex; align-items: center; gap: 6px; font-weight: 400; }
