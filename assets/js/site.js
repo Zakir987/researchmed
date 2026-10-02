@@ -180,7 +180,7 @@
           <div><h2>Explore</h2><ul>
             ${NAV.map(([h, t]) => `<li><a href="${h}">${t}</a></li>`).join("")}</ul></div>
           <div><h2>Get in touch</h2><ul>
-            <li><a href="contact.html">Send an enquiry</a></li><li><a href="services.html">Our services</a></li><li><a href="disclaimer.html">Disclaimer</a></li><li><a href="privacy.html">Privacy Policy</a></li><li><a href="terms.html">Terms of Use</a></li></ul></div>
+            <li><a href="contact.html">Send an enquiry</a></li><li><a href="services.html">Our services</a></li><li><a href="feedback.html">Share your experience</a></li><li><a href="disclaimer.html">Disclaimer</a></li><li><a href="privacy.html">Privacy Policy</a></li><li><a href="terms.html">Terms of Use</a></li></ul></div>
           <div><h2>Connect</h2><ul>
             ${email ? `<li>Email: <a href="mailto:${esc(email)}">${esc(email)}</a></li>` : ""}
             ${wa ? `<li>WhatsApp: <a href="https://wa.me/${esc(wa.replace(/\D/g, ""))}" target="_blank" rel="noopener">${esc(wa)}</a></li>` : ""}
@@ -573,6 +573,40 @@
     });
   }
 
+  // ---------- Feedback / testimonial form ----------
+  function feedbackForm() {
+    const f = $("#feedback-form"); if (!f) return;
+    const status = $("#form-status"), btn = $("button[type=submit]", f);
+    f.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const d = Object.fromEntries(new FormData(f));
+      if (d._honey) return;
+      btn.disabled = true; btn.textContent = "Sending…"; status.hidden = true;
+      const first = String(d.name || "").trim().split(/\s+/)[0] || "there";
+      const payload = {
+        "Name": d.name, "Qualification / designation": d.role || "-", "Institution": d.institution || "-",
+        "Guidance received": d.service, "Rating": (d.rating || "-") + " / 5", "Feedback": d.message,
+        "OK to publish on website": d.consent === "yes" ? "YES" : "No (do not publish)",
+        email: d.email,
+        _subject: `New testimonial (${d.rating}/5) from ${d.name}${d.consent === "yes" ? " · OK to publish" : ""}`,
+        _template: "table", _captcha: "false",
+        _autoresponse: `Dear ${first},\n\nThank you for sharing your experience with ResearchMed Connect. Your feedback means a lot to us and helps other students and professionals.\n\nWarm regards,\nResearchMed Connect\nhttps://researchmed.in`,
+      };
+      try {
+        const r = await fetch("https://formsubmit.co/ajax/info@researchmed.in", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(payload) });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || String(j.success) !== "true") throw new Error("failed");
+        f.hidden = true; status.className = "form-status ok";
+        status.innerHTML = `<strong>Thank you, ${esc(first)}!</strong> Your feedback has reached us. We really appreciate you taking the time.`;
+        status.hidden = false;
+      } catch (err) {
+        status.className = "form-status err";
+        status.innerHTML = `<strong>We couldn't send this just now.</strong> Please try again in a moment, or email it to <a href="mailto:info@researchmed.in">info@researchmed.in</a>.`;
+        status.hidden = false; btn.disabled = false; btn.textContent = "Send feedback";
+      }
+    });
+  }
+
   // ---------- Testimonials (home page) ----------
   function testimonials(all) {
     const sec = $("#home-testimonials-section"), grid = $("#home-testimonials");
@@ -685,6 +719,7 @@
     if (PAGE === "papers") papersPage(data.papers);
     if (PAGE === "item") item();
     if (PAGE === "contact") contactForm(settings);
+    if (PAGE === "feedback") feedbackForm();
   })();
 
   // ---------- Accessibility: keep heading levels in order (h1 → h2 → h3) ----------
