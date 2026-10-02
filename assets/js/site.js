@@ -435,6 +435,14 @@
       const tiles = [...extra, ...journals];
       $("#proof-logos").innerHTML = tiles.map((j) => `<a href="highlights.html" class="proof-logo" title="${esc(j.name || j.k)}">${j.logo ? `<img src="${esc(media(j.logo))}" alt="${esc(j.name || j.k)}">` : `<span class="proof-txt proof-${slug(j.k)}">${esc(j.k)}</span>`}<small>${esc(j.cap || j.k)}</small></a>`).join("");
     } else hide("#home-proof");
+    if ($("#home-journals")) load("journals").then((js) => {
+      if (!js.length) return hide("#home-journals");
+      $("#home-journals-logos").innerHTML = js.map((j) => {
+        const u = safeUrl(j.url);
+        const inner = j.logo ? `<img src="${esc(media(j.logo))}" alt="${esc(j.title)}" loading="lazy">` : `<span class="proof-txt">${esc(j.short || j.title)}</span>`;
+        return u ? `<a class="proof-logo" href="${esc(u)}" target="_blank" rel="noopener" title="${esc(j.title)}">${inner}</a>` : `<span class="proof-logo" title="${esc(j.title)}">${inner}</span>`;
+      }).join("");
+    });
     if (hl.length) {
       $("#home-highlights").innerHTML = hl.slice(0, 6).map((h) => highlightCard(h)).join("");
     } else hide("#home-highlights-section");
