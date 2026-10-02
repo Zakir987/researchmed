@@ -530,28 +530,42 @@
     if (sel && want && [...sel.options].some((o) => o.text === want)) sel.value = want;
     if (qs.get("book") && $("#c-msg", f)) $("#c-msg", f).value = `I would like to contribute a chapter to the book "${qs.get("book")}".\n\nPreferred chapter: \nMy qualification / designation: \nInstitution: `;
     if (qs.get("paper") && $("#c-msg", f)) $("#c-msg", f).value = `I would like to join as a co-author on the research paper "${qs.get("paper")}".\n\nPreferred author position / role: \nMy qualification / designation: \nInstitution: `;
-    // Enquiries go to a Google Form owned by ResearchMed (responses + email alerts in Google Forms).
-    const GF = "https://docs.google.com/forms/d/e/1FAIpQLSdumIJAeqsSZZCUFKqghbr1VBIYvdFIL2km4LpQd3TFqzxZIA/formResponse";
-    const ENTRY = { name: "entry.110128786", email: "entry.575945302", phone: "entry.369296902", service: "entry.177691295", message: "entry.1096489302" };
+    // Enquiries are emailed straight to the ResearchMed inbox via FormSubmit (no Google Form).
+    // FormSubmit also sends the visitor an automatic thank-you reply.
+    const INBOX = "info@researchmed.in";
+    const ENDPOINT = "https://formsubmit.co/ajax/" + INBOX;
+    const wa = (settings.whatsapp || "").replace(/\D/g, "");
+    const waLink = (d) => `https://wa.me/${wa}?text=${encodeURIComponent(`Hello ResearchMed Connect,\n\nName: ${d.name}\nEmail: ${d.email}\nPhone: ${d.phone || "-"}\nNeed help with: ${d.service}\n\n${d.message}`)}`;
     f.addEventListener("submit", async (e) => {
       e.preventDefault();
       const d = Object.fromEntries(new FormData(f));
       if (d._honey) return;
       btn.disabled = true; btn.textContent = "Sending…";
       status.hidden = true;
+      const ref = "RMC-" + new Date().toISOString().slice(2, 10).replace(/-/g, "") + "-" + Math.random().toString(36).slice(2, 6).toUpperCase();
+      const first = String(d.name || "").trim().split(/\s+/)[0] || "there";
+      const payload = {
+        "Reference": ref,
+        "Name": d.name, "Phone / WhatsApp": d.phone || "-",
+        "Qualification / designation": d.qualification || "-", "Institution": d.institution || "-",
+        "Needs help with": d.service, "Preferred reply via": d.reply_via || "Email",
+        "Message": d.message, "Sent from page": location.href,
+        email: d.email,
+        _subject: `New enquiry ${ref}: ${d.service} from ${d.name}`,
+        _template: "table", _captcha: "false",
+        _autoresponse: `Dear ${first},\n\nThank you for contacting ResearchMed Connect. We have received your enquiry about "${d.service}" (reference ${ref}).\n\nOur team will get back to you within one to two working days.${wa ? ` For anything urgent, you can WhatsApp us at ${settings.whatsapp}.` : ""}\n\nWarm regards,\nResearchMed Connect\nResearch. Learn. Publish. Grow.\nhttps://researchmed.in`
+      };
       try {
-        const body = new URLSearchParams();
-        for (const [k, id] of Object.entries(ENTRY)) body.append(id, d[k] || (k === "phone" ? "-" : ""));
-        await fetch(GF, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
+        const r = await fetch(ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(payload) });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || String(j.success) !== "true") throw new Error(j.message || "send failed");
         f.hidden = true;
         status.className = "form-status ok";
-        status.innerHTML = "<strong>Thank you for connecting!</strong> We have received your enquiry and will get back to you soon.";
+        status.innerHTML = `<strong>Thank you, ${esc(first)}!</strong> Your enquiry has reached us (reference <b>${ref}</b>). A confirmation has been sent to ${esc(d.email)} — please check your spam folder if you don't see it. We usually reply within one to two working days.${wa ? `<div class="btn-row" style="margin-top:12px"><a class="btn btn-ghost btn-sm" href="${waLink(d)}" target="_blank" rel="noopener">Need it faster? WhatsApp us</a></div>` : ""}`;
         status.hidden = false;
       } catch (err) {
         status.className = "form-status err";
-        const wa = (settings.whatsapp || "").replace(/\D/g, "");
-        const waText = encodeURIComponent(`Hello ResearchMed Connect,\n\nName: ${d.name}\nEmail: ${d.email}\nPhone: ${d.phone || "-"}\nNeed help with: ${d.service}\n\n${d.message}`);
-        status.innerHTML = `<strong>We couldn't send this just now (check your internet connection).</strong> Please send the same message on WhatsApp instead. It only takes one tap.${wa ? `<div class="btn-row" style="margin-top:12px"><a class="btn btn-primary" href="https://wa.me/${wa}?text=${waText}" target="_blank" rel="noopener">Send on WhatsApp</a></div>` : ""}`;
+        status.innerHTML = `<strong>We couldn't send this just now.</strong> Please send the same message on WhatsApp or email instead. It only takes one tap.<div class="btn-row" style="margin-top:12px">${wa ? `<a class="btn btn-primary" href="${waLink(d)}" target="_blank" rel="noopener">Send on WhatsApp</a>` : ""}<a class="btn btn-ghost" href="mailto:${INBOX}?subject=${encodeURIComponent("Enquiry: " + d.service)}&body=${encodeURIComponent(d.message || "")}">Send by email</a></div>`;
         status.hidden = false;
         btn.disabled = false; btn.textContent = "Send enquiry";
       }
