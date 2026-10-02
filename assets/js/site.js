@@ -120,12 +120,13 @@
   function renderLayout(settings, counts) {
     const s = settings || {};
     const NAV = navItems(s, counts || {});
+    if (s.logo) { const ic = document.querySelector('link[rel="icon"]'); if (ic) { ic.href = media(s.logo); ic.removeAttribute("type"); } }
     const header = document.createElement("header");
     header.className = "site-header";
     header.innerHTML = `
       <div class="wrap">
         <a class="brand" href="index.html" aria-label="${esc(s.site_name || "ResearchMed Connect")} home">
-          <span class="brand-mark">${ICON.logo}</span>
+          <span class="brand-mark"${s.logo ? ' style="background:#fff;border:1px solid var(--line);overflow:hidden"' : ""}>${s.logo ? `<img src="${esc(media(s.logo))}" alt="" style="width:100%;height:100%;object-fit:contain">` : ICON.logo}</span>
           <span><span class="brand-name">${esc(s.site_name || "ResearchMed Connect")}</span><span class="brand-tag">${esc(s.tagline || "Research. Learn. Publish. Grow.")}</span></span>
         </a>
         <nav class="nav" id="site-nav" aria-label="Main">
