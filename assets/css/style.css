@@ -528,3 +528,10 @@ a.tk-item:hover .tk-title { text-decoration: underline; }
 .pp-img { aspect-ratio: 4 / 3; }
 .pp-card .idx-row { margin: 0; }
 @media (max-width: 640px) { .pp-card { grid-template-columns: 1fr; } .pp-card .pp-img { width: 100%; max-width: 360px; } }
+
+/* Comfortable tap targets on phones */
+.foot-grid ul a, .contact-card a { display: inline-block; padding: 6px 0; }
+.foot-legal { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.foot-legal a { display: inline-block; padding: 6px 0; }
+.legal h2 { font-size: 1.25rem; margin-top: 1.6em; }
+.legal .updated { color: var(--muted); font-size: .95rem; }
