@@ -1,3 +1,32 @@
 {
-  "items": []
+  "items": [
+    {
+      "title": "How to choose the right journal for your manuscript",
+      "category": "Publication",
+      "date": "2026-10-02",
+      "summary": "A step-by-step checklist for shortlisting a suitable, genuinely indexed journal before you submit.",
+      "body": "Choosing the right journal is one of the biggest factors in whether your paper is accepted quickly. Use this checklist before you submit.\n\n## 1. Match the scope\n- Read the journal's *Aims & Scope* page and compare it with your topic and study type.\n- Look at 5–10 recent articles: are they similar to yours in subject and design?\n\n## 2. Verify indexing yourself\nNever rely only on the journal's own website. Check the official sources:\n- **Scopus**: search the title on the Scopus Sources list.\n- **PubMed / MEDLINE**: search the NLM Catalog for the journal and its current indexing status.\n- **Web of Science**: search Clarivate's Master Journal List.\n- **DOAJ** for open-access journals.\n\n## 3. Check the practical details\n- Article processing charge (APC) and any waiver policy\n- Average time to first decision and to publication\n- Word limits, reference style and accepted article types\n\n## 4. Read the author guidelines carefully\nFormat your manuscript exactly as the journal asks. Many papers are returned before peer review only because of formatting.\n\nNeed help shortlisting journals for your paper? [Send an enquiry](contact.html)."
+    },
+    {
+      "title": "IMRaD: how to structure a research manuscript",
+      "category": "Academic Writing",
+      "date": "2026-10-02",
+      "summary": "What goes into the Introduction, Methods, Results and Discussion, and the most common mistakes in each.",
+      "body": "Most health-science journals expect original research in the **IMRaD** format: Introduction, Methods, Results and Discussion.\n\n## Introduction\n- What is known about the problem, briefly, with recent references\n- The gap your study addresses\n- A clear aim or objective in the final paragraph\n\n## Methods\n- Study design, setting and period\n- Participants: inclusion and exclusion criteria, sample size and how it was calculated\n- Intervention or exposure, outcomes and how they were measured\n- Statistical analysis, and the software used\n- Ethics committee approval and informed consent\n\n## Results\n- Present findings in the same order as the objectives\n- Use tables and figures for detail and do not repeat every number in the text\n- Report exact p-values and confidence intervals where possible\n\n## Discussion\n- Start with the main finding\n- Compare with previous studies, explaining similarities and differences\n- Strengths and limitations, honestly stated\n- A conclusion that does not go beyond your data\n\n**Tip:** write the Methods and Results first, then the Discussion, and the Introduction and Abstract last.\n\n[Ask us to review your manuscript structure](contact.html)."
+    },
+    {
+      "title": "How to recognise a predatory journal",
+      "category": "Publication Ethics",
+      "date": "2026-10-02",
+      "summary": "Warning signs that a journal may be predatory, and simple checks to protect your work and reputation.",
+      "body": "Predatory journals charge publication fees without providing genuine peer review or proper indexing. Publishing in one can damage your CV and make your work hard to find.\n\n## Common warning signs\n- Unsolicited emails praising your work and inviting a submission\n- Promises of acceptance or publication within a few days\n- A very broad scope that covers unrelated subjects\n- Claims of indexing that you cannot confirm on Scopus, the NLM Catalog or the Web of Science Master Journal List\n- Fake or misleading \"impact factor\" metrics\n- No clear editorial board, or members who do not know they are listed\n- Fees that are only revealed after acceptance\n\n## Simple checks\n- Verify indexing directly on the official databases\n- Check whether the journal is listed in DOAJ (for open-access journals) and whether the publisher is a member of COPE\n- Use the *Think. Check. Submit.* checklist\n- Ask a mentor or colleague who has published in the field\n\nIf you are unsure about a journal, [send us its name](contact.html) and we will help you check it."
+    },
+    {
+      "title": "Responding to peer reviewers: a practical guide",
+      "category": "Publication",
+      "date": "2026-10-02",
+      "summary": "How to write a clear, polite point-by-point response that improves your chances after a revision decision.",
+      "body": "A *major* or *minor revision* decision is good news: the journal is interested in your paper. How you respond matters.\n\n## Before you start\n- Read all comments, then wait a day before replying\n- Group comments into: easy fixes, ones needing new analysis, and ones you disagree with\n\n## Writing the response letter\n- Thank the editor and reviewers briefly at the start\n- Copy **each comment** and write your reply directly below it\n- Say exactly what you changed and where (page and line numbers)\n- Highlight changes in the revised manuscript, or use tracked changes if the journal asks\n\n## When you disagree\n- Stay polite and evidence-based\n- Explain your reasoning with references\n- Where possible, add a sentence or limitation to the paper to show you considered the point\n\n## Before resubmitting\n- Check every comment has a reply\n- Keep within the revision deadline, and ask the editor for an extension early if you need one\n\n[Get help with your revision](contact.html)."
+    }
+  ]
 }
