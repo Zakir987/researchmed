@@ -86,6 +86,17 @@
       ],
       summary: (x) => [x.journal_short || x.journal, x.year].filter(Boolean).join(" · "),
     },
+    journals: {
+      label: "Journal Logos", file: "content/journals.json", list: true, noun: "journal", append: true,
+      hint: "Logos shown on the home page under 'Indexed Indian journals we guide you towards'. Upload a logo (square PNG works best); without one, the short name is shown. Use the arrows to change the order.",
+      fields: [
+        { k: "title", l: "Journal full name", t: "text", req: true, ph: "Indian Journal of Anaesthesia" },
+        { k: "short", l: "Short name (shown when there is no logo)", t: "text", ph: "IJA" },
+        { k: "logo", l: "Journal logo", t: "image", folder: "media/logos", reuse: true },
+        { k: "url", l: "Journal website (optional)", t: "text", ph: "https://…" },
+      ],
+      summary: (x) => [x.short, x.logo ? "logo added" : "no logo yet"].filter(Boolean).join(" · "),
+    },
     gallery: {
       label: "Photos", file: "content/gallery.json", list: true, noun: "photo",
       hint: "Photos appear in the Gallery and on the home page.",
@@ -283,7 +294,7 @@
     try {
       const r = await readJson(SECTIONS[current].file);
       doc = r.data; sha = r.sha;
-      if (current === "highlights") (doc.items || []).forEach((x) => x.logo && logos.add(x.logo));
+      if (current === "highlights" || current === "journals") (doc.items || []).forEach((x) => x.logo && logos.add(x.logo));
       if (current === "settings") {} // nothing extra
       renderSection();
     } catch (e) {
