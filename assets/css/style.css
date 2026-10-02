@@ -1,3 +1,6 @@
+/* Fonts (SIL Open Font License) loaded directly as single files — faster than the Google Fonts stylesheet */
+@font-face { font-family: "Lora"; font-style: normal; font-weight: 400 700; font-display: swap; src: url("https://cdn.jsdelivr.net/npm/@fontsource-variable/lora@5.3.0/files/lora-latin-wght-normal.woff2") format("woff2"); }
+@font-face { font-family: "Source Sans 3"; font-style: normal; font-weight: 200 900; font-display: swap; src: url("https://cdn.jsdelivr.net/npm/@fontsource-variable/source-sans-3@5.3.0/files/source-sans-3-latin-wght-normal.woff2") format("woff2"); }
 /* ResearchMed Connect — site styles
    Layout: sticky header, wide centered container, alternating tinted bands. */
 :root {
