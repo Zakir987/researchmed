@@ -220,6 +220,7 @@
       label: "Numbers & contact", file: "content/settings.json", list: false,
       hint: "Home page numbers, contact details and the thin announcement bar at the top of every page.",
       fields: [
+        { k: "logo", l: "Website logo (square image works best; shown top-left and as the browser tab icon)", t: "image", folder: "media/brand" },
         { k: "papers_submitted", l: "Papers submitted", t: "number" },
         { k: "papers_published", l: "Papers published", t: "number" },
         { k: "email", l: "Email shown on the website", t: "text" },
