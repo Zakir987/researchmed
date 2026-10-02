@@ -439,11 +439,7 @@
     } else hide("#home-proof");
     if ($("#home-journals")) load("journals").then((js) => {
       if (!js.length) return hide("#home-journals");
-      $("#home-journals-logos").innerHTML = js.map((j) => {
-        const u = safeUrl(j.url);
-        const inner = j.logo ? `<img src="${esc(media(j.logo))}" alt="${esc(j.title)}" loading="lazy">` : `<span class="proof-txt">${esc(j.short || j.title)}</span>`;
-        return u ? `<a class="proof-logo" href="${esc(u)}" target="_blank" rel="noopener" title="${esc(j.title)}">${inner}</a>` : `<span class="proof-logo" title="${esc(j.title)}">${inner}</span>`;
-      }).join("");
+      journalCarousel($("#home-journals-logos"), js);
     });
     if (hl.length) {
       $("#home-highlights").innerHTML = hl.slice(0, 6).map((h) => highlightCard(h)).join("");
@@ -571,6 +567,58 @@
         btn.disabled = false; btn.textContent = "Send enquiry";
       }
     });
+  }
+
+  // ---------- Journal carousel (one journal at a time, auto-rotating) ----------
+  function journalCarousel(box, js) {
+    if (!box || !js.length) return;
+    box.className = "jr-carousel";
+    box.setAttribute("role", "region"); box.setAttribute("aria-roledescription", "carousel"); box.setAttribute("aria-label", "Indexed Indian journals");
+    box.innerHTML = `
+      <button class="jr-nav jr-prev" type="button" aria-label="Previous journal">‹</button>
+      <div class="jr-stage" aria-live="off"></div>
+      <button class="jr-nav jr-next" type="button" aria-label="Next journal">›</button>
+      <div class="jr-meta"><span class="jr-count"></span><button class="jr-pause" type="button" aria-label="Pause rotation">❚❚</button></div>
+      <div class="jr-bar" aria-hidden="true"><span></span></div>`;
+    const stage = $(".jr-stage", box), count = $(".jr-count", box), pauseBtn = $(".jr-pause", box), bar = $(".jr-bar span", box);
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const DELAY = 3500;
+    let i = 0, timer = null, userPaused = reduce, hovering = false;
+    const slide = (j) => {
+      const u = safeUrl(j.url);
+      const mark = j.logo ? `<img src="${esc(media(j.logo))}" alt="" loading="lazy">` : `<span class="jr-abbr">${esc(j.short || j.title)}</span>`;
+      const body = `<span class="jr-mark">${mark}</span><span class="jr-text"><b>${esc(j.title)}</b><small>${esc(j.short || "")}${u ? " · Visit journal ↗" : ""}</small></span>`;
+      return u ? `<a class="jr-card" href="${esc(u)}" target="_blank" rel="noopener">${body}</a>` : `<div class="jr-card">${body}</div>`;
+    };
+    const show = (n) => {
+      i = (n + js.length) % js.length;
+      stage.innerHTML = slide(js[i]);
+      count.textContent = `${i + 1} / ${js.length}`;
+      bar.style.animation = "none"; void bar.offsetWidth;
+      bar.style.animation = running() ? `jr-fill ${DELAY}ms linear` : "none";
+    };
+    const running = () => !userPaused && !hovering && !document.hidden;
+    const schedule = () => { clearTimeout(timer); if (running()) timer = setTimeout(() => show(i + 1) || schedule(), DELAY); };
+    const restart = () => { show(i); schedule(); };
+    $(".jr-prev", box).addEventListener("click", () => { show(i - 1); schedule(); });
+    $(".jr-next", box).addEventListener("click", () => { show(i + 1); schedule(); });
+    pauseBtn.addEventListener("click", () => {
+      userPaused = !userPaused;
+      pauseBtn.textContent = userPaused ? "▶" : "❚❚";
+      pauseBtn.setAttribute("aria-label", userPaused ? "Play rotation" : "Pause rotation");
+      stage.setAttribute("aria-live", userPaused ? "polite" : "off");
+      restart();
+    });
+    box.addEventListener("mouseenter", () => { hovering = true; restart(); });
+    box.addEventListener("mouseleave", () => { hovering = false; restart(); });
+    box.addEventListener("focusin", () => { hovering = true; restart(); });
+    box.addEventListener("focusout", (e) => { if (!box.contains(e.relatedTarget)) { hovering = false; restart(); } });
+    document.addEventListener("visibilitychange", restart);
+    let x0 = null;
+    box.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+    box.addEventListener("touchend", (e) => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) { show(i + (dx < 0 ? 1 : -1)); schedule(); } x0 = null; });
+    if (reduce) { pauseBtn.textContent = "▶"; pauseBtn.setAttribute("aria-label", "Play rotation"); stage.setAttribute("aria-live", "polite"); }
+    restart();
   }
 
   // ---------- Feedback / testimonial form ----------
