@@ -42,8 +42,23 @@
     const r = await gh(`/contents/${path}`, { method: "PUT", body: JSON.stringify(body) });
     return r.content.sha;
   }
+  // Large photos/posters are resized (max 1600px) and converted to WebP so pages load fast.
+  async function shrinkImage(file) {
+    if (!/^image\/(png|jpe?g|webp)$/i.test(file.type) || file.size < 150 * 1024) return file;
+    try {
+      const bmp = await createImageBitmap(file);
+      const k = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+      c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+      const blob = await new Promise((r) => c.toBlob(r, "image/webp", 0.82));
+      if (!blob || blob.size >= file.size) return file;
+      return new File([blob], file.name.replace(/\.[a-z0-9]+$/i, "") + ".webp", { type: "image/webp" });
+    } catch (e) { return file; }
+  }
   async function uploadFile(file, folder = "media/uploads") {
     if (file.size > 25 * 1024 * 1024) throw new Error("This file is larger than 25 MB. Please use a smaller file (or a YouTube / Google Drive link).");
+    file = await shrinkImage(file);
     const clean = file.name.toLowerCase().replace(/[^a-z0-9.]+/g, "-").replace(/^-+|-+$/g, "");
     const path = `${folder}/${Date.now().toString(36)}-${clean}`;
     const bytes = new Uint8Array(await file.arrayBuffer());

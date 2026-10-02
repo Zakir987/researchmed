@@ -103,7 +103,7 @@
     panel.innerHTML = `<div class="rb-head"><span class="rb-av">${FACE()}</span><div><b>ResearchMed Assistant</b><small>Usually replies instantly</small></div><button class="rb-x" type="button" aria-label="Close chat">×</button></div>
       <div class="rb-log" aria-live="polite"></div>
       <form class="rb-foot"><input type="text" placeholder="Type your question…" aria-label="Your message" autocomplete="off"><button type="submit">Send</button></form>
-      <div class="rb-note">Automated assistant · Your details go only to ResearchMed Connect</div>`;
+      <div class="rb-note">Automated assistant · Your details go only to ResearchMed Connect · <a href="privacy.html" style="color:inherit">Privacy</a></div>`;
     document.body.append(panel);
     log = panel.querySelector(".rb-log"); input = panel.querySelector("input");
     panel.querySelector(".rb-x").addEventListener("click", close);

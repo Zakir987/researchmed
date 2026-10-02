@@ -179,7 +179,7 @@
           <div><h4>Explore</h4><ul>
             ${NAV.map(([h, t]) => `<li><a href="${h}">${t}</a></li>`).join("")}</ul></div>
           <div><h4>Get in touch</h4><ul>
-            <li><a href="contact.html">Send an enquiry</a></li><li><a href="services.html">Our services</a></li><li><a href="disclaimer.html">Disclaimer</a></li></ul></div>
+            <li><a href="contact.html">Send an enquiry</a></li><li><a href="services.html">Our services</a></li><li><a href="disclaimer.html">Disclaimer</a></li><li><a href="privacy.html">Privacy Policy</a></li><li><a href="terms.html">Terms of Use</a></li></ul></div>
           <div><h4>Connect</h4><ul>
             ${email ? `<li>Email: <a href="mailto:${esc(email)}">${esc(email)}</a></li>` : ""}
             ${wa ? `<li>WhatsApp: <a href="https://wa.me/${esc(wa.replace(/\D/g, ""))}" target="_blank" rel="noopener">${esc(wa)}</a></li>` : ""}
@@ -689,7 +689,7 @@
   // ---------- Chat assistant (every public page) ----------
   if (PAGE !== "admin") {
     const sc = document.createElement("script");
-    sc.src = "assets/js/bot.js?v=20261002c"; sc.defer = true;
+    sc.src = "assets/js/bot.js?v=20261002d"; sc.defer = true;
     document.body.append(sc);
   }
 })();
