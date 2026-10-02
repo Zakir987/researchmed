@@ -83,6 +83,17 @@
       ],
       summary: (x) => [x.date, x.new ? "NEW" : "", x.pinned ? "Pinned" : "", x.expires ? "until " + x.expires : ""].filter(Boolean).join(" · "),
     },
+    updates: {
+      label: "Updates", file: "content/updates.json", list: true, noun: "update",
+      hint: "News shown on the Updates page (newest first). The page appears in the menu once there is at least one update.",
+      fields: [
+        { k: "title", l: "Title", t: "text", req: true },
+        { k: "date", l: "Date", t: "date", def: today },
+        { k: "body", l: "Details. Use - for bullet points", t: "area" },
+        { k: "link", l: "Link (optional)", t: "text", ph: "https://… or papers.html" },
+      ],
+      summary: (x) => x.date || "",
+    },
     highlights: {
       label: "Publications", file: "content/highlights.json", list: true, noun: "publication",
       hint: "Author names are never shown. Upload the journal logo once; later papers in the same journal can reuse it.",
@@ -132,6 +143,7 @@
         { k: "category", l: "Subject", t: "text", ph: "Research Methodology" },
         { k: "date", l: "Date", t: "date", def: today },
         { k: "summary", l: "Short summary", t: "area" },
+        { k: "body", l: "Full note (optional). Use ## for headings and - for bullet points", t: "area" },
         { k: "pdf", l: "File (PDF / Word / PowerPoint)", t: "file" },
         { k: "link", l: "Or a link (optional)", t: "text", ph: "https://drive.google.com/…" },
       ],

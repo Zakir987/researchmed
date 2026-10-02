@@ -56,7 +56,7 @@
     flushP(); flushL();
     return html;
   }
-  const plain = (s, n = 180) => { s = String(s || "").replace(/[#*_\[\]()>-]/g, "").replace(/\s+/g, " ").trim(); return s.length > n ? s.slice(0, n - 1) + "…" : s; };
+  const plain = (s, n = 180) => { s = String(s || "").replace(/(^|\n)\s*[-•]\s+/g, "$1").replace(/[#*_\[\]()>]/g, "").replace(/\s+/g, " ").trim(); return s.length > n ? s.slice(0, n - 1) + "…" : s; };
 
   // ---------- Video helpers ----------
   function youtubeId(url) {
@@ -130,7 +130,7 @@
           <span><span class="brand-name">${esc(s.site_name || "ResearchMed Connect")}</span><span class="brand-tag">${esc(s.tagline || "Research. Learn. Publish. Grow.")}</span></span>
         </a>
         <nav class="nav" id="site-nav" aria-label="Main">
-          ${NAV.map(([h, t, k]) => `<a href="${h}" ${k === PAGE ? 'aria-current="page"' : ""}>${t}</a>`).join("")}
+          ${NAV.filter(([, , k]) => k !== "updates" || PAGE === "updates").map(([h, t, k]) => `<a href="${h}" ${k === PAGE ? 'aria-current="page"' : ""}>${t}</a>`).join("")}
           <a class="nav-cta" href="contact.html" ${PAGE === "contact" ? 'aria-current="page"' : ""}>Enquire now</a>
         </nav>
         <button class="theme-toggle" type="button" aria-label="Toggle dark mode">${ICON.moon}</button>
@@ -689,7 +689,7 @@
   // ---------- Chat assistant (every public page) ----------
   if (PAGE !== "admin") {
     const sc = document.createElement("script");
-    sc.src = "assets/js/bot.js?v=20261002d"; sc.defer = true;
+    sc.src = "assets/js/bot.js?v=20261002e"; sc.defer = true;
     document.body.append(sc);
   }
 })();
