@@ -13,7 +13,7 @@
   --primary: #1b5896;
   --primary-hover: #154a80;
   --on-primary: #ffffff;
-  --teal: #0e7c84;
+  --teal: #0a6970;
   --teal-soft: #e1f2f3;
   --amber: #9a5a00;
   --amber-soft: #fbefd9;
@@ -285,7 +285,7 @@ dialog.lightbox .close { position: fixed; top: 16px; right: 16px; width: 44px; h
 .site-footer a { color: #e6eef7; text-decoration: none; }
 .site-footer a:hover { text-decoration: underline; }
 .foot-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.2fr; gap: 32px; }
-.foot-grid h4 { font-family: var(--font-body); font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; color: #8fa6bd; margin-bottom: 12px; }
+.foot-grid h2, .foot-grid h4 { font-family: var(--font-body); font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; color: #8fa6bd; margin-bottom: 12px; }
 .foot-grid ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .foot-brand { display: grid; gap: 10px; }
 .foot-brand .brand-name { color: #fff; }
@@ -308,7 +308,7 @@ dialog.lightbox .close { position: fixed; top: 16px; right: 16px; width: 44px; h
 .idx-row { display: flex; flex-wrap: wrap; gap: 6px; }
 .idx { font-size: .74rem; font-weight: 700; letter-spacing: .03em; padding: 3px 9px; border-radius: 6px; border: 1px solid; background: var(--surface); }
 .idx-lg .idx { font-size: .85rem; padding: 6px 12px; }
-.idx-scopus { color: #c05a00; border-color: color-mix(in srgb, #c05a00 45%, transparent); }
+.idx-scopus { color: #a34c00; border-color: color-mix(in srgb, #a34c00 45%, transparent); }
 .idx-embase { color: #1d6f42; border-color: color-mix(in srgb, #1d6f42 45%, transparent); }
 .idx-pubmed { color: #205493; border-color: color-mix(in srgb, #205493 45%, transparent); }
 .idx-web-of-science { color: #6a3d9a; border-color: color-mix(in srgb, #6a3d9a 45%, transparent); }
@@ -319,8 +319,8 @@ dialog.lightbox .close { position: fixed; top: 16px; right: 16px; width: 44px; h
 .checks li::before { content: ""; position: absolute; left: 4px; top: .45em; width: 12px; height: 7px; border-left: 2.5px solid var(--teal); border-bottom: 2.5px solid var(--teal); transform: rotate(-45deg); }
 .latest { border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 6px; }
 .latest h3 { font-family: var(--font-body); font-size: .8rem; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
-.wa-fab { position: fixed; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 50; display: inline-flex; align-items: center; gap: 8px; background: #1f9d55; color: #fff; text-decoration: none; font-weight: 700; padding: 12px 16px; border-radius: 999px; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
-.wa-fab:hover { background: #188a49; color: #fff; }
+.wa-fab { position: fixed; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 50; display: inline-flex; align-items: center; gap: 8px; background: #147a3e; color: #fff; text-decoration: none; font-weight: 700; padding: 12px 16px; border-radius: 999px; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+.wa-fab:hover { background: #0f6632; color: #fff; }
 @media (max-width: 520px) { .wa-fab span { display: none; } .wa-fab { padding: 14px; } }
 [hidden] { display: none !important; }
 
@@ -350,9 +350,9 @@ dialog.lightbox .close { position: fixed; top: 16px; right: 16px; width: 44px; h
 @media (max-width: 760px) { .proof-grid { grid-template-columns: 1fr; } .proof-stats { gap: 24px; } .proof-stats b { font-size: 2rem; } }
 .idx:not(.idx-scopus):not(.idx-embase):not(.idx-pubmed):not(.idx-web-of-science) { color: var(--teal); border-color: color-mix(in srgb, var(--teal) 40%, transparent); }
 .grid-2 { grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr)); }
-.proof-txt { width: 72px; height: 72px; display: grid; place-items: center; border-radius: 12px; border: 1px solid var(--line); background: #fff; font-weight: 800; font-size: .82rem; letter-spacing: .02em; text-align: center; padding: 4px; }
-.proof-scopus { color: #c05a00; border-color: color-mix(in srgb, #c05a00 45%, transparent); }
-.proof-elsevier { color: #e9711c; border-color: color-mix(in srgb, #e9711c 45%, transparent); }
+.proof-txt { width: 72px; height: 72px; display: grid; place-items: center; border-radius: 12px; border: 1px solid var(--line); background: #fff; color: #3b4f63; font-weight: 800; font-size: .82rem; letter-spacing: .02em; text-align: center; padding: 4px; }
+.proof-scopus { color: #a34c00; border-color: color-mix(in srgb, #a34c00 45%, transparent); }
+.proof-elsevier { color: #a84a0a; border-color: color-mix(in srgb, #a84a0a 45%, transparent); }
 .proof-logo small { max-width: 96px; text-align: center; line-height: 1.25; }
 
 /* Floating notice board */
