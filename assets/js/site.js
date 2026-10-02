@@ -663,18 +663,85 @@
       .sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999) || byDate(a, b));
     if (!list.length) { sec.hidden = true; return; }
     const initials = (n) => String(n || "").replace(/^(dr|mr|ms|mrs|prof)\.?\s+/i, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
-    grid.innerHTML = list.slice(0, 9).map((t) => {
+    const cards = list.slice(0, 12).map((t, k) => {
       const r = Math.max(0, Math.min(5, Math.round(Number(t.rating) || 0)));
-      const stars = r ? `<div class="tst-stars" role="img" aria-label="${r} out of 5 stars">${"★".repeat(r)}<span>${"★".repeat(5 - r)}</span></div>` : "";
+      const stars = r ? `<div class="tst-stars" role="img" aria-label="${r} out of 5 stars">${"<i>★</i>".repeat(r)}<span>${"★".repeat(5 - r)}</span></div>` : "";
       const who = [t.role, t.institution].filter(Boolean).map(esc).join(", ");
-      return `<figure class="tst-card">
+      return `<figure class="tst-card" data-k="${k}" aria-roledescription="slide" aria-label="${k + 1} of ${Math.min(list.length, 12)}">
         ${stars}
         <blockquote>${esc(t.quote)}</blockquote>
         ${t.service ? `<span class="tst-service">${esc(t.service)}</span>` : ""}
         <figcaption>${t.photo ? `<img src="${esc(media(t.photo))}" alt="" loading="lazy">` : `<span class="tst-init" aria-hidden="true">${esc(initials(t.title))}</span>`}
           <span><b>${esc(t.title)}</b>${who ? `<small>${who}</small>` : ""}</span></figcaption>
       </figure>`;
-    }).join("");
+    });
+    grid.className = "tst-deck-wrap";
+    grid.setAttribute("role", "region"); grid.setAttribute("aria-roledescription", "carousel"); grid.setAttribute("aria-label", "Testimonials");
+    grid.innerHTML = `<div class="tst-deck">${cards.join("")}</div>
+      <div class="tst-ctrl">
+        <button class="jr-nav tst-prev" type="button" aria-label="Previous testimonial">‹</button>
+        <div class="tst-dots">${cards.map((_, k) => `<button type="button" class="tst-dot" aria-label="Show testimonial ${k + 1}"><span><i></i></span></button>`).join("")}</div>
+        <button class="jr-nav tst-next" type="button" aria-label="Next testimonial">›</button>
+        <button class="jr-pause tst-pause" type="button" aria-label="Pause testimonials">❚❚</button>
+      </div>`;
+    const deck = $(".tst-deck", grid), els = [...deck.children], dots = [...grid.querySelectorAll(".tst-dot")], pauseBtn = $(".tst-pause", grid);
+    const n = els.length, DELAY = 6000, reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let cur = 0, timer = null, userPaused = reduce, hovering = false;
+    // Size the deck to the card in front; cards behind take the same height so they peek out below it.
+    const fit = () => {
+      const f = els[cur]; f.style.height = "auto"; const h = f.offsetHeight;
+      els.forEach((e) => { if (e !== f) e.style.height = h + "px"; });
+      deck.style.height = h + (n > 1 ? 40 : 0) + "px";
+    };
+    const place = (dir) => {
+      els.forEach((e, k) => {
+        const rel = (k - cur + n) % n;
+        let pos = rel === 0 ? "0" : rel === 1 ? "1" : rel === 2 ? "2" : "hide";
+        if (dir === 1 && rel === n - 1 && n > 1) pos = "out";
+        e.dataset.pos = pos;
+        const front = rel === 0;
+        e.setAttribute("aria-hidden", front ? "false" : "true");
+        if (front) e.removeAttribute("inert"); else e.setAttribute("inert", "");
+        e.classList.toggle("is-front", front);
+      });
+      dots.forEach((d, k) => { d.classList.toggle("on", k === cur); d.setAttribute("aria-current", k === cur ? "true" : "false"); });
+      dots.forEach((d, k) => { const b = $("i", d); b.style.animation = "none"; b.style.transform = k === cur ? "scaleX(1)" : "scaleX(0)"; });
+      const bar = dots[cur] && $("i", dots[cur]);
+      if (bar && running()) { void bar.offsetWidth; bar.style.transform = ""; bar.style.animation = `jr-fill ${DELAY}ms linear forwards`; }
+      fit();
+      // replay the front card's entrance animation
+      const f = els[cur]; f.classList.remove("enter"); void f.offsetWidth; f.classList.add("enter");
+    };
+    const go = (to, dir) => {
+      if (dir === -1) { // coming back: start the new front card from the left
+        const e = els[(to + n) % n]; e.style.transition = "none"; e.dataset.pos = "out"; void e.offsetWidth; e.style.transition = "";
+      }
+      cur = (to + n) % n; place(dir); schedule();
+    };
+    const running = () => n > 1 && !userPaused && !hovering && !document.hidden;
+    const schedule = () => { clearTimeout(timer); if (running()) timer = setTimeout(() => go(cur + 1, 1), DELAY); };
+    $(".tst-prev", grid).addEventListener("click", () => go(cur - 1, -1));
+    $(".tst-next", grid).addEventListener("click", () => go(cur + 1, 1));
+    dots.forEach((d, k) => d.addEventListener("click", () => go(k, k > cur ? 1 : -1)));
+    pauseBtn.addEventListener("click", () => {
+      userPaused = !userPaused;
+      pauseBtn.textContent = userPaused ? "▶" : "❚❚";
+      pauseBtn.setAttribute("aria-label", userPaused ? "Play testimonials" : "Pause testimonials");
+      place(0); schedule();
+    });
+    grid.addEventListener("mouseenter", () => { hovering = true; place(0); schedule(); });
+    grid.addEventListener("mouseleave", () => { hovering = false; place(0); schedule(); });
+    grid.addEventListener("focusin", () => { hovering = true; place(0); schedule(); });
+    grid.addEventListener("focusout", (e) => { if (!grid.contains(e.relatedTarget)) { hovering = false; place(0); schedule(); } });
+    grid.addEventListener("keydown", (e) => { if (e.key === "ArrowRight") go(cur + 1, 1); if (e.key === "ArrowLeft") go(cur - 1, -1); });
+    document.addEventListener("visibilitychange", () => { place(0); schedule(); });
+    let x0 = null;
+    deck.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+    deck.addEventListener("touchend", (e) => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) go(cur + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1); x0 = null; });
+    if (n < 2) $(".tst-ctrl", grid).hidden = true;
+    if (reduce) { pauseBtn.textContent = "▶"; pauseBtn.setAttribute("aria-label", "Play testimonials"); }
+    fit(); window.addEventListener("resize", fit); window.addEventListener("load", fit);
+    place(0); schedule();
   }
 
   // ---------- Founder & Managing Director (home + about) ----------
