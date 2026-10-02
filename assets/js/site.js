@@ -22,6 +22,7 @@
     if (!u) return "";
     u = String(u).trim();
     if (/^(javascript|data|vbscript):/i.test(u)) return "";
+    if (/^(www\.)?[a-z0-9-]+(\.[a-z0-9-]+)+\.[a-z]{2,}\//i.test(u) || /^(www\.)?(linkedin|youtube|youtu|scholar\.google|orcid|researchgate|facebook|instagram|x|twitter)\.[a-z.]+(\/|$)/i.test(u)) return "https://" + u;
     return u;
   }
   function fmtDate(d) {
