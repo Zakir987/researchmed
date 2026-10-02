@@ -334,7 +334,7 @@
     const idx = (Array.isArray(p.indexing) ? p.indexing : String(p.indexing || "").split(",")).map((x) => String(x).trim()).filter(Boolean);
     const apply = p.apply_link ? safeUrl(p.apply_link) : `contact.html?service=${encodeURIComponent("Publication guidance")}&paper=${encodeURIComponent(p.title)}`;
     const ext = /^https?:/i.test(apply) ? ' target="_blank" rel="noopener"' : "";
-    const img = p.image ? `<img src="${esc(media(p.image))}" alt="" loading="lazy">` : `<span class="bk-fallback"><span>${esc(p.field || "Research paper")}</span></span>`;
+    const img = p.image ? `<img src="${esc(media(p.image))}" alt="Poster: ${esc(p.title)}" loading="lazy">` : `<span class="bk-fallback"><span>${esc(p.field || "Research paper")}</span></span>`;
     const tags = [p.study_type, p.field].filter(Boolean);
     return `<article class="bk-card pp-card" id="${esc(p._id)}">
       <div class="bk-cover pp-img">${img}</div>
@@ -422,7 +422,7 @@
     const tagFor = { videos: ["tag-video", "Video"], notes: ["tag-note", "Notes"], highlights: ["tag-highlight", "Paper"], gallery: ["tag-gallery", "Photo"], updates: ["tag-update", "Update"] };
     const hrefFor = (it) => (it._c === "gallery" ? "gallery.html" : it._c === "updates" ? "updates.html#" + it._id : link(it._c, it));
     const mixed = [...(showVideos ? videos : []), ...notes, ...updates].sort(byDate).slice(0, 4);
-    if (mixed.length) {
+    if (mixed.length && $("#latest-feed")) {
       $("#latest-feed").innerHTML = mixed.map((it) => `<a href="${hrefFor(it)}"><span class="tag ${tagFor[it._c][0]}">${tagFor[it._c][1]}</span><span class="t">${esc(it.title)}</span><span class="m">${fmtDate(it.date)}</span></a>`).join("");
     } else hide("#latest-wrap");
 
@@ -586,7 +586,7 @@
     let i = 0, timer = null, userPaused = reduce, hovering = false;
     const slide = (j) => {
       const u = safeUrl(j.url);
-      const mark = j.logo ? `<img src="${esc(media(j.logo))}" alt="" loading="lazy">` : `<span class="jr-abbr">${esc(j.short || j.title)}</span>`;
+      const mark = j.logo ? `<img src="${esc(media(j.logo))}" alt="${esc(j.short || j.title)} logo" loading="lazy">` : `<span class="jr-abbr">${esc(j.short || j.title)}</span>`;
       const body = `<span class="jr-mark">${mark}</span><span class="jr-text"><b>${esc(j.title)}</b><small>${esc(j.short || "")}${u ? " · Visit journal ↗" : ""}</small></span>`;
       return u ? `<a class="jr-card" href="${esc(u)}" target="_blank" rel="noopener">${body}</a>` : `<div class="jr-card">${body}</div>`;
     };
@@ -671,7 +671,7 @@
         ${stars}
         <blockquote>${esc(t.quote)}</blockquote>
         ${t.service ? `<span class="tst-service">${esc(t.service)}</span>` : ""}
-        <figcaption>${t.photo ? `<img src="${esc(media(t.photo))}" alt="" loading="lazy">` : `<span class="tst-init" aria-hidden="true">${esc(initials(t.title))}</span>`}
+        <figcaption>${t.photo ? `<img src="${esc(media(t.photo))}" alt="${esc(t.title)}" loading="lazy">` : `<span class="tst-init" aria-hidden="true">${esc(initials(t.title))}</span>`}
           <span><b>${esc(t.title)}</b>${who ? `<small>${who}</small>` : ""}</span></figcaption>
       </figure>`;
     });
@@ -782,7 +782,7 @@
     if (!list.length) { sec.hidden = true; return; }
     const initials = (n) => String(n || "").replace(/^(dr|mr|ms|mrs|prof)\.?\s+/i, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
     grid.innerHTML = list.map((p) => {
-      const inner = `${p.photo ? `<img class="tm-photo" src="${esc(media(p.photo))}" alt="" loading="lazy">` : `<span class="tm-photo tm-init" aria-hidden="true">${esc(initials(p.title))}</span>`}
+      const inner = `${p.photo ? `<img class="tm-photo" src="${esc(media(p.photo))}" alt="${esc(p.title)}" loading="lazy">` : `<span class="tm-photo tm-init" aria-hidden="true">${esc(initials(p.title))}</span>`}
         <span class="tm-name">${esc(p.title)}</span>${p.role ? `<span class="tm-role">${esc(p.role)}</span>` : ""}${p.institution ? `<span class="tm-inst">${esc(p.institution)}</span>` : ""}`;
       return p.link ? `<a class="tm-card" href="${esc(safeUrl(p.link))}" target="_blank" rel="noopener">${inner}</a>` : `<div class="tm-card">${inner}</div>`;
     }).join("");
