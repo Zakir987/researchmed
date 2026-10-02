@@ -20,6 +20,27 @@
       "date": "2026-10-02",
       "summary": "How to write a clear, polite point-by-point response that improves your chances after a revision decision.",
       "body": "A *major* or *minor revision* decision is good news: the journal is interested in your paper. How you respond matters.\n\n## Before you start\n- Read all comments, then wait a day before replying\n- Group comments into: easy fixes, ones needing new analysis, and ones you disagree with\n\n## Writing the response letter\n- Thank the editor and reviewers briefly at the start\n- Copy **each comment** and write your reply directly below it\n- Say exactly what you changed and where (page and line numbers)\n- Highlight changes in the revised manuscript, or use tracked changes if the journal asks\n\n## When you disagree\n- Stay polite and evidence-based\n- Explain your reasoning with references\n- Where possible, add a sentence or limitation to the paper to show you considered the point\n\n## Before resubmitting\n- Check every comment has a reply\n- Keep within the revision deadline, and ask the editor for an extension early if you need one\n\n[Get help with your revision](contact.html)."
+    },
+    {
+      "title": "How to spot a predatory journal",
+      "category": "Publication",
+      "date": "2026-10-02",
+      "summary": "Warning signs that a journal exists mainly to collect fees, and how to check before you submit.",
+      "body": "Predatory journals charge publication fees but skip real peer review. A paper published there can harm your profile and is hard to withdraw.\n\n## Warning signs\n- Unsolicited emails praising your work and inviting you to submit\n- Promises of acceptance or publication within a few days\n- Claims of indexing you cannot confirm (for example 'indexed in PubMed' with no NLM Catalog record)\n- Fake or misleading metrics such as 'Global Impact Factor' or 'Universal Impact Factor'\n- A very broad scope (\"all subjects\"), poor English on the website and no clear editorial board details\n- Fees that are not stated until after acceptance\n\n## How to check\n- Search the journal on the **Scopus Sources** list, the **NLM Catalog** and Clarivate's **Master Journal List**\n- For open-access journals, check **DOAJ**\n- Use the **Think. Check. Submit.** checklist\n- Ask your guide or a senior colleague if they know the journal\n\nNot sure about a journal? [Send us its name](contact.html) and we will help you check it."
+    },
+    {
+      "title": "Sample size basics for allied health studies",
+      "category": "Research Methods",
+      "date": "2026-10-02",
+      "summary": "What you need to decide before calculating sample size, and the common mistakes reviewers point out.",
+      "body": "Reviewers and ethics committees expect a sample size that is **justified**, not just convenient.\n\n## What you need before calculating\n- **Study design**: cross-sectional, comparative, randomised trial, etc.\n- **Main outcome**: the one result your study is built around\n- **Expected value or effect**: prevalence, mean difference or proportion, taken from a previous study or a pilot\n- **Confidence level** (usually 95%) and **power** (usually 80% or 90%) for comparative studies\n- **Allowance for drop-outs or non-response**, often 10–20%\n\n## Common mistakes\n- Choosing a round number (\"100 participants\") with no calculation\n- Using an expected value without citing where it came from\n- Calculating for one outcome but analysing a different main outcome\n- Not stating the formula or software used (for example OpenEpi or G*Power)\n\n## How to report it\nState the formula or software, every value you used and its source, and the final number after adding the drop-out allowance.\n\n[Get help with your sample size](contact.html)."
+    },
+    {
+      "title": "Vancouver referencing: a quick guide",
+      "category": "Academic Writing",
+      "date": "2026-10-02",
+      "summary": "How numbered Vancouver citations work, with the formats for journal articles, books and websites.",
+      "body": "Most medical and allied health journals use the **Vancouver** (numbered) style.\n\n## In the text\n- Number references in the order they are first cited: 1, 2, 3...\n- Reuse the same number when you cite a source again\n- Follow the journal's format: superscript¹ or square brackets [1]\n\n## Journal article\nAuthor AA, Author BB, Author CC. Title of article. Abbreviated Journal Name. Year;Volume(Issue):pages. doi:xx.xxxx\n\n- List up to six authors; if there are more, list the first six followed by *et al.*\n- Use the NLM abbreviation of the journal name\n\n## Book\nAuthor AA. Title of book. Edition. Place of publication: Publisher; Year.\n\n## Website\nAuthor or organisation. Title of page [Internet]. Place: Publisher; Year [cited Year Month Day]. Available from: URL\n\n## Tips\n- Always check the journal's own author guidelines; some change the details\n- A reference manager such as Zotero or Mendeley numbers citations for you\n\n[Ask us to check your references](contact.html)."
     }
   ]
 }
