@@ -304,16 +304,14 @@
       $(".admin-panel").innerHTML = `<p class="form-status err">Could not load: ${esc(e.message)}</p>`;
     }
   }
-  // Enquiries from the Contact page are stored in Google Forms (with an email alert for each one).
+  // Enquiries from the Contact page are emailed to info@researchmed.in via FormSubmit.
   function enquiriesPanel() {
-    const F = "https://docs.google.com/forms/d/17CFhG9P5h2U1AHCGWT1M3T0yWSy5tmHP-QlMuffXQU8/edit#responses";
-    const S = "https://docs.google.com/spreadsheets/d/14VFul76dwsgvovxH2GtAHDFkz2cwcv6wzYX2NY5P1mo/edit";
-    return `<p class="muted">Every enquiry sent from the website's Contact page is saved in your Google Form and a Google Sheet, and Google emails you a copy each time. Open them while signed in to Google as zakirhussain090@gmail.com.</p>
+    return `<p class="muted">Every enquiry sent from the website's Contact page is emailed straight to <b>info@researchmed.in</b> (Zoho Mail), with the subject "New enquiry RMC-…". The sender automatically gets a thank-you email with the same reference number.</p>
       <div class="btn-row" style="margin-top:14px">
-        <a class="btn btn-primary" href="${S}" target="_blank" rel="noopener">Open enquiries sheet</a>
-        <a class="btn btn-ghost" href="${F}" target="_blank" rel="noopener">Open form responses</a>
+        <a class="btn btn-primary" href="https://mail.zoho.in" target="_blank" rel="noopener">Open Zoho Mail</a>
+        <a class="btn btn-ghost" href="/contact.html" target="_blank" rel="noopener">Open contact page</a>
       </div>
-      <p class="muted" style="margin-top:14px">Tip: reply to a person by clicking their email address in the sheet.</p>`;
+      <p class="muted" style="margin-top:14px">Tip: just press Reply in Zoho Mail — it goes to the person who sent the enquiry.</p>`;
   }
   function bindTabs() {
     root.querySelectorAll("[data-tab]").forEach((b) => b.addEventListener("click", () => start(b.dataset.tab)));
