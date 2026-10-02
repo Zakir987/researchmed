@@ -685,4 +685,11 @@
     if (PAGE === "item") item();
     if (PAGE === "contact") contactForm(settings);
   })();
+
+  // ---------- Chat assistant (every public page) ----------
+  if (PAGE !== "admin") {
+    const sc = document.createElement("script");
+    sc.src = "assets/js/bot.js?v=20261002b"; sc.defer = true;
+    document.body.append(sc);
+  }
 })();
