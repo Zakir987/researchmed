@@ -64,37 +64,44 @@ function doPost(e) {
       return resultPage_("The email address is invalid.", false);
     }
 
-    if (!fileData) return resultPage_("No manuscript/CV file was received.", false);
-
-    const estimatedBytes = Math.floor(fileData.length * 3 / 4);
-    if (estimatedBytes > CONFIG.MAX_FILE_BYTES) {
-      return resultPage_("The uploaded file is larger than 10 MB.", false);
+    if (kind === "manuscript" && !fileData) {
+      return resultPage_("No manuscript file was received.", false);
     }
 
-    const ext = (filename.match(/\\.([a-z0-9]+)$/i) || ["", ""])[1].toLowerCase();
-    const allowed = kind === "reviewer"
-      ? ["doc", "docx", "pdf"]
-      : ["doc", "docx"];
+    let driveUrl = "";
+    let folderUrl = "";
 
-    if (!allowed.includes(ext)) {
-      return resultPage_("Unsupported file type. Please upload the required Word file.", false);
+    if (fileData) {
+      const estimatedBytes = Math.floor(fileData.length * 3 / 4);
+      if (estimatedBytes > CONFIG.MAX_FILE_BYTES) {
+        return resultPage_("The uploaded file is larger than 10 MB.", false);
+      }
+
+      const ext = (filename.match(/\\.([a-z0-9]+)$/i) || ["", ""])[1].toLowerCase();
+      const allowed = kind === "reviewer"
+        ? ["doc", "docx", "pdf"]
+        : ["doc", "docx"];
+
+      if (!allowed.includes(ext)) {
+        return resultPage_("Unsupported file type. Please upload the required Word file.", false);
+      }
+
+      const bytes = Utilities.base64Decode(fileData);
+      if (bytes.length > CONFIG.MAX_FILE_BYTES) {
+        return resultPage_("The uploaded file is larger than 10 MB.", false);
+      }
+
+      const root = getOrCreateFolder_(CONFIG.ROOT_FOLDER);
+      const submissionFolder = root.createFolder(reference);
+      const blob = Utilities.newBlob(bytes, mimeType, filename);
+      const driveFile = submissionFolder.createFile(blob);
+      driveFile.setDescription(
+        CONFIG.SHORT_NAME + " " + kind + " | " + reference + " | " + name
+      );
+
+      driveUrl = driveFile.getUrl();
+      folderUrl = submissionFolder.getUrl();
     }
-
-    const bytes = Utilities.base64Decode(fileData);
-    if (bytes.length > CONFIG.MAX_FILE_BYTES) {
-      return resultPage_("The uploaded file is larger than 10 MB.", false);
-    }
-
-    const root = getOrCreateFolder_(CONFIG.ROOT_FOLDER);
-    const submissionFolder = root.createFolder(reference);
-    const blob = Utilities.newBlob(bytes, mimeType, filename);
-    const driveFile = submissionFolder.createFile(blob);
-    driveFile.setDescription(
-      CONFIG.SHORT_NAME + " " + kind + " | " + reference + " | " + name
-    );
-
-    const driveUrl = driveFile.getUrl();
-    const folderUrl = submissionFolder.getUrl();
 
     const subject = kind === "reviewer"
       ? "IJAOTT reviewer/editor application " + reference + ": " + name
@@ -169,8 +176,8 @@ function buildEmail_(kind, d) {
     "<table cellpadding='7' cellspacing='0' border='1' style='border-collapse:collapse'>" +
     rows.map(x => "<tr><td><b>" + esc_(x[0]) + "</b></td><td>" + esc_(x[1]).replace(/\\n/g, "<br>") + "</td></tr>").join("") +
     "</table>" +
-    "<p><b>Uploaded file:</b> <a href='" + escAttr_(d.driveUrl) + "'>Open manuscript/CV in Google Drive</a></p>" +
-    "<p><b>Submission folder:</b> <a href='" + escAttr_(d.folderUrl) + "'>Open submission folder</a></p>" +
+    (d.driveUrl ? "<p><b>Uploaded file:</b> <a href='" + escAttr_(d.driveUrl) + "'>Open manuscript/CV in Google Drive</a></p>" : "") +
+    (d.folderUrl ? "<p><b>Submission folder:</b> <a href='" + escAttr_(d.folderUrl) + "'>Open submission folder</a></p>" : "") +
     "<p>Submitted through researchmed.in.</p>" +
     "</div>";
 }
