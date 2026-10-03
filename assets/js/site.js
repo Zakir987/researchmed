@@ -108,6 +108,7 @@
       ["highlights.html", "Publications", "highlights", n.highlights > 0],
       ["books.html", "Books", "books", true],
       ["papers.html", "Collaborate", "papers", true],
+      ["journal/", "Journal", "journal", true],
       ["videos.html", "Videos", "videos", s.show_videos === true && n.videos > 0],
       ["notes.html", "Notes", "notes", n.notes > 0],
       ["gallery.html", "Gallery", "gallery", n.gallery > 0],
