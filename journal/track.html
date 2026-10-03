@@ -21,7 +21,7 @@
 <link rel="stylesheet" href="assets/css/style.css?v=20261003e">
 <script>try{var t=localStorage.getItem("rmc-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <style>
-.trk-hero{position:relative;overflow:hidden;padding-block:64px 88px;text-align:center;border-bottom:1px solid var(--line);background:radial-gradient(1200px 420px at 50% -10%,color-mix(in srgb,var(--primary) 22%,transparent),transparent 70%),linear-gradient(180deg,var(--hero-a),var(--hero-b))}
+.trk-hero{position:relative;overflow:hidden;padding-block:64px 60px;text-align:center;border-bottom:1px solid var(--line);background:radial-gradient(1200px 420px at 50% -10%,color-mix(in srgb,var(--primary) 22%,transparent),transparent 70%),linear-gradient(180deg,var(--hero-a),var(--hero-b))}
 .trk-hero::before,.trk-hero::after{content:"";position:absolute;border-radius:50%;filter:blur(60px);opacity:.45;pointer-events:none;animation:trkFloat 14s ease-in-out infinite}
 .trk-hero::before{width:340px;height:340px;left:-80px;top:10px;background:color-mix(in srgb,var(--teal) 55%,transparent)}
 .trk-hero::after{width:300px;height:300px;right:-60px;bottom:-60px;background:color-mix(in srgb,var(--primary) 55%,transparent);animation-delay:-7s}
@@ -29,7 +29,7 @@
 .trk-hero .wrap{position:relative;z-index:1}
 .trk-hero h1{font-family:var(--font-display);font-size:clamp(2rem,5vw,3.2rem);line-height:1.1;margin:14px 0 12px;background:var(--grad-text,var(--primary));-webkit-background-clip:text;background-clip:text;color:transparent}
 .trk-hero p{color:var(--muted);max-width:560px;margin:0 auto;font-size:1.08rem}
-.trk-search{position:relative;z-index:2;max-width:680px;margin:-46px auto 0;padding:10px;display:flex;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:999px;box-shadow:0 18px 50px -18px color-mix(in srgb,var(--primary) 55%,transparent),var(--shadow);transition:box-shadow .3s,border-color .3s}
+.trk-search{position:relative;z-index:2;max-width:680px;margin:0 auto;padding:10px;display:flex;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:999px;box-shadow:0 18px 50px -18px color-mix(in srgb,var(--primary) 55%,transparent),var(--shadow);transition:box-shadow .3s,border-color .3s}
 .trk-search:focus-within{border-color:var(--primary);box-shadow:0 0 0 4px color-mix(in srgb,var(--primary) 18%,transparent),0 18px 50px -18px color-mix(in srgb,var(--primary) 70%,transparent)}
 .trk-search svg{flex:none;margin-left:12px;color:var(--muted)}
 .trk-search input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:600 1.05rem/1.2 var(--font-mono);letter-spacing:.04em;text-transform:uppercase;padding:12px 4px;outline:none}
@@ -82,7 +82,7 @@
 .trk-help{max-width:880px;margin:40px auto 0;text-align:center;color:var(--muted);font-size:.95rem}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (max-width:760px){
-  .trk-search{border-radius:20px;flex-wrap:wrap;margin-top:-40px}
+  .trk-search{border-radius:20px;flex-wrap:wrap;margin-top:0}
   .trk-search svg{display:none}
   .trk-search input{flex:1 1 100%;padding:12px 10px;text-align:center}
   .trk-search button{flex:1 1 100%}
