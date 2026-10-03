@@ -22,153 +22,121 @@
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/source-sans-3@5.3.0/files/source-sans-3-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/css/style.css?v=20261002j">
+<link rel="stylesheet" href="assets/css/style.css?v=20261003a">
 <script>try{var t=localStorage.getItem("rmc-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "EducationalOrganization", "@id": "https://researchmed.in/#org", "name": "ResearchMed Connect", "url": "https://researchmed.in/", "logo": "https://researchmed.in/media/brand/researchmed-logo.webp", "image": "https://researchmed.in/assets/img/og.png", "slogan": "Research. Learn. Publish. Grow.", "description": "Research and publication guidance for healthcare professionals, allied health students, researchers and aspiring authors.", "email": "info@researchmed.in", "telephone": "+917006869559", "areaServed": "IN", "knowsLanguage": ["en", "hi"], "founder": {"@type": "Person", "name": "Dr. Zakir Hussain Parray", "jobTitle": "Managing Director", "sameAs": ["https://www.linkedin.com/in/zakir-hussain-parray-b3ba153b2"]}, "contactPoint": {"@type": "ContactPoint", "contactType": "customer support", "email": "info@researchmed.in", "telephone": "+917006869559", "availableLanguage": ["English", "Hindi"]}}, {"@type": "WebSite", "@id": "https://researchmed.in/#website", "url": "https://researchmed.in/", "name": "ResearchMed Connect", "publisher": {"@id": "https://researchmed.in/#org"}, "inLanguage": "en-IN"}]}</script>
 </head>
 <body data-page="home">
+<div class="scroll-progress" aria-hidden="true"><i></i></div>
 <main id="main">
 
-<section class="hero"><div class="wrap hero-grid">
+<section class="hero hero-x"><div class="hero-bg" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="grid-fx"></span></div>
+<div class="wrap hero-grid">
   <div class="hero-copy">
-    <span class="eyebrow pill-eyebrow" id="hero-eyebrow">Research. Learn. Publish. Grow.</span>
+    <span class="eyebrow pill-eyebrow live-pill" id="hero-eyebrow">Research. Learn. Publish. Grow.</span>
     <h1 id="hero-title">Empowering your research and publication journey</h1>
     <p class="lead" id="hero-lead">ResearchMed Connect provides accessible and affordable academic guidance for healthcare professionals, students, researchers, and aspiring authors.</p>
     <p class="sub" id="hero-sub">From your first research question to acceptance in an indexed journal, we guide you through every step with ethical, practical support.</p>
-    <div class="btn-row"><a class="btn btn-primary" href="contact.html">Get guidance</a><a class="btn btn-ghost" href="services.html">Our services</a></div>
-    <ul class="hero-cred" aria-label="Our guides">
-      <li><b>Ph.D.</b> qualified mentors</li>
-      <li><b>7+ years</b> teaching &amp; research</li>
-      <li><b>Allied health</b> specialists</li>
-    </ul>
+    <div class="btn-row"><a class="btn btn-primary btn-lg btn-shine" href="contact.html">Get guidance <span aria-hidden="true">→</span></a><a class="btn btn-ghost btn-lg" href="highlights.html">See our publications</a></div>
+    <div class="hero-trust" id="hero-trust" hidden></div>
   </div>
-  <div class="hero-panel">
-    <h2>Publish in indexed journals</h2>
-    <p class="muted" style="font-size:.98rem">Guidance for manuscripts targeting journals indexed in:</p>
+  <div class="hero-panel glass">
+    <div class="hp-top"><span class="live-dot" aria-hidden="true"></span><span>Your research, step by step</span></div>
+    <ol class="hp-steps">
+      <li><b>Topic &amp; protocol</b><span>Feasible question, design, sample size</span></li>
+      <li><b>Data &amp; statistics</b><span>Right tests, clear interpretation</span></li>
+      <li><b>Manuscript</b><span>IMRaD, referencing, originality</span></li>
+      <li><b>Journal &amp; submission</b><span>Genuine indexed journals, reviewer replies</span></li>
+    </ol>
+    <p class="hp-label">We help you target journals indexed in</p>
     <div class="idx-row idx-lg"><span class="idx idx-scopus">Scopus</span><span class="idx idx-embase">Embase</span><span class="idx idx-pubmed">PubMed</span><span class="idx idx-web-of-science">Web of Science</span></div>
-    <ul class="checks">
-      <li>Topic selection, protocol and methodology</li>
-      <li>Manuscript writing, formatting and referencing</li>
-      <li>Journal selection and reviewer responses</li>
-    </ul>
-    <div class="btn-row"><a class="btn btn-primary" href="contact.html">Send an enquiry</a></div>
+    <a class="btn btn-primary btn-block" href="contact.html">Send a free enquiry</a>
+    <p class="hp-note">Reply within 1–2 working days · Confidential</p>
   </div>
 </div></section>
 
-<section class="proof" id="home-proof"><div class="wrap proof-grid">
-  <div class="proof-stats" id="proof-stats"></div>
-  <div class="proof-right"><span class="eyebrow">Recently published in</span><div class="proof-logos" id="proof-logos"></div></div>
+<section class="stats-band" id="home-proof"><div class="wrap">
+  <div class="stats" id="proof-stats"></div>
+  <div class="proof-row"><span class="eyebrow">Our team&rsquo;s recent papers appeared in</span><div class="proof-logos" id="proof-logos"></div></div>
 </div></section>
 
-<section class="section" id="home-journals"><div class="wrap"><div class="section-head"><div><span class="eyebrow">Journal selection</span><h2>Indexed Indian journals we guide you towards</h2></div></div><div class="proof-logos" id="home-journals-logos"></div><p class="muted" style="font-size:.8rem;margin-top:14px">Journal names belong to their publishers. ResearchMed Connect is not affiliated with these journals.</p></div></section>
-
-<section class="section band" id="founder-section" hidden><div class="wrap">
-  <div class="founder" id="founder"></div>
+<section class="section" id="home-highlights-section"><div class="wrap">
+  <div class="section-head reveal"><div><span class="eyebrow">Our publications</span><h2>Published research</h2><p>Recent peer-reviewed papers by our team. Every listing links to the published article.</p></div><a class="see-all" href="highlights.html">All publications →</a></div>
+  <div class="grid grid-2 reveal-kids" id="home-highlights"></div>
 </div></section>
 
-<section class="section" id="home-experts"><div class="wrap experts">
-  <div class="experts-copy">
-    <span class="eyebrow">Who guides you</span>
-    <h2>Guidance from experienced allied health academics</h2>
-    <p>Every enquiry is handled by experienced professionals from allied health domains. Each of our mentors holds a <strong>Ph.D.</strong> and has <strong>more than 7 years of experience</strong> in teaching and research.</p>
-    <p>They have guided students, supervised projects and published in peer-reviewed journals themselves, so the advice you get comes from people who do this work every day.</p>
-    <ul class="ticks">
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Ph.D.-qualified subject experts</li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Active teachers, researchers and published authors</li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Mentors matched to your own allied health field</li>
-      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Ethical, confidential, one-to-one guidance</li>
-    </ul>
-    <div class="btn-row"><a class="btn btn-primary" href="contact.html">Talk to a mentor</a></div>
-  </div>
-  <div class="cred-grid" aria-label="Our mentors at a glance">
-    <div class="cred"><b>Ph.D.</b><span>Doctorate-qualified mentors</span></div>
-    <div class="cred"><b>7+ yrs</b><span>Teaching &amp; research experience each</span></div>
-    <div class="cred"><b>12+</b><span>Allied health domains covered</span></div>
-    <div class="cred"><b>1 : 1</b><span>Personal mentoring, at your pace</span></div>
-  </div>
-</div></section>
-
-<section class="section band" id="home-domains"><div class="wrap">
-  <div class="section-head"><div><span class="eyebrow">Our expertise</span><h2>Allied health domains we guide in</h2><p>Mentors with subject knowledge in your field, not just general writing help.</p></div></div>
-  <ul class="domains"><li>Anaesthesia &amp; Operation Theatre Technology</li><li>Medical Laboratory Technology</li><li>Radiology &amp; Imaging Technology</li><li>Physiotherapy</li><li>Nursing</li><li>Cardiac Care Technology</li><li>Dialysis Technology</li><li>Emergency &amp; Trauma Care</li><li>Respiratory Therapy</li><li>Optometry</li><li>Public Health</li><li>Health Professions Education</li><li class="more">and related health sciences</li></ul>
-</div></section>
-
-<section class="section" id="home-journey"><div class="wrap">
-  <div class="section-head"><div><span class="eyebrow">End-to-end support</span><h2>Guidance at every step of your research</h2><p>From the first idea to the final submission, you are never on your own.</p></div><a class="see-all" href="services.html">All services →</a></div>
-  <ol class="journey"><li><b>Topic &amp; research question</b><span>Choosing a relevant, feasible and original topic.</span></li><li><b>Literature review</b><span>Searching PubMed and Google Scholar, and organising the evidence.</span></li><li><b>Protocol &amp; synopsis</b><span>Aims, objectives, design, sampling and sample size.</span></li><li><b>Ethics committee (IEC)</b><span>Preparing documents for ethical approval and consent forms.</span></li><li><b>Questionnaires &amp; tools</b><span>Designing and validating data-collection tools.</span></li><li><b>Statistics &amp; analysis</b><span>Choosing the right tests and interpreting the results.</span></li><li><b>Manuscript writing</b><span>IMRaD structure, tables, figures and a clear abstract.</span></li><li><b>Referencing</b><span>Vancouver and APA styles, reference managers.</span></li><li><b>Originality check</b><span>Understanding similarity reports and writing in your own words.</span></li><li><b>Journal selection</b><span>Indexed, peer-reviewed journals and avoiding predatory ones.</span></li><li><b>Submission &amp; peer review</b><span>Cover letters, submission portals and reviewer responses.</span></li><li><b>Thesis, posters &amp; books</b><span>Dissertations, conference abstracts, posters and chapters.</span></li></ol>
-</div></section>
-
-<section class="section band" id="home-steps"><div class="wrap">
-  <div class="section-head"><div><span class="eyebrow">How it works</span><h2>Four simple steps</h2></div></div>
-  <ol class="steps"><li><b>Share your requirement</b><span>Send an enquiry with your topic, stage and deadline.</span></li><li><b>Get matched with a mentor</b><span>We connect you with a Ph.D. mentor from your allied health domain.</span></li><li><b>Work step by step</b><span>Clear feedback on your protocol, analysis and manuscript, at your pace.</span></li><li><b>Submit with confidence</b><span>A well-prepared manuscript, ready for a suitable indexed journal.</span></li></ol>
-  <div class="btn-row" style="margin-top:28px"><a class="btn btn-primary" href="contact.html">Start with step 1</a></div>
-</div></section>
-
-<section class="section" id="home-testimonials-section"><div class="wrap">
-  <div class="section-head"><div><span class="eyebrow">Testimonials</span><h2>What our learners say</h2><p>Feedback from students, scholars and professionals we have guided.</p></div></div>
+<section class="section band" id="home-testimonials-section"><div class="wrap">
+  <div class="section-head center reveal"><div><span class="eyebrow">Testimonials</span><h2>What our learners say</h2><p>Faculty, postgraduates and clinicians we have guided to publication.</p></div></div>
   <div class="tst-grid" id="home-testimonials"></div>
   <div class="btn-row" style="margin-top:24px;justify-content:center"><a class="btn btn-ghost" href="feedback.html">Guided by us? Share your experience</a></div>
 </div></section>
 
-<section class="section" id="home-highlights-section"><div class="wrap">
-  <div class="section-head"><div><span class="eyebrow">Our publications</span><h2>Published research</h2><p>Recent papers by our team in peer-reviewed journals.</p></div><a class="see-all" href="highlights.html">All publications →</a></div>
-  <div class="grid grid-2" id="home-highlights"></div>
+<section class="section" id="founder-section" hidden><div class="wrap">
+  <div class="founder reveal" id="founder"></div>
 </div></section>
 
-<section class="section band" id="home-papers-section"><div class="wrap">
-  <div class="section-head"><div><span class="eyebrow">Co-authors wanted</span><h2>Join a research paper</h2><p>We are looking for co-authors for these research papers. Pick one and apply with your preferred role.</p></div><a class="see-all" href="papers.html">All papers →</a></div>
+<section class="section band" id="home-steps"><div class="wrap">
+  <div class="section-head center reveal"><div><span class="eyebrow">How it works</span><h2>From idea to indexed journal in four steps</h2></div></div>
+  <ol class="steps steps-x reveal-kids"><li><b>Share your requirement</b><span>Send an enquiry with your topic, stage and deadline.</span></li><li><b>Get matched with a mentor</b><span>A Ph.D. mentor from your own allied health field.</span></li><li><b>Work step by step</b><span>Clear feedback on protocol, analysis and manuscript, at your pace.</span></li><li><b>Submit with confidence</b><span>A well-prepared manuscript for a suitable, genuine journal.</span></li></ol>
+  <div class="btn-row" style="margin-top:32px;justify-content:center"><a class="btn btn-primary btn-shine" href="contact.html">Start with step 1</a></div>
+</div></section>
+
+<section class="section" id="home-journey"><div class="wrap">
+  <div class="section-head reveal"><div><span class="eyebrow">End-to-end support</span><h2>Help at every stage of your research</h2><p>Pick one stage or get support for the whole journey.</p></div><a class="see-all" href="services.html">All services →</a></div>
+  <ol class="journey reveal-kids"><li><b>Topic &amp; research question</b><span>Choosing a relevant, feasible and original topic.</span></li><li><b>Literature review</b><span>Searching PubMed and Google Scholar, and organising the evidence.</span></li><li><b>Protocol &amp; synopsis</b><span>Aims, objectives, design, sampling and sample size.</span></li><li><b>Ethics committee (IEC)</b><span>Preparing documents for ethical approval and consent forms.</span></li><li><b>Questionnaires &amp; tools</b><span>Designing and validating data-collection tools.</span></li><li><b>Statistics &amp; analysis</b><span>Choosing the right tests and interpreting the results.</span></li><li><b>Manuscript writing</b><span>IMRaD structure, tables, figures and a clear abstract.</span></li><li><b>Referencing</b><span>Vancouver and APA styles, reference managers.</span></li><li><b>Originality check</b><span>Understanding similarity reports and writing in your own words.</span></li><li><b>Journal selection</b><span>Indexed, peer-reviewed journals and avoiding predatory ones.</span></li><li><b>Submission &amp; peer review</b><span>Cover letters, submission portals and reviewer responses.</span></li><li><b>Thesis, posters &amp; books</b><span>Dissertations, conference abstracts, posters and chapters.</span></li></ol>
+</div></section>
+
+<section class="section band" id="home-domains"><div class="wrap">
+  <div class="section-head reveal"><div><span class="eyebrow">Our expertise</span><h2>Mentors from your own field</h2><p>Every mentor holds a Ph.D. and has 7+ years of teaching and research experience, so you get subject knowledge, not just writing help.</p></div></div>
+  <ul class="domains reveal-kids"><li>Anaesthesia &amp; Operation Theatre Technology</li><li>Medical Laboratory Technology</li><li>Radiology &amp; Imaging Technology</li><li>Physiotherapy</li><li>Nursing</li><li>Cardiac Care Technology</li><li>Dialysis Technology</li><li>Emergency &amp; Trauma Care</li><li>Respiratory Therapy</li><li>Optometry</li><li>Public Health</li><li>Health Professions Education</li><li class="more">and related health sciences</li></ul>
+</div></section>
+
+<section class="section" id="home-papers-section"><div class="wrap">
+  <div class="section-head reveal"><div><span class="eyebrow">Co-authors wanted</span><h2>Join a research paper</h2><p>Open author positions on our current papers. Apply with your preferred role before the last date.</p></div><a class="see-all" href="papers.html">All papers →</a></div>
   <div id="home-papers"></div>
 </div></section>
 
+<section class="section band" id="home-books-section"><div class="wrap">
+  <div class="section-head reveal"><div><span class="eyebrow">Call for authors</span><h2>Write a chapter with us</h2><p>We are inviting chapter authors for these upcoming books. Apply with your preferred chapter.</p></div><a class="see-all" href="books.html">All books →</a></div>
+  <div id="home-books"></div>
+</div></section>
+
 <section class="section" id="home-videos-section"><div class="wrap">
-  <div class="section-head"><div><span class="eyebrow">Watch &amp; learn</span><h2>Video lectures</h2><p>Short, practical lessons on research methods, writing and publishing.</p></div><a class="see-all" href="videos.html">All videos →</a></div>
+  <div class="section-head reveal"><div><span class="eyebrow">Watch &amp; learn</span><h2>Video lectures</h2><p>Short, practical lessons on research methods, writing and publishing.</p></div><a class="see-all" href="videos.html">All videos →</a></div>
   <div class="grid grid-3" id="home-videos"></div>
 </div></section>
 
 <section class="section" id="home-notes-section"><div class="wrap">
-  <div class="section-head"><div><span class="eyebrow">Free resources</span><h2>Notes &amp; study material</h2><p>Checklists, guides and lecture notes you can read online or download.</p></div><a class="see-all" href="notes.html">All notes →</a></div>
-  <div class="grid grid-3" id="home-notes"></div>
+  <div class="section-head reveal"><div><span class="eyebrow">Free resources</span><h2>Notes &amp; study material</h2><p>Checklists, guides and lecture notes you can read online or download.</p></div><a class="see-all" href="notes.html">All notes →</a></div>
+  <div class="grid grid-3 reveal-kids" id="home-notes"></div>
 </div></section>
 
-<section class="section band" id="home-books-section"><div class="wrap">
-  <div class="section-head"><div><span class="eyebrow">Call for authors</span><h2>Write a chapter with us</h2><p>We are inviting chapter authors for these upcoming books. Apply with your preferred chapter.</p></div><a class="see-all" href="books.html">All books →</a></div>
-  <div id="home-books"></div>
-</div></section>
-
-
-<section class="section" id="home-team-section"><div class="wrap">
-  <div class="section-head"><div><span class="eyebrow">Our team</span><h2>Contributors</h2><p>Clinicians, educators and researchers who contribute to ResearchMed Connect.</p></div></div>
-  <div class="team-grid" id="home-team"></div>
-</div></section>
+<section class="section band" id="home-journals"><div class="wrap"><div class="section-head"><div><span class="eyebrow">Journal selection</span><h2>Indexed Indian journals we guide you towards</h2><p>We help you choose genuine, well-indexed journals and steer clear of predatory ones.</p></div></div><div class="proof-logos" id="home-journals-logos"></div><p class="muted" style="font-size:.8rem;margin-top:14px">Journal names belong to their publishers. ResearchMed Connect is not affiliated with these journals.</p></div></section>
 
 <section class="section band" id="home-gallery-section"><div class="wrap">
   <div class="section-head"><div><span class="eyebrow">Gallery</span><h2>Workshops, events &amp; moments</h2></div><a class="see-all" href="gallery.html">Open gallery →</a></div>
   <div class="strip" id="home-gallery"></div>
 </div></section>
 
-
-<section class="section" id="home-audience"><div class="wrap">
-  <div class="section-head"><div><span class="eyebrow">Who we support</span><h2>Built for learners and professionals</h2></div></div>
-  <div class="aud"><div><h3>Undergraduate &amp; diploma students</h3><p>Projects, internship logbooks and first research papers.</p></div><div><h3>Postgraduate students</h3><p>Dissertations, synopses and thesis-based publications.</p></div><div><h3>Ph.D. scholars</h3><p>Protocols, analysis and publishing from your thesis.</p></div><div><h3>Faculty &amp; educators</h3><p>Papers for career progression and education research.</p></div><div><h3>Clinicians &amp; technologists</h3><p>Turning clinical work into audits, case reports and studies.</p></div><div><h3>Aspiring authors</h3><p>Book planning, chapter writing and publication.</p></div></div>
-</div></section>
-
-<section class="section band"><div class="wrap">
-  <div class="section-head"><div><span class="eyebrow">Why ResearchMed Connect</span><h2>Learning-focused, ethical, affordable</h2></div></div>
-  <div class="why">
-    <div><h3>Accessible guidance</h3><p>Research and publication information presented in an understandable, practical way.</p></div>
-    <div><h3>Affordable support</h3><p>Academic guidance made accessible to students and early-career professionals.</p></div>
-    <div><h3>Learning-focused</h3><p>We help you understand concepts and build your own research skills.</p></div>
-    <div><h3>Ethical approach</h3><p>We encourage originality, responsible authorship, transparency and ethical practice.</p></div>
-    <div><h3>Confidential</h3><p>Your ideas, data and drafts stay private and are never shared or reused.</p></div>
-    <div><h3>Supportive community</h3><p>A place where learners and professionals ask questions and keep growing.</p></div>
+<section class="section"><div class="wrap">
+  <div class="section-head center reveal"><div><span class="eyebrow">Why ResearchMed Connect</span><h2>Learning-focused, ethical, affordable</h2></div></div>
+  <div class="why why-x reveal-kids">
+    <div><span class="why-ic" aria-hidden="true">🎓</span><h3>Ph.D. mentors</h3><p>Doctorate-qualified, active teachers and published researchers in your field.</p></div>
+    <div><span class="why-ic" aria-hidden="true">⚖️</span><h3>Ethical approach</h3><p>We teach, not ghost-write. Originality, responsible authorship and transparency.</p></div>
+    <div><span class="why-ic" aria-hidden="true">🔒</span><h3>Confidential</h3><p>Your ideas, data and drafts stay private and are never shared or reused.</p></div>
+    <div><span class="why-ic" aria-hidden="true">💡</span><h3>Affordable</h3><p>Guidance priced for students and early-career professionals.</p></div>
+    <div><span class="why-ic" aria-hidden="true">🧭</span><h3>For every level</h3><p>Diploma and UG students, postgraduates, Ph.D. scholars, faculty and clinicians.</p></div>
+    <div><span class="why-ic" aria-hidden="true">🤝</span><h3>1 : 1 support</h3><p>Personal mentoring at your pace, from first idea to final submission.</p></div>
   </div>
 </div></section>
-<section class="section"><div class="wrap"><div class="cta">
+
+<section class="section" style="padding-top:0"><div class="wrap"><div class="cta cta-x reveal">
+  <span class="eyebrow">Get started</span>
   <h2>Ready to begin your research journey?</h2>
   <p>Tell us about your research, manuscript or book. We reply to every enquiry, usually within one to two working days.</p>
-  <div class="btn-row"><a class="btn btn-primary" href="contact.html">Send an enquiry</a><a class="btn btn-ghost" href="services.html">See our services</a></div>
+  <div class="btn-row"><a class="btn btn-primary btn-lg" href="contact.html">Send an enquiry</a><a class="btn btn-ghost btn-lg" id="cta-wa" href="contact.html">Chat on WhatsApp</a></div>
 </div></div></section>
 </main>
-<script src="assets/js/site.js?v=20261002j" defer></script>
+<script src="assets/js/site.js?v=20261003a" defer></script>
 </body>
 </html>
