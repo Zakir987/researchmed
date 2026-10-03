@@ -118,6 +118,11 @@
   <div class="strip" id="home-gallery"></div>
 </div></section>
 
+<section class="section band" id="home-team-section"><div class="wrap">
+  <div class="section-head center reveal"><div><span class="eyebrow">Our team</span><h2>Contributors</h2><p>Clinicians, educators and researchers who contribute to ResearchMed Connect.</p></div></div>
+  <div class="team-grid reveal-kids" id="home-team" style="grid-template-columns:repeat(auto-fill,minmax(min(100%,170px),1fr))"></div>
+</div></section>
+
 <section class="section"><div class="wrap">
   <div class="section-head center reveal"><div><span class="eyebrow">Why ResearchMed Connect</span><h2>Learning-focused, ethical, affordable</h2></div></div>
   <div class="why why-x reveal-kids">
@@ -137,6 +142,17 @@
   <div class="btn-row"><a class="btn btn-primary btn-lg" href="contact.html">Send an enquiry</a><a class="btn btn-ghost btn-lg" id="cta-wa" href="contact.html">Chat on WhatsApp</a></div>
 </div></div></section>
 </main>
+<script>
+/* Contributors on the home page (drawn from content/contributors.json) */
+(function(){var e=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
+var m=function(p){return !p?"":/^https?:/i.test(p)?p:String(p).replace(/^\//,"")};
+var ini=function(n){return String(n||"").replace(/^(dr|mr|ms|mrs|prof)\.?\s+/i,"").split(/\s+/).filter(Boolean).slice(0,2).map(function(w){return w[0].toUpperCase()}).join("")};
+fetch("content/contributors.json",{cache:"no-cache"}).then(function(r){return r.ok?r.json():{}}).then(function(j){
+var l=((j&&j.items)||[]).filter(function(p){return p&&p.title&&p.draft!==true}).sort(function(a,b){return(Number(a.order)||999)-(Number(b.order)||999)});
+var sec=document.getElementById("home-team-section"),g=document.getElementById("home-team");if(!sec||!g)return;if(!l.length){sec.hidden=true;return}
+g.innerHTML=l.map(function(p){var i=(p.photo?'<img class="tm-photo" src="'+e(m(p.photo))+'" alt="'+e(p.title)+'" loading="lazy">':'<span class="tm-photo tm-init" aria-hidden="true">'+e(ini(p.title))+'</span>')+'<span class="tm-name">'+e(p.title)+'</span>'+(p.role?'<span class="tm-role">'+e(p.role)+'</span>':"")+(p.institution?'<span class="tm-inst">'+e(p.institution)+'</span>':"");
+return p.link&&/^https?:/i.test(p.link)?'<a class="tm-card" href="'+e(p.link)+'" target="_blank" rel="noopener">'+i+'</a>':'<div class="tm-card">'+i+'</div>'}).join("")}).catch(function(){})})();
+</script>
 <script src="assets/js/site.js?v=20261003a" defer></script>
 </body>
 </html>
