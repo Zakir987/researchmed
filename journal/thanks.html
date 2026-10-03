@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Submission received | IJAOTT</title>
+<meta name="description" content="Your IJAOTT submission has been received.">
+<base href="/">
+<link rel="stylesheet" href="assets/css/style.css?v=20261003e">
+</head>
+<body data-page="journal">
+<main id="main">
+<section class="page-hero jr-hero"><div class="wrap">
+  <span class="eyebrow pill-eyebrow">Submission received</span>
+  <h1>Thank you for your submission</h1>
+  <p>Your manuscript has been sent to the IJAOTT editorial office.</p>
+</div></section>
+<section class="section" style="padding-top:36px"><div class="wrap">
+  <div class="contact-card">
+    <h2>Your reference number</h2>
+    <p id="reference" style="font-size:1.5rem;font-weight:700">—</p>
+    <p>Please keep this reference number for future correspondence and manuscript tracking.</p>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="journal/track.html">Track manuscript</a>
+      <a class="btn btn-ghost" href="journal/">Back to IJAOTT</a>
+    </div>
+  </div>
+</div></section>
+</main>
+<script>
+(function(){
+  const ref = new URLSearchParams(location.search).get("reference");
+  const el = document.getElementById("reference");
+  if (ref) el.textContent = ref;
+})();
+</script>
+</body>
+</html>
