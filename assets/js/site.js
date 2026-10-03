@@ -328,6 +328,14 @@
   }
 
   // ---------- Research papers: call for co-authors ----------
+  function daysLeft(deadline) {
+    if (!deadline) return "";
+    const end = new Date(deadline + "T23:59:59"), now = new Date();
+    if (isNaN(end)) return "";
+    const d = Math.floor((end - now) / 864e5);
+    const txt = d <= 0 ? "Closes today" : d === 1 ? "Last day tomorrow" : d <= 14 ? `${d} days left` : "";
+    return txt ? `<span class="bk-urgent">${txt}</span>` : "";
+  }
   function paperCard(p) {
     const open = bookOpen(p);
     const roles = String(p.roles || "").split(/\n+/).map((x) => x.replace(/^\s*[-•*\d.)]+\s*/, "").trim()).filter(Boolean);
@@ -339,7 +347,7 @@
     return `<article class="bk-card pp-card" id="${esc(p._id)}">
       <div class="bk-cover pp-img">${img}</div>
       <div class="bk-body">
-        <span class="bk-status ${open ? "is-open" : "is-closed"}">${open ? "Authors wanted" : "Closed"}</span>
+        <div class="bk-flags"><span class="bk-status ${open ? "is-open" : "is-closed"}">${open ? "Authors wanted" : "Closed"}</span>${open ? daysLeft(p.deadline) : ""}</div>
         <h3>${esc(p.title)}</h3>
         ${tags.length ? `<p class="bk-sub">${tags.map(esc).join(" · ")}</p>` : ""}
         ${p.description ? `<p class="bk-desc">${esc(p.description)}</p>` : ""}
@@ -414,6 +422,12 @@
     setText("#hero-title", s.hero_title);
     setText("#hero-lead", s.hero_text);
     setText("#hero-sub", s.hero_text_2);
+    const h1 = $("#hero-title");
+    if (h1) { // colour the key phrase of the headline
+      const t = h1.textContent, m = t.match(/research and publication/i);
+      if (m) h1.innerHTML = esc(t.slice(0, m.index)) + `<span class="gt">${esc(m[0])}</span>` + esc(t.slice(m.index + m[0].length));
+      else { const w = t.trim().split(/\s+/); if (w.length > 3) h1.innerHTML = esc(w.slice(0, -2).join(" ")) + ` <span class="gt">${esc(w.slice(-2).join(" "))}</span>`; }
+    }
     const { videos, notes, highlights, gallery, updates } = data;
     const showVideos = s.show_videos === true;
     const hide = (id) => { const el = $(id); if (el) el.hidden = true; };
@@ -432,10 +446,11 @@
     if (hl.length && $("#home-proof")) {
       const years = [...new Set(hl.map((h) => (String(h.date || "").match(/\d{4}/) || [""])[0]).filter(Boolean))].sort();
       const nSub = Number(s.papers_submitted) || 0, nPub = Number(s.papers_published) || hl.length;
-      $("#proof-stats").innerHTML = `${nSub ? `<div><b>${nSub}</b><span>papers submitted</span></div>` : ""}<div><b>${nPub}</b><span>papers published</span></div>${years.length ? `<div><b>${esc(years[years.length - 1])}</b><span>latest publication year</span></div>` : ""}`;
-      const extra = (Array.isArray(s.also_published_in) ? s.also_published_in : []).filter((x) => x && x.name).map((x) => ({ k: x.name, logo: x.logo, name: x.label || x.name, cap: x.label || x.name }));
-      const tiles = [...extra, ...journals];
-      $("#proof-logos").innerHTML = tiles.map((j) => `<a href="highlights.html" class="proof-logo" title="${esc(j.name || j.k)}">${j.logo ? `<img src="${esc(media(j.logo))}" alt="${esc(j.name || j.k)}">` : `<span class="proof-txt proof-${slug(j.k)}">${esc(j.k)}</span>`}<small>${esc(j.cap || j.k)}</small></a>`).join("");
+      const stat = (n, suf, label) => `<div class="stat"><b><span data-count="${n}">${n}</span>${suf ? `<small>${suf}</small>` : ""}</b><span>${label}</span></div>`;
+      $("#proof-stats").innerHTML = (nSub ? stat(nSub, "", "papers submitted") : "") + stat(nPub, "", "papers published") + stat(12, "+", "allied health domains") + stat(7, "+ yrs", "mentor experience each");
+      const extra = (Array.isArray(s.also_published_in) ? s.also_published_in : []).filter((x) => x && x.name).map((x) => x.label || x.name);
+      $("#proof-logos").innerHTML = journals.map((j) => `<a href="highlights.html" class="proof-logo" title="${esc(j.name || j.k)}">${j.logo ? `<img src="${esc(media(j.logo))}" alt="${esc(j.name || j.k)} logo" loading="lazy">` : `<span class="proof-txt proof-${slug(j.k)}">${esc(j.k)}</span>`}<small>${esc(j.k)}</small></a>`).join("")
+        + (extra.length ? `<p class="proof-also">Team members have also published in ${extra.map((x) => `<b>${esc(x)}</b>`).join(" and ")} journals.</p>` : "");
     } else hide("#home-proof");
     if ($("#home-journals")) load("journals").then((js) => {
       if (!js.length) return hide("#home-journals");
@@ -454,6 +469,9 @@
     const openPapers = (data.papers || []).filter(bookOpen);
     if (openPapers.length && $("#home-papers")) $("#home-papers").innerHTML = `<div class="bk-list">${openPapers.slice(0, 3).map(paperCard).join("")}</div>`;
     else hide("#home-papers-section");
+    const waNum = String(s.whatsapp || "").replace(/\D/g, "");
+    const ctaWa = $("#cta-wa");
+    if (ctaWa) { if (waNum) { ctaWa.href = `https://wa.me/${waNum}?text=${encodeURIComponent("Hello ResearchMed Connect, I would like guidance with ")}`; ctaWa.target = "_blank"; ctaWa.rel = "noopener"; } else ctaWa.remove(); }
     if (gallery.length) {
       $("#home-gallery").innerHTML = gallery.slice(0, 6).map((g) => `<a href="gallery.html" aria-label="${esc(g.title)}"><img src="${esc(media(g.image))}" alt="${esc(g.alt || g.title)}" loading="lazy"></a>`).join("");
     } else hide("#home-gallery-section");
@@ -655,6 +673,19 @@
     });
   }
 
+  // ---------- Hero trust strip (from real testimonials) ----------
+  function heroTrust(all) {
+    const box = $("#hero-trust");
+    if (!box) return;
+    const list = (all || []).filter((t) => t.quote && t.consent !== false);
+    if (list.length < 2) return;
+    const initials = (n) => String(n || "").replace(/^(dr|mr|ms|mrs|prof)\.?\s+/i, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
+    const insts = [...new Set(list.map((t) => String(t.institution || "").split(",")[0].trim()).filter(Boolean))];
+    box.innerHTML = `<div class="av-stack" aria-hidden="true">${list.slice(0, 5).map((t) => t.photo ? `<img src="${esc(media(t.photo))}" alt="" loading="lazy">` : `<span>${esc(initials(t.title))}</span>`).join("")}</div>
+      <p><b>Guided faculty &amp; students</b> from ${insts.slice(0, 3).map(esc).join(", ")}${insts.length > 3 ? " and more" : ""}</p>`;
+    box.hidden = false;
+  }
+
   // ---------- Testimonials (home page) ----------
   function testimonials(all) {
     const sec = $("#home-testimonials-section"), grid = $("#home-testimonials");
@@ -664,8 +695,7 @@
     if (!list.length) { sec.hidden = true; return; }
     const initials = (n) => String(n || "").replace(/^(dr|mr|ms|mrs|prof)\.?\s+/i, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
     const cards = list.slice(0, 12).map((t, k) => {
-      const r = Math.max(0, Math.min(5, Math.round(Number(t.rating) || 0)));
-      const stars = r ? `<div class="tst-stars" role="img" aria-label="${r} out of 5 stars">${"<i>★</i>".repeat(r)}<span>${"★".repeat(5 - r)}</span></div>` : "";
+      const stars = "";
       const who = [t.role, t.institution].filter(Boolean).map(esc).join(", ");
       return `<figure class="tst-card" data-k="${k}" aria-roledescription="slide" aria-label="${k + 1} of ${Math.min(list.length, 12)}">
         ${stars}
@@ -821,7 +851,9 @@
     const counts = {}; names.forEach((n) => (counts[n] = data[n].length));
     renderLayout(settings, counts);
     if (PAGE === "home" || PAGE === "about") load("founder").then(founder);
-    if (PAGE === "home") { home(settings, data); noticeBoard(data.notices); contributors(data.contributors); testimonials(data.testimonials); }
+    if (PAGE === "home") { home(settings, data); noticeBoard(data.notices); testimonials(data.testimonials); heroTrust(data.testimonials); }
+    if (PAGE === "about") contributors(data.contributors);
+    requestAnimationFrame(() => setTimeout(enhance, 60));
     if (PAGE === "videos") {
       if (settings.show_videos === true) listing({ items: data.videos, mount: "#list", card: videoCard, noun: "videos" });
       else $("#list").innerHTML = `<div class="empty"><strong>Video sessions are available on request</strong>Tell us the topic you need and we will arrange a recorded or live session. <a href="contact.html">Send an enquiry</a>.</div>`;
@@ -851,6 +883,41 @@
   }
   // Content is drawn after data loads, so check once it has settled.
   window.addEventListener("load", () => setTimeout(fixHeadingOrder, 600));
+
+  // ---------- Motion & polish: reveal on scroll, counters, header state, progress ----------
+  function enhance() {
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const header = $(".site-header"), bar = $(".scroll-progress i");
+    const onScroll = () => {
+      const y = scrollY;
+      if (header) header.classList.toggle("is-scrolled", y > 8);
+      if (bar) { const h = document.documentElement.scrollHeight - innerHeight; bar.style.transform = `scaleX(${h > 0 ? Math.min(1, y / h) : 0})`; }
+    };
+    addEventListener("scroll", onScroll, { passive: true }); onScroll();
+    const count = (el) => {
+      const to = Number(el.dataset.count) || 0;
+      if (reduce || to < 2) { el.textContent = to; return; }
+      const t0 = performance.now(), dur = 1400;
+      const step = (t) => { const k = Math.min(1, (t - t0) / dur); el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    };
+    $$(".reveal-kids").forEach((g) => [...g.children].forEach((c, i) => { c.classList.add("reveal"); c.style.setProperty("--d", Math.min(i, 8) * 70 + "ms"); }));
+    const targets = $$(".reveal, [data-count]");
+    if (reduce || !("IntersectionObserver" in window)) { targets.forEach((el) => el.classList.add("in")); return; }
+    document.documentElement.classList.add("js-reveal");
+    const io = new IntersectionObserver((es) => es.forEach((e) => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add("in");
+      if (e.target.dataset.count) count(e.target);
+      io.unobserve(e.target);
+    }), { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+    targets.forEach((el) => io.observe(el));
+    // Content that arrives later (cards drawn from JSON) gets observed too.
+    new MutationObserver(() => {
+      $$(".reveal-kids").forEach((g) => [...g.children].forEach((c, i) => { if (!c.classList.contains("reveal")) { c.classList.add("reveal"); c.style.setProperty("--d", Math.min(i, 8) * 70 + "ms"); io.observe(c); } }));
+      $$("[data-count]:not(.in)").forEach((el) => io.observe(el));
+    }).observe(document.getElementById("main") || document.body, { childList: true, subtree: true });
+  }
 
   // ---------- Chat assistant (every public page) ----------
   if (PAGE !== "admin") {
