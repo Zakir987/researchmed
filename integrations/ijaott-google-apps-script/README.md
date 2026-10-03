@@ -43,3 +43,35 @@ The public form limits uploads to 10 MB. Apps Script has service quotas, includi
 ## Security
 
 The web app is public because authors are not expected to sign into Google. The script validates the reference, email, file extension and file size, and includes the site's honeypot field. Do not put Google OAuth credentials or private API keys in the public GitHub repository.
+
+
+## Manuscript tracking
+
+Every successful submission is automatically added to a **Submissions** sheet inside the **IJAOTT Manuscripts** Drive folder. The default status is **Submitted** and the stage is **Editorial office screening**.
+
+Authors track a submission at:
+https://researchmed.in/journal/track.html
+
+They enter their IJAOTT reference number and the same email address used during submission.
+
+### Updating a manuscript status
+
+In Apps Script, run the function `updateTrackingStatus` with the reference number, status, stage, and optional note. Example:
+
+    updateTrackingStatus("IJAOTT-261003-AB12", "Under Review", "Double-blind peer review", "Assigned to two external reviewers.");
+
+Suggested statuses/stages:
+- Submitted — Editorial office screening
+- Preliminary Check — Technical/editorial check
+- Under Review — Double-blind peer review
+- Revision Required — Author revision
+- Accepted — Accepted for publication
+- Rejected — Editorial decision
+- Production — Copyediting/typesetting
+- Published — Published online
+
+The public tracking page only returns status information after both the reference number and submission email match. It does not expose the Google Drive manuscript link.
+
+### Important after changing Code.gs
+
+Because this is a deployed Apps Script web app, deploy a new version after updating the code: **Deploy → Manage deployments → Edit → New version → Deploy**.
