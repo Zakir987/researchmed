@@ -138,6 +138,69 @@
     f.querySelectorAll('input[name="Submission type"]').forEach((r) => r.addEventListener("change", sync));
     sync();
 
+    if (JPAGE === "track") {
+      const tf = $("#jr-track-form");
+      const out = $("#jr-track-result");
+      const endpoint = String(J.submission_endpoint || "").trim();
+
+      if (tf && out) {
+        const show = (html) => { out.innerHTML = html; };
+        const run = () => {
+          const ref = String($("#jr-ref", tf)?.value || "").trim().toUpperCase();
+          const email = String($("#jr-track-email", tf)?.value || "").trim();
+          if (!endpoint) {
+            show('<div class="empty"><strong>Tracking service is not configured yet.</strong><p>Please contact the editorial office.</p></div>');
+            return;
+          }
+
+          show('<div class="empty"><strong>Checking your submission…</strong></div>');
+          const callback = "ijaottTrack_" + Date.now();
+          window[callback] = function (data) {
+            try {
+              if (!data || !data.ok) {
+                show('<div class="empty"><strong>Unable to check the submission.</strong><p>Please try again.</p></div>');
+                return;
+              }
+              if (!data.found) {
+                show('<div class="empty"><strong>Submission not found</strong><p>' + esc(data.error || "Check your reference number and email address.") + '</p></div>');
+                return;
+              }
+              const r = data.record;
+              const note = r.note ? '<p><b>Editorial note:</b> ' + esc(r.note) + '</p>' : '';
+              show('<div class="jr-track-card"><span class="jr-art-type">' + esc(r.status) + '</span>' +
+                '<h2>' + esc(r.title || (r.kind === "reviewer" ? "Reviewer / editor application" : "Manuscript submission")) + '</h2>' +
+                '<p><b>Reference:</b> ' + esc(r.reference) + '</p>' +
+                '<p><b>Current stage:</b> ' + esc(r.stage) + '</p>' +
+                '<p><b>Submitted:</b> ' + esc(r.submittedAt) + '</p>' +
+                '<p><b>Last updated:</b> ' + esc(r.updatedAt) + '</p>' + note +
+                '</div>');
+            } finally {
+              delete window[callback];
+              const node = document.getElementById(callback);
+              if (node) node.remove();
+            }
+          };
+          const node = document.createElement("script");
+          node.id = callback;
+          node.src = endpoint + "?action=track&reference=" + encodeURIComponent(ref) +
+            "&email=" + encodeURIComponent(email) + "&prefix=" + encodeURIComponent(callback);
+          node.onerror = () => {
+            delete window[callback];
+            node.remove();
+            show('<div class="empty"><strong>Tracking service could not be reached.</strong><p>Please try again in a moment.</p></div>');
+          };
+          document.body.appendChild(node);
+        };
+        tf.addEventListener("submit", (e) => { e.preventDefault(); run(); });
+        const params = new URLSearchParams(location.search);
+        if (params.get("ref") && params.get("email")) {
+          $("#jr-ref", tf).value = params.get("ref");
+          $("#jr-track-email", tf).value = params.get("email");
+          run();
+        }
+      }
+    }
+
     if (J.accepting === false) {
       const n = document.createElement("p");
       n.className = "form-status err";
