@@ -786,3 +786,16 @@ a.card:hover .pub-more { letter-spacing: .02em; }
   .why p { font-size: .9rem; }
 }
 @media (max-width: 600px) { #home-highlights > :nth-child(n+4) { display: none; } }
+
+/* Clickable "Guided faculty & students" */
+.hero-trust .av-stack a { display: inline-flex; border-radius: 50%; transition: transform .2s; }
+.hero-trust .av-stack a:hover, .hero-trust .av-stack a:focus-visible { transform: translateY(-3px); z-index: 2; position: relative; }
+.hero-trust .ht-link { color: inherit; text-decoration: none; }
+.hero-trust .ht-cta { display: inline-block; color: var(--teal); font-weight: 700; white-space: nowrap; }
+.hero-trust .ht-link:hover .ht-cta, .hero-trust .ht-link:focus-visible .ht-cta { text-decoration: underline; }
+#home-testimonials-section { scroll-margin-top: 140px; }
+.av-stack > a { overflow: hidden; padding: 0; }
+.av-stack > a > img, .av-stack > a > span { width: 100%; height: 100%; border-radius: 50%; display: grid; place-items: center; object-fit: cover; }
+.av-stack > a:nth-child(2) { background: linear-gradient(135deg, #0a8a93, #2bb3a3); }
+.av-stack > a:nth-child(3) { background: linear-gradient(135deg, #5b4a9e, #8a7ae0); }
+.av-stack > a:nth-child(4) { background: linear-gradient(135deg, #b4610a, #e29a3a); }
