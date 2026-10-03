@@ -35,6 +35,10 @@ function doGet(e) {
 }
 
 function doPost(e) {
+  const p = e && e.parameter ? e.parameter : {};
+  if (String(p.action || "").toLowerCase() === "updateTracking") {
+    return updateTrackingResponse_(p);
+  }
   try {
     if (!e || !e.parameter) return resultPage_("Missing submission data.", false);
 
@@ -347,6 +351,73 @@ function trackResponse_(p) {
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
   }
   return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
+}
+
+function updateTrackingResponse_(p) {
+  const supplied = String(p.adminKey || "");
+  const configured = PropertiesService.getScriptProperties().getProperty("IJAOTT_ADMIN_KEY") || "";
+  if (!configured || supplied !== configured) {
+    return ContentService.createTextOutput(JSON.stringify({ok:false, error:"Unauthorized"}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  const reference = clean_(p.reference, 80);
+  const status = clean_(p.status, 100);
+  const stage = clean_(p.stage, 160);
+  const note = clean_(p.note, 2000);
+
+  if (!reference) return ContentService.createTextOutput(JSON.stringify({ok:false,error:"Reference is required."}))
+    .setMimeType(ContentService.MimeType.JSON);
+
+  try {
+    const message = updateTrackingStatus(reference, status, stage, note);
+    const notify = String(p.notify || "").toLowerCase() === "true";
+    if (notify) sendTrackingEmailByReference_(reference);
+    return ContentService.createTextOutput(JSON.stringify({ok:true,message:message,notified:notify}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ok:false,error:String(err.message || err)}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function sendTrackingEmailByReference_(reference) {
+  const ss = getOrCreateTrackingSheet_();
+  const sheet = ss.getSheetByName("Submissions");
+  const values = sheet.getDataRange().getValues();
+  const ref = String(reference || "").trim().toUpperCase();
+
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+    if (String(row[0]).trim().toUpperCase() !== ref) continue;
+
+    const email = String(row[3] || "").trim();
+    if (!email) throw new Error("No author email found for " + ref);
+
+    const title = String(row[5] || "");
+    const status = String(row[7] || "");
+    const stage = String(row[8] || "");
+    const note = String(row[11] || "");
+
+    MailApp.sendEmail({
+      to: email,
+      subject: "IJAOTT manuscript status update — " + ref,
+      body:
+        "Dear Author,\\n\\n" +
+        "There has been an update to your IJAOTT submission.\\n\\n" +
+        "Reference: " + ref + "\\n" +
+        "Manuscript: " + title + "\\n" +
+        "Status: " + status + "\\n" +
+        "Stage: " + stage + "\\n" +
+        (note ? "Editorial note: " + note + "\\n" : "") +
+        "\\nTrack your submission here:\\n" +
+        "https://researchmed.in/journal/track.html\\n\\n" +
+        "Warm regards,\\nIJAOTT Editorial Office",
+      name: "IJAOTT Editorial Office"
+    });
+    return;
+  }
+  throw new Error("Reference not found: " + ref);
 }
 
 function updateTrackingStatus(reference, status, stage, note) {
