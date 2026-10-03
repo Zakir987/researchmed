@@ -173,7 +173,126 @@ function saveTrackingRecord_(d) {
     d.reference, d.kind, d.name, d.email, d.institution, d.title,
     d.articleType, "Submitted", "Editorial office screening", now, now, ""
   ]);
+  setupTrackingSheet_(sheet);
   return ss.getUrl();
+}
+
+function setupTrackingSheet_(sheet) {
+  const statusRule = SpreadsheetApp.newDataValidation()
+    .requireValueInList([
+      "Submitted",
+      "Preliminary Check",
+      "Under Review",
+      "Revision Required",
+      "Accepted",
+      "Rejected",
+      "Production",
+      "Published"
+    ], true).setAllowInvalid(false).build();
+
+  const stageRule = SpreadsheetApp.newDataValidation()
+    .requireValueInList([
+      "Editorial office screening",
+      "Technical/editorial check",
+      "Double-blind peer review",
+      "Author revision",
+      "Editorial decision",
+      "Accepted for publication",
+      "Copyediting/typesetting",
+      "Published online"
+    ], true).setAllowInvalid(false).build();
+
+  const maxRows = Math.max(sheet.getMaxRows(), 1000);
+  sheet.getRange(2, 8, maxRows - 1, 1).setDataValidation(statusRule);
+  sheet.getRange(2, 9, maxRows - 1, 1).setDataValidation(stageRule);
+
+  if (!sheet.getFilter()) {
+    sheet.getRange(1, 1, Math.max(sheet.getLastRow(), 1), 12).createFilter();
+  }
+  sheet.setFrozenRows(1);
+  sheet.autoResizeColumns(1, 12);
+}
+
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu("IJAOTT Editorial")
+    .addItem("Refresh tracking controls", "setupTrackingSheet")
+    .addItem("Send selected status update", "sendSelectedStatusUpdate")
+    .addToUi();
+}
+
+function setupTrackingSheet() {
+  const ss = getOrCreateTrackingSheet_();
+  setupTrackingSheet_(ss.getSheetByName("Submissions"));
+}
+
+function onEdit(e) {
+  if (!e || !e.range) return;
+  const sheet = e.range.getSheet();
+  if (sheet.getName() !== "Submissions" || e.range.getRow() < 2) return;
+
+  const row = e.range.getRow();
+  const col = e.range.getColumn();
+  if (col !== 8 && col !== 9 && col !== 12) return;
+
+  sheet.getRange(row, 11).setValue(new Date());
+
+  if (col === 8 || col === 9 || col === 12) {
+    const props = PropertiesService.getScriptProperties();
+    props.setProperty("IJAOTT_LAST_EDIT_ROW", String(row));
+  }
+}
+
+function sendSelectedStatusUpdate() {
+  const ss = SpreadsheetApp.getActive();
+  const sheet = ss.getSheetByName("Submissions");
+  if (!sheet) throw new Error("Submissions sheet not found.");
+
+  const row = sheet.getActiveRange().getRow();
+  if (row < 2) throw new Error("Select a submission row first.");
+
+  const values = sheet.getRange(row, 1, 1, 12).getValues()[0];
+  const reference = String(values[0] || "");
+  const email = String(values[3] || "");
+  const title = String(values[5] || "");
+  const status = String(values[7] || "");
+  const stage = String(values[8] || "");
+  const note = String(values[11] || "");
+
+  if (!reference || !email) throw new Error("The selected row does not contain a reference/email.");
+
+  MailApp.sendEmail({
+    to: email,
+    subject: "IJAOTT manuscript status update — " + reference,
+    body:
+      "Dear Author,\\n\\n" +
+      "There has been an update to your IJAOTT submission.\\n\\n" +
+      "Reference: " + reference + "\\n" +
+      "Manuscript: " + title + "\\n" +
+      "Status: " + status + "\\n" +
+      "Stage: " + stage + "\\n" +
+      (note ? "Editorial note: " + note + "\\n" : "") +
+      "\\nYou can view the current status at:\\n" +
+      "https://researchmed.in/journal/track.html\\n\\n" +
+      "Warm regards,\\nIJAOTT Editorial Office",
+    name: "IJAOTT Editorial Office"
+  });
+}
+
+function getOrCreateTrackingSheet_() {
+  const root = getOrCreateFolder_(CONFIG.ROOT_FOLDER);
+  const files = root.getFilesByName("IJAOTT Tracking");
+  if (files.hasNext()) return SpreadsheetApp.openById(files.next().getId());
+
+  const ss = SpreadsheetApp.create("IJAOTT Tracking");
+  const sheet = ss.getSheets()[0];
+  sheet.setName("Submissions");
+  sheet.appendRow([
+    "Reference", "Kind", "Name", "Email", "Institution", "Manuscript Title",
+    "Article Type", "Status", "Stage", "Submitted At", "Updated At", "Editorial Note"
+  ]);
+  setupTrackingSheet_(sheet);
+  return ss;
 }
 
 function findTrackingRecord_(reference, email) {
@@ -238,13 +357,10 @@ function updateTrackingStatus(reference, status, stage, note) {
   for (let i = 1; i < values.length; i++) {
     if (String(values[i][0]).trim().toUpperCase() === ref) {
       const row = i + 1;
-      sheet.getRange(row, 8, 1, 5).setValues([[
-        String(status || "Submitted"),
-        String(stage || ""),
-        values[i][9] || new Date(),
-        new Date(),
-        String(note || "")
-      ]]);
+      sheet.getRange(row, 8).setValues([[String(status || "Submitted")]]);
+      sheet.getRange(row, 9).setValue(String(stage || ""));
+      sheet.getRange(row, 11).setValue(new Date());
+      sheet.getRange(row, 12).setValue(String(note || ""));
       return "Updated " + ref;
     }
   }
