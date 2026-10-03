@@ -18,7 +18,7 @@
 <link rel="apple-touch-icon" href="/media/brand/apple-touch-icon.png">
 <meta name="theme-color" content="#1b5896">
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="assets/css/style.css?v=20261003d">
+<link rel="stylesheet" href="assets/css/style.css?v=20261003e">
 <script>try{var t=localStorage.getItem("rmc-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-page="journal" data-jpage="submit">
@@ -26,59 +26,66 @@
 <section class="page-hero jr-hero"><div class="wrap">
   <span class="eyebrow pill-eyebrow">Submit</span>
   <h1>Submit a manuscript</h1>
-  <p>Fill in the details below. You will get a reference number and an email with the next step — sending your files.</p>
+  <p>Upload your manuscript as a Word file. You will receive a reference number to track your paper.</p>
 </div></section>
-<nav class="jr-subnav" aria-label="Journal"><div class="wrap"><a href="journal/">Home</a><a href="journal/authors.html">For authors</a><a href="journal/policies.html">Policies</a><a href="journal/board.html">Editorial board</a><a href="journal/issues.html">Issues</a><a href="journal/submit.html" aria-current="page">Submit</a></div></nav>
+<nav class="jr-subnav" aria-label="Journal"><div class="wrap"><a href="journal/">Home</a><a href="journal/authors.html">For authors</a><a href="journal/policies.html">Policies</a><a href="journal/board.html">Editorial board</a><a href="journal/issues.html">Issues</a><a href="journal/submit.html" aria-current="page">Submit</a><a href="journal/track.html">Track manuscript</a></div></nav>
 <section class="section" style="padding-top:36px"><div class="wrap jr-submit">
   <div class="contact-card">
-  <form class="form" id="jr-form">
+  <div id="jr-status" class="form-status" role="status" hidden></div>
+  <form class="form" id="jr-form" method="POST" enctype="multipart/form-data" action="https://formsubmit.co/ijaott@researchmed.in">
     <fieldset class="jr-type">
       <legend>I want to</legend>
-      <label><input type="radio" name="kind" value="manuscript" checked> Submit a manuscript</label>
-      <label><input type="radio" name="kind" value="reviewer"> Join as reviewer / editor</label>
+      <label><input type="radio" name="Submission type" value="Manuscript" checked> Submit a manuscript</label>
+      <label><input type="radio" name="Submission type" value="Reviewer / editor application"> Join as reviewer / editor</label>
     </fieldset>
 
     <div data-for="manuscript">
-      <label for="j-title">Manuscript title<input id="j-title" name="title" required></label>
+      <label for="j-title">Manuscript title<input id="j-title" name="Manuscript title" required></label>
       <label for="j-type">Article type
-        <select id="j-type" name="article_type">
+        <select id="j-type" name="Article type">
           <option>Original research</option><option>Review article / systematic review</option><option>Short communication</option><option>Case report / case series</option><option>Educational / technical article</option><option>Letter to the editor</option>
         </select></label>
-      <label for="j-authors">All authors, in order (with affiliations)<textarea id="j-authors" name="authors" required placeholder="1. Name, designation, institution&#10;2. …"></textarea></label>
-      <label for="j-abstract">Abstract<textarea id="j-abstract" name="abstract" required rows="6"></textarea></label>
-      <label for="j-kw">Keywords (3–6)<input id="j-kw" name="keywords"></label>
-      <label for="j-ethics">Ethics approval / trial registration (or "not applicable")<input id="j-ethics" name="ethics" required></label>
+      <label for="j-authors">All authors, in order (with affiliations)<textarea id="j-authors" name="Authors" required placeholder="1. Name, designation, institution&#10;2. …"></textarea></label>
+      <label for="j-file">Manuscript file (Word .doc or .docx, max 10 MB)<input id="j-file" name="attachment" type="file" accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required></label>
+      <label for="j-ethics">Ethics approval / trial registration (or "not applicable")<input id="j-ethics" name="Ethics / registration" required></label>
       <label for="j-rmc">Did you receive guidance from ResearchMed Connect for this manuscript?
-        <select id="j-rmc" name="rmc_guidance"><option>No</option><option>Yes</option></select></label>
+        <select id="j-rmc" name="ResearchMed guidance received"><option>No</option><option>Yes</option></select></label>
     </div>
 
     <div data-for="reviewer" hidden>
-      <label for="j-qual">Qualifications and current position<input id="j-qual" name="qualification"></label>
-      <label for="j-areas">Areas of expertise<input id="j-areas" name="expertise" placeholder="e.g. airway management, OT sterilisation, critical care"></label>
-      <label for="j-pubs">ORCID / Google Scholar link (optional)<input id="j-pubs" name="profile"></label>
-      <label for="j-role">Role<select id="j-role" name="role"><option>Peer reviewer</option><option>Associate editor</option><option>Either</option></select></label>
+      <label for="j-qual">Qualifications and current position<input id="j-qual" name="Qualifications" required></label>
+      <label for="j-areas">Areas of expertise<input id="j-areas" name="Expertise" required placeholder="e.g. airway management, OT sterilisation, critical care"></label>
+      <label for="j-pubs">ORCID / Google Scholar link (optional)<input id="j-pubs" name="Profile link"></label>
+      <label for="j-role">Role<select id="j-role" name="Role"><option>Peer reviewer</option><option>Associate editor</option><option>Either</option></select></label>
+      <label for="j-cv">CV (optional, Word or PDF, max 10 MB)<input id="j-cv" name="attachment" type="file" accept=".doc,.docx,.pdf"></label>
     </div>
 
     <label for="j-name">Your name (corresponding author)<input id="j-name" name="name" required autocomplete="name"></label>
     <label for="j-email">Email<input id="j-email" name="email" type="email" required autocomplete="email"></label>
-    <label for="j-phone">Phone / WhatsApp (optional)<input id="j-phone" name="phone" type="tel" autocomplete="tel"></label>
-    <label for="j-inst">Institution<input id="j-inst" name="institution" required></label>
+    <label for="j-phone">Phone / WhatsApp (optional)<input id="j-phone" name="Phone" type="tel" autocomplete="tel"></label>
+    <label for="j-inst">Institution<input id="j-inst" name="Institution" required></label>
 
-    <label class="jr-agree" data-for="manuscript"><input type="checkbox" name="declare" required> I confirm the manuscript is original, is not under review elsewhere, and that all authors meet the ICMJE authorship criteria and have approved this submission.</label>
+    <label class="jr-agree" data-for="manuscript"><input type="checkbox" name="Declaration" value="Original, not under review elsewhere, all authors meet ICMJE criteria and approved submission" required> I confirm the manuscript is original, is not under review elsewhere, and that all authors meet the ICMJE authorship criteria and have approved this submission.</label>
+
+    <input type="hidden" name="Reference" id="j-ref">
+    <input type="hidden" name="_subject" id="j-subject">
+    <input type="hidden" name="_autoresponse" id="j-auto">
+    <input type="hidden" name="_next" id="j-next">
+    <input type="hidden" name="_template" value="table">
+    <input type="hidden" name="_captcha" value="false">
     <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
-    <div class="btn-row"><button class="btn btn-primary" type="submit">Submit</button></div>
-    <p class="muted" style="font-size:.88rem;margin:0">Read the <a href="journal/authors.html">author guidelines</a> first. Your details are used only for the journal's work — see our <a href="privacy.html">Privacy Policy</a>.</p>
+    <div class="btn-row"><button class="btn btn-primary" type="submit">Submit manuscript</button></div>
+    <p class="muted" style="font-size:.88rem;margin:0">Read the <a href="journal/authors.html">author guidelines</a> first. Submissions go to the editorial office at <a href="mailto:ijaott@researchmed.in">ijaott@researchmed.in</a>. Your details are used only for the journal's work — see our <a href="privacy.html">Privacy Policy</a>.</p>
   </form>
-  <div id="jr-status" class="form-status" role="status" hidden></div>
   </div>
   <aside class="jr-side">
     <div class="jr-facts"><h2>What happens next</h2>
-      <ol class="jr-next"><li>You get a reference number by email.</li><li>Email your files (title page + anonymised manuscript) quoting that number.</li><li>We check the submission within about 7 days.</li><li>Double-blind peer review; first decision in about 6–8 weeks.</li></ol>
+      <ol class="jr-next"><li>You get a <b>reference number</b> on screen and by email.</li><li>Use it on <a href="journal/track.html">Track manuscript</a> to see your paper's status.</li><li>We check the submission within about 7 days.</li><li>Double-blind peer review; first decision in about 6–8 weeks.</li><li>APC (₹2,000 – ₹5,000) is decided only after acceptance.</li></ol>
     </div>
   </aside>
 </div></section>
 </main>
-<script src="assets/js/site.js?v=20261003d" defer></script>
-<script src="assets/js/journal.js?v=20261003d" defer></script>
+<script src="assets/js/site.js?v=20261003e" defer></script>
+<script src="assets/js/journal.js?v=20261003e" defer></script>
 </body>
 </html>
