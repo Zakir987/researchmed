@@ -111,7 +111,7 @@
     panel.querySelector("form").addEventListener("submit", (e) => {
       e.preventDefault(); const v = input.value.trim(); if (!v) return; input.value = ""; me(v); handle(v);
     });
-    bot(`Hello! 👋 I'm the <b>ResearchMed Assistant</b>.<br>I can help you with research and publication guidance, book chapter authorship and co-authoring research papers. What would you like to know?`);
+    bot(`Hello! 👋 I'm the <b>ResearchMed Assistant</b>.<br>I can help you with research and publication guidance, book chapter authorship and research collaborations. What would you like to know?`);
     menu();
   }
 
@@ -142,7 +142,7 @@
       ["🔬 Research guidance", () => answer("research")],
       ["📄 Publication help", () => answer("publication")],
       ["📚 Become a book author", openBooks],
-      ["🤝 Co-author a paper", openPapers],
+      ["🤝 Research collaboration", openPapers],
       ["💰 Fees", () => answer("fees")],
       ["👩‍🏫 Mentors", () => answer("mentors")],
       ["📝 Send an enquiry", startLead],
@@ -217,10 +217,10 @@
     chips([["✍️ Apply as chapter author", () => startLead("", "Book chapter authorship")], ["💬 WhatsApp us", whatsapp], ["🏠 Main menu", () => { bot("What else can I help you with?").then(menu); }]]);
   }
   async function openPapers() {
-    const p = await list("papers");
+    const p = (await list("papers")).filter((x) => x.open !== false && (!x.deadline || new Date(x.deadline + "T23:59:59") >= new Date()));
     const lines = p.slice(0, 4).map((x) => `<li><b>${esc(x.title)}</b>${x.status ? ` (${esc(x.status)})` : ""}${x.deadline ? `, apply by ${esc(x.deadline)}` : ""}</li>`).join("");
-    await bot(`You can join our research papers as a co-author.${lines ? `<br>Currently open:<ul>${lines}</ul>` : "<br>No paper is open right now, but we can notify you about the next one."} <a href="papers.html">See details →</a>`);
-    chips([["🤝 Apply as co-author", () => startLead("", "Co-authorship on a research paper")], ["💬 WhatsApp us", whatsapp], ["🏠 Main menu", () => { bot("What else can I help you with?").then(menu); }]]);
+    await bot(`You can collaborate on our studies from the planning stage. Authorship is earned through real contribution (ICMJE criteria).${lines ? `<br>Currently open:<ul>${lines}</ul>` : "<br>No study is open right now, but we can notify you about the next one."} <a href="papers.html">See details →</a>`);
+    chips([["🤝 Register interest", () => startLead("", "Research collaboration")], ["💬 WhatsApp us", whatsapp], ["🏠 Main menu", () => { bot("What else can I help you with?").then(menu); }]]);
   }
 
   // ---------- Enquiry (lead) flow ----------
@@ -232,7 +232,7 @@
       ["phone", "Your <b>phone / WhatsApp number</b>? (type <i>skip</i> if you'd rather not)", (v) => /^skip$/i.test(v) || /^[+\d][\d\s-]{7,}$/.test(v) || "Please enter a valid number, or type skip."],
       ["qualification", "Your <b>qualification / designation and institution</b>? (e.g. MSc Nursing, ABC College, Pune)", () => true],
     ];
-    if (!d.service) steps.push(["service", "What do you need help with?", () => true, ["Research guidance", "Publication guidance", "Book chapter authorship", "Co-authorship on a research paper", "Student research support", "Video lecture / session", "Something else"]]);
+    if (!d.service) steps.push(["service", "What do you need help with?", () => true, ["Research guidance", "Publication guidance", "Book chapter authorship", "Research collaboration", "Student research support", "Video lecture / session", "Something else"]]);
     if (!d.message) steps.push(["message", "Briefly describe your project or question.", (v) => v.length >= 3 || "Please add a few words about what you need."]);
     let i = 0;
     const ask = () => {
