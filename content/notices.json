@@ -1,6 +1,24 @@
 {
   "items": [
     {
+      "title": "Research collaborations open for allied health professionals",
+      "date": "2026-10-03",
+      "details": "Join our next study from the planning stage and earn authorship through real contribution.",
+      "link": "papers.html",
+      "new": true,
+      "pinned": true,
+      "expires": ""
+    },
+    {
+      "title": "Enquiries open for research, manuscript and publication guidance",
+      "date": "2026-10-03",
+      "details": "Send your requirement and we reply within 1–2 working days.",
+      "link": "contact.html",
+      "new": false,
+      "pinned": true,
+      "expires": ""
+    },
+    {
       "title": "Research collaboration: Anaesthesia & Operation Theatre Technology",
       "date": "2026-10-02",
       "details": "Send your details to apply as an author.",
