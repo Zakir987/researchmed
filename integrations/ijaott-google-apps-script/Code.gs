@@ -36,9 +36,9 @@ function doGet(e) {
 
 function doPost(e) {
   const p = e && e.parameter ? e.parameter : {};
-  if (String(p.action || "").toLowerCase() === "updateTracking") {
-    return updateTrackingResponse_(p);
-  }
+  const action = String(p.action || "").toLowerCase();
+  if (action === "updateTracking") return updateTrackingResponse_(p);
+  if (action === "listTracking") return listTrackingResponse_(p);
   try {
     if (!e || !e.parameter) return resultPage_("Missing submission data.", false);
 
@@ -351,6 +351,40 @@ function trackResponse_(p) {
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
   }
   return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
+}
+
+function listTrackingResponse_(p) {
+  const supplied = String(p.adminKey || "");
+  const configured = PropertiesService.getScriptProperties().getProperty("IJAOTT_ADMIN_KEY") || "";
+  if (!configured || supplied !== configured) {
+    return ContentService.createTextOutput(JSON.stringify({ok:false, error:"Unauthorized"}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  const ss = getOrCreateTrackingSheet_();
+  const sheet = ss.getSheetByName("Submissions");
+  const values = sheet.getDataRange().getValues();
+  const records = [];
+  for (let i = 1; i < values.length; i++) {
+    const r = values[i];
+    if (!r[0]) continue;
+    records.push({
+      reference: String(r[0] || ""),
+      kind: String(r[1] || ""),
+      name: String(r[2] || ""),
+      email: String(r[3] || ""),
+      institution: String(r[4] || ""),
+      title: String(r[5] || ""),
+      articleType: String(r[6] || ""),
+      status: String(r[7] || "Submitted"),
+      stage: String(r[8] || ""),
+      submittedAt: formatDate_(r[9]),
+      updatedAt: formatDate_(r[10]),
+      note: String(r[11] || "")
+    });
+  }
+  return ContentService.createTextOutput(JSON.stringify({ok:true,records:records}))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 function updateTrackingResponse_(p) {
