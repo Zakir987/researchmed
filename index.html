@@ -22,7 +22,7 @@
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/source-sans-3@5.3.0/files/source-sans-3-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/css/style.css?v=20261003a">
+<link rel="stylesheet" href="assets/css/style.css?v=20261003b">
 <script>try{var t=localStorage.getItem("rmc-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "EducationalOrganization", "@id": "https://researchmed.in/#org", "name": "ResearchMed Connect", "url": "https://researchmed.in/", "logo": "https://researchmed.in/media/brand/researchmed-logo.webp", "image": "https://researchmed.in/assets/img/og.png", "slogan": "Research. Learn. Publish. Grow.", "description": "Research and publication guidance for healthcare professionals, allied health students, researchers and aspiring authors.", "email": "info@researchmed.in", "telephone": "+917006869559", "areaServed": "IN", "knowsLanguage": ["en", "hi"], "founder": {"@type": "Person", "name": "Dr. Zakir Hussain Parray", "jobTitle": "Managing Director", "sameAs": ["https://www.linkedin.com/in/zakir-hussain-parray-b3ba153b2"]}, "contactPoint": {"@type": "ContactPoint", "contactType": "customer support", "email": "info@researchmed.in", "telephone": "+917006869559", "availableLanguage": ["English", "Hindi"]}}, {"@type": "WebSite", "@id": "https://researchmed.in/#website", "url": "https://researchmed.in/", "name": "ResearchMed Connect", "publisher": {"@id": "https://researchmed.in/#org"}, "inLanguage": "en-IN"}]}</script>
 </head>
@@ -36,7 +36,7 @@
     <span class="eyebrow pill-eyebrow live-pill" id="hero-eyebrow">Research. Learn. Publish. Grow.</span>
     <h1 id="hero-title">Empowering your research and publication journey</h1>
     <p class="lead" id="hero-lead">ResearchMed Connect provides accessible and affordable academic guidance for healthcare professionals, students, researchers, and aspiring authors.</p>
-    <p class="sub" id="hero-sub">From your first research question to acceptance in an indexed journal, we guide you through every step with ethical, practical support.</p>
+    <p class="sub" id="hero-sub">From your first research question to submission in a suitable peer-reviewed journal, we guide you through every step with ethical, practical support.</p>
     <div class="btn-row"><a class="btn btn-primary btn-lg btn-shine" href="contact.html">Get guidance <span aria-hidden="true">→</span></a><a class="btn btn-ghost btn-lg" href="highlights.html">See our publications</a></div>
     <div class="hero-trust" id="hero-trust" hidden></div>
   </div>
@@ -48,10 +48,10 @@
       <li><b>Manuscript</b><span>IMRaD, referencing, originality</span></li>
       <li><b>Journal &amp; submission</b><span>Genuine indexed journals, reviewer replies</span></li>
     </ol>
-    <p class="hp-label">We help you target journals indexed in</p>
+    <p class="hp-label">We guide you on choosing journals indexed in</p>
     <div class="idx-row idx-lg"><span class="idx idx-scopus">Scopus</span><span class="idx idx-embase">Embase</span><span class="idx idx-pubmed">PubMed</span><span class="idx idx-web-of-science">Web of Science</span></div>
     <a class="btn btn-primary btn-block" href="contact.html">Send a free enquiry</a>
-    <p class="hp-note">Reply within 1–2 working days · Confidential</p>
+    <p class="hp-note">Reply within 1–2 working days · Confidential · We never guarantee acceptance &mdash; journals decide</p>
   </div>
 </div></section>
 
@@ -92,7 +92,7 @@
 </div></section>
 
 <section class="section" id="home-papers-section"><div class="wrap">
-  <div class="section-head reveal"><div><span class="eyebrow">Co-authors wanted</span><h2>Join a research paper</h2><p>Open author positions on our current papers. Apply with your preferred role before the last date.</p></div><a class="see-all" href="papers.html">All papers →</a></div>
+  <div class="section-head reveal"><div><span class="eyebrow">Research collaborations</span><h2>Collaborate on a research study</h2><p>Join a study from the planning stage and earn authorship through real contribution &mdash; literature review, data collection, analysis and writing.</p></div><a class="see-all" href="papers.html">All collaborations →</a></div>
   <div id="home-papers"></div>
 </div></section>
 
@@ -121,6 +121,7 @@
 <section class="section band" id="home-team-section"><div class="wrap">
   <div class="section-head center reveal"><div><span class="eyebrow">Our team</span><h2>Contributors</h2><p>Clinicians, educators and researchers who contribute to ResearchMed Connect.</p></div></div>
   <div class="team-grid reveal-kids" id="home-team" style="grid-template-columns:repeat(auto-fill,minmax(min(100%,170px),1fr))"></div>
+  <div class="center-row" id="home-team-more" hidden><button type="button" class="btn btn-ghost" aria-expanded="false">Show all contributors</button></div>
 </div></section>
 
 <section class="section"><div class="wrap">
@@ -151,8 +152,9 @@ fetch("content/contributors.json",{cache:"no-cache"}).then(function(r){return r.
 var l=((j&&j.items)||[]).filter(function(p){return p&&p.title&&p.draft!==true}).sort(function(a,b){return(Number(a.order)||999)-(Number(b.order)||999)});
 var sec=document.getElementById("home-team-section"),g=document.getElementById("home-team");if(!sec||!g)return;if(!l.length){sec.hidden=true;return}
 g.innerHTML=l.map(function(p){var i=(p.photo?'<img class="tm-photo" src="'+e(m(p.photo))+'" alt="'+e(p.title)+'" loading="lazy">':'<span class="tm-photo tm-init" aria-hidden="true">'+e(ini(p.title))+'</span>')+'<span class="tm-name">'+e(p.title)+'</span>'+(p.role?'<span class="tm-role">'+e(p.role)+'</span>':"")+(p.institution?'<span class="tm-inst">'+e(p.institution)+'</span>':"");
-return p.link&&/^https?:/i.test(p.link)?'<a class="tm-card" href="'+e(p.link)+'" target="_blank" rel="noopener">'+i+'</a>':'<div class="tm-card">'+i+'</div>'}).join("")}).catch(function(){})})();
+return p.link&&/^https?:/i.test(p.link)?'<a class="tm-card" href="'+e(p.link)+'" target="_blank" rel="noopener">'+i+'</a>':'<div class="tm-card">'+i+'</div>'}).join("");
+var N=4,cards=g.children,mb=document.getElementById("home-team-more");if(cards.length>N&&mb){for(var k=N;k<cards.length;k++)cards[k].hidden=true;mb.hidden=false;var b=mb.querySelector("button");b.textContent="Show all "+cards.length+" contributors";b.onclick=function(){var open=b.getAttribute("aria-expanded")==="true";for(var k=N;k<cards.length;k++)cards[k].hidden=open;b.setAttribute("aria-expanded",String(!open));b.textContent=open?"Show all "+cards.length+" contributors":"Show fewer"}}}).catch(function(){})})();
 </script>
-<script src="assets/js/site.js?v=20261003a" defer></script>
+<script src="assets/js/site.js?v=20261003b" defer></script>
 </body>
 </html>
