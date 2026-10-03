@@ -107,49 +107,73 @@
     const f = $("#jr-form"); if (!f) return;
     const status = $("#jr-status"), btn = $("button[type=submit]", f);
     const INBOX = J.email || "info@researchmed.in";
+
+    const selectedKind = () => {
+      const checked = f.querySelector('input[name="Submission type"]:checked');
+      return checked && checked.value === "Reviewer / editor application" ? "reviewer" : "manuscript";
+    };
+
     const sync = () => {
-      const kind = f.kind.value;
+      const kind = selectedKind();
       f.querySelectorAll("[data-for]").forEach((el) => {
-        const on = el.dataset.for === kind; el.hidden = !on;
-        el.querySelectorAll("input,select,textarea").forEach((i) => { if (i.dataset.req == null) i.dataset.req = i.required ? "1" : "0"; i.required = on && i.dataset.req === "1"; i.disabled = !on; });
-        if (el.tagName === "LABEL") { const i = $("input", el); if (i) { if (i.dataset.req == null) i.dataset.req = "1"; i.required = on; i.disabled = !on; } }
+        const on = el.dataset.for === kind;
+        el.hidden = !on;
+        el.querySelectorAll("input,select,textarea").forEach((i) => {
+          if (i.dataset.req == null) i.dataset.req = i.required ? "1" : "0";
+          i.required = on && i.dataset.req === "1";
+          i.disabled = !on;
+        });
+        if (el.tagName === "LABEL") {
+          const i = $("input", el);
+          if (i) { if (i.dataset.req == null) i.dataset.req = "1"; i.required = on; i.disabled = !on; }
+        }
       });
       btn.textContent = kind === "reviewer" ? "Send application" : "Submit manuscript";
     };
-    if (new URLSearchParams(location.search).get("type") === "reviewer") f.kind.value = "reviewer";
-    f.querySelectorAll("input[name=kind]").forEach((r) => r.addEventListener("change", sync)); sync();
-    if (J.accepting === false) { const n = document.createElement("p"); n.className = "form-status err"; n.textContent = "Manuscript submissions are paused at the moment. You can still apply to join as a reviewer."; f.prepend(n); }
-    f.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const d = Object.fromEntries(new FormData(f));
-      if (d._honey) return;
-      const kind = f.kind.value;
-      const ref = (kind === "reviewer" ? "IJAOTT-R-" : "IJAOTT-") + new Date().toISOString().slice(2, 10).replace(/-/g, "") + "-" + Math.random().toString(36).slice(2, 6).toUpperCase();
-      const first = String(d.name || "").trim().split(/\s+/)[0] || "there";
-      btn.disabled = true; btn.textContent = "Sending…"; status.hidden = true;
-      const base = { "Reference": ref, "Name": d.name, "Phone / WhatsApp": d.phone || "-", "Institution": d.institution, email: d.email, _template: "table", _captcha: "false" };
-      const payload = kind === "reviewer"
-        ? Object.assign(base, { "Application": "Reviewer / editor", "Qualifications": d.qualification || "-", "Expertise": d.expertise || "-", "Profile": d.profile || "-", "Role": d.role,
-            _subject: `IJAOTT reviewer application ${ref}: ${d.name}`,
-            _autoresponse: `Dear ${first},\n\nThank you for offering to review for the ${J.title}. We have received your application (reference ${ref}) and will be in touch.\n\nWarm regards,\nEditorial Office, ${J.short}\nhttps://researchmed.in/journal/` })
-        : Object.assign(base, { "Manuscript title": d.title, "Article type": d.article_type, "Authors": d.authors, "Abstract": d.abstract, "Keywords": d.keywords || "-", "Ethics / registration": d.ethics, "ResearchMed guidance received": d.rmc_guidance, "Declaration": "Original, not under review elsewhere, ICMJE authorship confirmed",
-            _subject: `IJAOTT submission ${ref}: ${d.title}`,
-            _autoresponse: `Dear ${first},\n\nThank you for submitting "${d.title}" to the ${J.title}. Your reference number is ${ref}.\n\nNEXT STEP: please reply to ${INBOX} with the subject "${ref}" and attach:\n  1. Title page (Word) with all authors, affiliations and declarations\n  2. Anonymised manuscript (Word) with tables and figures\n\nWe will check your submission within about 7 days and then send it for double-blind peer review.\n\nWarm regards,\nEditorial Office, ${J.short}\nhttps://researchmed.in/journal/` });
-      const mail = `mailto:${INBOX}?subject=${encodeURIComponent(ref + (kind === "reviewer" ? " – reviewer application" : " – " + (d.title || "")))}&body=${encodeURIComponent(kind === "reviewer" ? "Please find my CV attached." : "Please find attached:\n1. Title page\n2. Anonymised manuscript")}`;
-      try {
-        const r = await fetch("https://formsubmit.co/ajax/" + INBOX, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(payload) });
-        const j = await r.json().catch(() => ({}));
-        if (!r.ok || String(j.success) !== "true") throw new Error(j.message || "send failed");
-        f.hidden = true; status.className = "form-status ok";
-        status.innerHTML = kind === "reviewer"
-          ? `<strong>Thank you, ${esc(first)}!</strong> Your application has reached the editorial office (reference <b>${ref}</b>). <div class="btn-row" style="margin-top:12px"><a class="btn btn-primary" href="${mail}">Email your CV</a></div>`
-          : `<strong>Received — reference ${ref}</strong><p style="margin-top:8px">One more step: <b>email your files</b> (title page and anonymised manuscript) to <a href="mailto:${esc(INBOX)}">${esc(INBOX)}</a> with <b>${ref}</b> in the subject. We've also sent these instructions to ${esc(d.email)}.</p><div class="btn-row" style="margin-top:12px"><a class="btn btn-primary" href="${mail}">Email my files now</a></div>`;
-        status.hidden = false;
-      } catch (err) {
-        status.className = "form-status err";
-        status.innerHTML = `<strong>We couldn't send this form just now.</strong> Please email your ${kind === "reviewer" ? "application and CV" : "manuscript files and the details above"} to <a href="mailto:${esc(INBOX)}">${esc(INBOX)}</a> instead.<div class="btn-row" style="margin-top:12px"><a class="btn btn-primary" href="${mail}">Send by email</a></div>`;
-        status.hidden = false; btn.disabled = false; sync();
-      }
+
+    if (new URLSearchParams(location.search).get("type") === "reviewer") {
+      const r = f.querySelector('input[name="Submission type"][value="Reviewer / editor application"]');
+      if (r) r.checked = true;
+    }
+    f.querySelectorAll('input[name="Submission type"]').forEach((r) => r.addEventListener("change", sync));
+    sync();
+
+    if (J.accepting === false) {
+      const n = document.createElement("p");
+      n.className = "form-status err";
+      n.textContent = "Manuscript submissions are paused at the moment. You can still apply to join as a reviewer.";
+      f.prepend(n);
+    }
+
+    f.addEventListener("submit", () => {
+      const kind = selectedKind();
+      const data = new FormData(f);
+      if (data.get("_honey")) return;
+
+      const ref = (kind === "reviewer" ? "IJAOTT-R-" : "IJAOTT-") +
+        new Date().toISOString().slice(2, 10).replace(/-/g, "") + "-" +
+        Math.random().toString(36).slice(2, 6).toUpperCase();
+
+      const title = String(data.get("Manuscript title") || "").trim();
+      const name = String(data.get("name") || "").trim();
+      const first = name.split(/\s+/)[0] || "there";
+
+      f.querySelector("#j-ref").value = ref;
+      f.querySelector("#j-subject").value =
+        kind === "reviewer"
+          ? `IJAOTT reviewer application ${ref}: ${name}`
+          : `IJAOTT submission ${ref}: ${title}`;
+      f.querySelector("#j-auto").value =
+        kind === "reviewer"
+          ? `Dear ${first},\\n\\nThank you for offering to review for the ${J.title}. Your application reference is ${ref}.\\n\\nWarm regards,\\nEditorial Office, ${J.short}\\nhttps://researchmed.in/journal/`
+          : `Dear ${first},\\n\\nThank you for submitting "${title}" to the ${J.title}. Your reference number is ${ref}.\\n\\nWe have received your submission and will check it within about 7 days before sending it for double-blind peer review.\\n\\nWarm regards,\\nEditorial Office, ${J.short}\\nhttps://researchmed.in/journal/`;
+      f.querySelector("#j-next").value =
+        "https://researchmed.in/journal/thanks.html?reference=" + encodeURIComponent(ref);
+
+      btn.disabled = true;
+      btn.textContent = "Submitting…";
+      // IMPORTANT: Do not preventDefault. FormSubmit must receive the native
+      // multipart/form-data request so the manuscript/CV file is attached.
     });
   }
 
