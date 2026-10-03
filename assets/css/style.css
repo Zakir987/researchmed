@@ -757,3 +757,32 @@ a.card:hover .pub-more { letter-spacing: .02em; }
 @media (prefers-reduced-motion: reduce) { .hero-bg .blob, .btn-shine::after, .live-pill::before, .bk-urgent { animation: none !important; } .js-reveal .reveal { opacity: 1; transform: none; } }
 .stat b small { font-size: .55em; margin-left: 2px; }
 .foot-brand { align-content: start; }
+
+/* Research collaborations */
+.collab-how { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px 24px; margin-bottom: 28px; }
+.collab-how h2 { font-size: 1.25rem; margin-bottom: 6px; }
+.collab-how > p { color: var(--muted); margin-bottom: 14px; }
+.collab-how ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); counter-reset: ch; }
+.collab-how li { counter-increment: ch; display: grid; gap: 2px; padding-left: 38px; position: relative; }
+.collab-how li::before { content: counter(ch); position: absolute; left: 0; top: 0; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--teal-soft); color: var(--primary); font-weight: 700; font-size: .9rem; }
+.collab-how li span { color: var(--muted); font-size: .92rem; }
+.collab-note { font-size: .88rem; color: var(--muted); border-left: 3px solid var(--teal); padding-left: 10px; }
+.center-row { display: flex; justify-content: center; margin-top: 20px; }
+.tm-card[hidden] { display: none !important; }
+/* Smaller floating buttons on phones so they cover less text */
+@media (max-width: 600px) {
+  .rb-fab { width: 52px !important; height: 52px !important; right: 14px !important; bottom: calc(74px + env(safe-area-inset-bottom, 0px)) !important; border-width: 2px !important; }
+  .rb-fab svg, .rb-fab img { transform: scale(.8); }
+  .rb-tease { right: 74px !important; bottom: calc(82px + env(safe-area-inset-bottom, 0px)) !important; }
+  .wa-fab { right: 14px; padding: 12px; }
+  .site-footer { padding-bottom: 96px; }
+}
+/* Shorter home page on phones */
+@media (max-width: 600px) {
+  .hero-x .hp-steps { display: none; }
+  #home-journey .journey li:nth-child(n+7) { display: none; }
+  #home-team { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 12px; }
+  .why { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  .why p { font-size: .9rem; }
+}
+@media (max-width: 600px) { #home-highlights > :nth-child(n+4) { display: none; } }
