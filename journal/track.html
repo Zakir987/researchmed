@@ -91,6 +91,12 @@
   .trk-steps li::before{left:20px;top:2px}
   .trk-steps li::after{left:19px;right:auto;top:44px;bottom:0;width:2px;height:auto}
 }
+.trk-contact{margin-top:24px;padding:18px;border-radius:16px;border:1px dashed color-mix(in srgb,var(--primary) 40%,var(--line));background:color-mix(in srgb,var(--teal) 6%,transparent)}
+.trk-contact p{margin:0 0 12px;color:var(--ink)}
+.trk-cbtns{display:flex;flex-wrap:wrap;gap:10px}
+.trk-cbtn{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 .95rem var(--font-body);text-decoration:none;cursor:pointer;transition:transform .2s cubic-bezier(.2,.9,.3,1.6),border-color .2s,box-shadow .2s}
+.trk-cbtn:hover{transform:translateY(-2px) scale(1.04);border-color:var(--primary);box-shadow:var(--glow)}
+.trk-cbtn.ok{border-color:#1e9b5a;color:#1e9b5a}
 /* --- Motion: pop in and out --- */
 @keyframes trkPop{0%{opacity:0;transform:scale(.86) translateY(18px)}60%{opacity:1;transform:scale(1.03) translateY(-3px)}100%{opacity:1;transform:none}}
 @keyframes trkGrad{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
@@ -163,6 +169,20 @@
   var norm = function (s) { return String(s || "").toUpperCase().replace(/\s+/g, "").replace(/[–—_]/g, "-"); };
   var fmt = function (d) { var x = new Date(String(d) + "T00:00:00"); return isNaN(x) ? esc(d) : x.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }); };
   function empty(icon, title, text) { out.innerHTML = '<div class="trk-card trk-empty"><div class="ic" aria-hidden="true">' + icon + '</div><h2>' + title + '</h2><p>' + text + '</p></div>'; }
+  var MAIL = "ijaott@researchmed.in";
+  function contact(ref) {
+    var su = encodeURIComponent("Query about manuscript " + ref), body = encodeURIComponent("Dear Editorial Office,\n\nReference number: " + ref + "\n\n");
+    return '<div class="trk-contact"><p>Questions about this manuscript? Write to <b>' + MAIL + '</b> and quote <b>' + esc(ref) + '</b>.</p><div class="trk-cbtns">' +
+      '<a class="trk-cbtn" target="_blank" rel="noopener" href="https://mail.google.com/mail/?view=cm&fs=1&to=' + MAIL + '&su=' + su + '&body=' + body + '">✉️ Write in Gmail</a>' +
+      '<a class="trk-cbtn" href="mailto:' + MAIL + '?subject=' + su + '&body=' + body + '">📧 Open email app</a>' +
+      '<button type="button" class="trk-cbtn" data-copy="' + MAIL + '">📋 Copy email address</button></div></div>';
+  }
+  out.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-copy]"); if (!b) return;
+    var done = function () { var t = b.textContent; b.textContent = "✅ Copied!"; b.classList.add("ok"); setTimeout(function () { b.textContent = t; b.classList.remove("ok"); }, 1800); };
+    if (navigator.clipboard) navigator.clipboard.writeText(b.dataset.copy).then(done, function () { prompt("Copy this email address:", b.dataset.copy); });
+    else prompt("Copy this email address:", b.dataset.copy);
+  });
   function show(r) {
     var key = String(r.status || "Submitted").trim().toLowerCase();
     var closed = CLOSED[key], idx = MAP.hasOwnProperty(key) ? MAP[key] : 0;
@@ -177,7 +197,7 @@
       '<div class="trk-bar"><span id="trk-fill"></span></div>' +
       (closed ? "" : '<ol class="trk-steps">' + steps + '</ol>') +
       (r.note ? '<div class="trk-note"><b>Message from the editorial office</b>' + esc(r.note) + '</div>' : "") +
-      '<div class="trk-meta">' + (r.updated ? '<span>Last updated: <b>' + fmt(r.updated) + '</b></span>' : "") + '<span>Questions? <a href="mailto:ijaott@researchmed.in?subject=' + encodeURIComponent("Query: " + r.title) + '">Email the editorial office</a></span></div></div>';
+      '<div class="trk-meta">' + (r.updated ? '<span>Last updated: <b>' + fmt(r.updated) + '</b></span>' : "") + '</div>' + contact(r.title) + '</div>';
     requestAnimationFrame(function () { setTimeout(function () { var f = document.getElementById("trk-fill"); if (f) f.style.width = Math.max(pct, 6) + "%"; }, 80); });
   }
   function run() {
