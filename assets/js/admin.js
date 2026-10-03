@@ -71,7 +71,17 @@
   // ---------- Section definitions ----------
   const SECTIONS = {
     enquiries: { label: "Enquiries", static: true },
-    ijaott_tracking: { label: "IJAOTT Tracking", tracking: true },
+    ijaott_tracking: {
+      label: "IJAOTT Tracking", file: "content/journal-tracking.json", list: true, noun: "manuscript status",
+      hint: "Authors see this on researchmed.in/journal/track.html when they enter their reference number. Anyone with the reference number can see it, so never put author names, emails or manuscript titles here.",
+      fields: [
+        { k: "title", l: "Reference number (from the submission email)", t: "text", req: true, ph: "IJAOTT-261003-AB12" },
+        { k: "status", l: "Current stage", t: "select", opts: ["Submitted", "Initial editorial check", "Under peer review", "Revision requested", "Revised manuscript received", "Accepted", "Production (copyediting & proofs)", "Published", "Rejected", "Withdrawn"] },
+        { k: "note", l: "Message to the author (optional; shown on the tracking page)", t: "area" },
+        { k: "updated", l: "Last updated", t: "date", def: today },
+      ],
+      summary: (x) => [x.status, x.updated].filter(Boolean).join(" · "),
+    },
     notices: {
       label: "Notice Board", file: "content/notices.json", list: true, noun: "notice",
       hint: "Notices scroll across the top of the home page. Tick NEW to show a blinking tag.",
@@ -497,6 +507,7 @@ if (SECTIONS[current].tracking) { try { if (!localStorage.getItem(IJAOTT_ENDPOIN
   function field(f, v) {
     const id = "f-" + f.k;
     const val = v == null ? (f.def ? f.def() : "") : v;
+    if (f.t === "select") return `<label for="${id}">${f.l}<select id="${id}">${f.opts.map((o) => `<option ${o === val ? "selected" : ""}>${esc(o)}</option>`).join("")}</select></label>`;
     if (f.t === "check") return `<label class="check" for="${id}"><input id="${id}" type="checkbox" ${val ? "checked" : ""}> ${f.l}</label>`;
     if (f.t === "area") return `<label for="${id}">${f.l}${f.req ? " *" : ""}<textarea id="${id}" rows="${f.req ? 5 : 3}" ${f.req ? "required" : ""}>${esc(val)}</textarea></label>`;
     if (f.t === "tags") return `<label for="${id}">${f.l}<input id="${id}" value="${esc(Array.isArray(val) ? val.join(", ") : val)}" placeholder="${esc(f.ph || "")}"></label>`;
