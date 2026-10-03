@@ -385,6 +385,7 @@
     show(`${tabs()}<div class="admin-panel"><div class="skeleton" style="min-height:160px"></div></div>`);
     bindTabs();
     if (SECTIONS[current].static) { $(".admin-panel").innerHTML = enquiriesPanel(); return; }
+if (SECTIONS[current].tracking) { try { if (!localStorage.getItem(IJAOTT_ENDPOINT_KEY)) { const jj = await fetch("content/journal.json", { cache: "no-cache" }).then((r) => r.json()); if (jj.submission_endpoint) localStorage.setItem(IJAOTT_ENDPOINT_KEY, jj.submission_endpoint); } } catch (er) {} await renderTrackingPanel(); return; }
     try {
       const r = await readJson(SECTIONS[current].file);
       doc = r.data; sha = r.sha;
