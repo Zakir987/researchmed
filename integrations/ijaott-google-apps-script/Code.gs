@@ -22,7 +22,13 @@ const CONFIG = {
   THANKS_URL: "https://researchmed.in/journal/thanks.html"
 };
 
-function doGet() {
+function doGet(e) {
+  const p = (e && e.parameter) || {};
+  if (p.action === "track") return trackResponse_(p);
+  if (p.action === "health") {
+    return ContentService.createTextOutput(JSON.stringify({ok:true, service:"IJAOTT"}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
   return HtmlService.createHtmlOutput(
     "<h2>IJAOTT Submission Service</h2><p>The submission service is online.</p>"
   );
@@ -103,6 +109,10 @@ function doPost(e) {
       folderUrl = submissionFolder.getUrl();
     }
 
+    const tracking = saveTrackingRecord_({
+      reference, kind, name, email, institution, title, articleType
+    });
+
     const subject = kind === "reviewer"
       ? "IJAOTT reviewer/editor application " + reference + ": " + name
       : "IJAOTT manuscript submission " + reference + ": " + title;
@@ -135,6 +145,110 @@ function doPost(e) {
     console.error(err);
     return resultPage_("We could not process the submission. Please try again or contact the editorial office.", false);
   }
+}
+
+function getOrCreateTrackingSheet_() {
+  const root = getOrCreateFolder_(CONFIG.ROOT_FOLDER);
+  const files = root.getFilesByName("IJAOTT Tracking");
+  if (files.hasNext()) return SpreadsheetApp.openById(files.next().getId());
+
+  const ss = SpreadsheetApp.create("IJAOTT Tracking");
+  const sheet = ss.getSheets()[0];
+  sheet.setName("Submissions");
+  sheet.appendRow([
+    "Reference", "Kind", "Name", "Email", "Institution", "Manuscript Title",
+    "Article Type", "Status", "Stage", "Submitted At", "Updated At", "Editorial Note"
+  ]);
+  sheet.setFrozenRows(1);
+  sheet.getRange(1, 1, 1, 12).setFontWeight("bold");
+  DriveApp.getFileById(ss.getId()).moveTo(root);
+  return ss;
+}
+
+function saveTrackingRecord_(d) {
+  const ss = getOrCreateTrackingSheet_();
+  const sheet = ss.getSheetByName("Submissions");
+  const now = new Date();
+  sheet.appendRow([
+    d.reference, d.kind, d.name, d.email, d.institution, d.title,
+    d.articleType, "Submitted", "Editorial office screening", now, now, ""
+  ]);
+  return ss.getUrl();
+}
+
+function findTrackingRecord_(reference, email) {
+  const ss = getOrCreateTrackingSheet_();
+  const sheet = ss.getSheetByName("Submissions");
+  const values = sheet.getDataRange().getValues();
+  const ref = String(reference || "").trim().toUpperCase();
+  const mail = String(email || "").trim().toLowerCase();
+
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+    if (String(row[0]).trim().toUpperCase() === ref &&
+        String(row[3]).trim().toLowerCase() === mail) {
+      return {
+        reference: String(row[0]),
+        kind: String(row[1]),
+        title: String(row[5] || ""),
+        status: String(row[7] || "Submitted"),
+        stage: String(row[8] || ""),
+        submittedAt: formatDate_(row[9]),
+        updatedAt: formatDate_(row[10]),
+        note: String(row[11] || "")
+      };
+    }
+  }
+  return null;
+}
+
+function formatDate_(value) {
+  if (!value) return "";
+  return Utilities.formatDate(new Date(value), Session.getScriptTimeZone(), "dd MMM yyyy, hh:mm a");
+}
+
+function trackResponse_(p) {
+  const callback = String(p.prefix || "").replace(/[^a-zA-Z0-9_$.]/g, "");
+  const reference = clean_(p.reference, 80);
+  const email = clean_(p.email, 320);
+  let result;
+
+  if (!reference || !email) {
+    result = {ok:false, error:"Please enter your reference number and submission email."};
+  } else {
+    const record = findTrackingRecord_(reference, email);
+    result = record
+      ? {ok:true, found:true, record:record}
+      : {ok:true, found:false, error:"No submission was found with that reference number and email address."};
+  }
+
+  const json = JSON.stringify(result);
+  if (callback) {
+    return ContentService.createTextOutput(callback + "(" + json + ")")
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
+}
+
+function updateTrackingStatus(reference, status, stage, note) {
+  const ss = getOrCreateTrackingSheet_();
+  const sheet = ss.getSheetByName("Submissions");
+  const values = sheet.getDataRange().getValues();
+  const ref = String(reference || "").trim().toUpperCase();
+  for (let i = 1; i < values.length; i++) {
+    if (String(values[i][0]).trim().toUpperCase() === ref) {
+      const row = i + 1;
+      sheet.getRange(row, 8, 1, 5).setValues([[
+        String(status || "Submitted"),
+        String(stage || ""),
+        values[i][9] || new Date(),
+        new Date(),
+        String(note || "")
+      ]]);
+      return "Updated " + ref;
+    }
+  }
+  throw new Error("Reference not found: " + ref);
 }
 
 function getOrCreateFolder_(name) {
