@@ -6,6 +6,8 @@
   const OWNER = "Zakir987", REPO = "researchmed", BRANCH = "main";
   const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
   const KEY = "rmc-admin-key";
+  const IJAOTT_ENDPOINT_KEY = "ijaott-admin-endpoint";
+  const IJAOTT_ADMIN_KEY = "ijaott-admin-secret";
   const $ = (s, r = document) => r.querySelector(s);
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const today = () => new Date().toISOString().slice(0, 10);
@@ -69,6 +71,7 @@
   // ---------- Section definitions ----------
   const SECTIONS = {
     enquiries: { label: "Enquiries", static: true },
+    ijaott_tracking: { label: "IJAOTT Tracking", tracking: true },
     notices: {
       label: "Notice Board", file: "content/notices.json", list: true, noun: "notice",
       hint: "Notices scroll across the top of the home page. Tick NEW to show a blinking tag.",
@@ -391,6 +394,87 @@
     }
   }
   // Enquiries from the Contact page are emailed to info@researchmed.in via FormSubmit.
+  function trackingConfig() {
+    let endpoint = "", key = "";
+    try {
+      endpoint = localStorage.getItem(IJAOTT_ENDPOINT_KEY) || "";
+      key = localStorage.getItem(IJAOTT_ADMIN_KEY) || "";
+    } catch (e) {}
+    return { endpoint, key };
+  }
+
+  async function trackingRequest(endpoint, params) {
+    const body = new URLSearchParams(params);
+    const r = await fetch(endpoint, { method: "POST", headers: {"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"}, body });
+    if (!r.ok) throw new Error("Tracking service returned " + r.status);
+    return r.json();
+  }
+
+  async function renderTrackingPanel() {
+    const panel = $(".admin-panel");
+    let cfg = trackingConfig();
+    panel.innerHTML = `
+      <p class="muted">Review and update IJAOTT submissions here. Authors see the same status on the public tracking page.</p>
+      <form id="tracking-config" class="form contact-card">
+        <label>Apps Script Web App URL<input id="ijaott-endpoint" type="url" value="${esc(cfg.endpoint)}" placeholder="https://script.google.com/macros/s/.../exec" required></label>
+        <label>Admin key<input id="ijaott-key" type="password" value="${esc(cfg.key)}" placeholder="Your IJAOTT admin key" required></label>
+        <div class="btn-row"><button class="btn btn-primary" type="submit">Load submissions</button></div>
+      </form>
+      <div id="tracking-results"></div>`;
+    $("#tracking-config").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      cfg = { endpoint: $("#ijaott-endpoint").value.trim(), key: $("#ijaott-key").value.trim() };
+      try { localStorage.setItem(IJAOTT_ENDPOINT_KEY, cfg.endpoint); localStorage.setItem(IJAOTT_ADMIN_KEY, cfg.key); } catch (er) {}
+      await loadTrackingRows();
+    });
+    if (cfg.endpoint && cfg.key) await loadTrackingRows();
+  }
+
+  async function loadTrackingRows() {
+    const cfg = trackingConfig(), box = $("#tracking-results");
+    if (!cfg.endpoint || !cfg.key) return;
+    box.innerHTML = '<p class="muted">Loading submissions…</p>';
+    try {
+      const data = await trackingRequest(cfg.endpoint, {action:"listTracking", adminKey:cfg.key});
+      if (!data.ok) throw new Error(data.error || "Could not load submissions.");
+      const rows = data.records || [];
+      box.innerHTML = rows.length ? `
+        <div style="overflow:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr><th style="text-align:left;padding:10px">Reference</th><th style="text-align:left;padding:10px">Author</th><th style="text-align:left;padding:10px">Manuscript</th><th style="text-align:left;padding:10px">Status</th><th style="text-align:left;padding:10px">Stage</th><th style="text-align:left;padding:10px">Updated</th><th style="text-align:left;padding:10px">Action</th></tr></thead>
+          <tbody>${rows.map((x,i)=>`
+            <tr>
+              <td style="padding:10px;vertical-align:top"><b>${esc(x.reference)}</b><br><small>${esc(x.email)}</small></td>
+              <td style="padding:10px;vertical-align:top">${esc(x.name)}</td>
+              <td style="padding:10px;vertical-align:top;min-width:220px">${esc(x.title)}</td>
+              <td style="padding:10px;vertical-align:top"><select data-ts=${i} data-field="status">
+                ${["Submitted","Preliminary Check","Under Review","Revision Required","Accepted","Rejected","Production","Published"].map(v=>`<option ${v===x.status?"selected":""}>${esc(v)}</option>`).join("")}
+              </select></td>
+              <td style="padding:10px;vertical-align:top"><select data-ts=${i} data-field="stage">
+                ${["Editorial office screening","Technical/editorial check","Double-blind peer review","Author revision","Editorial decision","Accepted for publication","Copyediting/typesetting","Published online"].map(v=>`<option ${v===x.stage?"selected":""}>${esc(v)}</option>`).join("")}
+              </select></td>
+              <td style="padding:10px;vertical-align:top;white-space:nowrap">${esc(x.updatedAt)}</td>
+              <td style="padding:10px;vertical-align:top"><textarea data-ts=${i} data-field="note" rows="3" placeholder="Editorial note">${esc(x.note)}</textarea><br><label style="display:block;margin:6px 0"><input type="checkbox" data-ts=${i} data-field="notify"> Email author</label><button class="btn btn-primary" type="button" data-update=${i}>Update</button></td>
+            </tr>`).join("")}</tbody>
+        </table></div>` : '<div class="empty"><strong>No IJAOTT submissions yet</strong><p>New submissions will appear here automatically.</p></div>';
+      box.querySelectorAll("[data-update]").forEach(btn => btn.addEventListener("click", async () => {
+        const i = Number(btn.dataset.update), x = rows[i];
+        const status = box.querySelector('[data-ts="'+i+'"][data-field="status"]').value;
+        const stage = box.querySelector('[data-ts="'+i+'"][data-field="stage"]').value;
+        const note = box.querySelector('[data-ts="'+i+'"][data-field="note"]').value.trim();
+        const notify = box.querySelector('[data-ts="'+i+'"][data-field="notify"]').checked;
+        await busy(btn, async () => {
+          const data = await trackingRequest(cfg.endpoint, {action:"updateTracking",adminKey:cfg.key,reference:x.reference,status,stage,note,notify:String(notify)});
+          if (!data.ok) throw new Error(data.error || "Update failed.");
+          toast(notify ? "Tracking updated and author notified." : "Tracking updated. The author can now see the change.");
+          await loadTrackingRows();
+        });
+      }));
+    } catch (e) {
+      box.innerHTML = '<p class="form-status err">Could not load tracking: ' + esc(e.message) + '</p>';
+    }
+  }
+
   function enquiriesPanel() {
     return `<p class="muted">Every enquiry sent from the website's Contact page is emailed straight to <b>info@researchmed.in</b> (Zoho Mail), with the subject "New enquiry RMC-…". The sender automatically gets a thank-you email with the same reference number.</p>
       <div class="btn-row" style="margin-top:14px">
