@@ -33,12 +33,6 @@
   <div class="contact-card">
   <div id="jr-status" class="form-status" role="status" hidden></div>
   <form class="form" id="jr-form" method="POST" enctype="multipart/form-data" action="https://formsubmit.co/ijaott@researchmed.in">
-    <fieldset class="jr-type">
-      <legend>I want to</legend>
-      <label><input type="radio" name="Submission type" value="Manuscript" checked> Submit a manuscript</label>
-      <label><input type="radio" name="Submission type" value="Reviewer / editor application"> Join as reviewer / editor</label>
-    </fieldset>
-
     <div data-for="manuscript">
       <label for="j-title">Manuscript title<input id="j-title" name="Manuscript title" required></label>
       <label for="j-type">Article type
@@ -50,14 +44,6 @@
       <label for="j-ethics">Ethics approval / trial registration (or "not applicable")<input id="j-ethics" name="Ethics / registration" required></label>
       <label for="j-rmc">Did you receive guidance from ResearchMed Connect for this manuscript?
         <select id="j-rmc" name="ResearchMed guidance received"><option>No</option><option>Yes</option></select></label>
-    </div>
-
-    <div data-for="reviewer" hidden>
-      <label for="j-qual">Qualifications and current position<input id="j-qual" name="Qualifications" required></label>
-      <label for="j-areas">Areas of expertise<input id="j-areas" name="Expertise" required placeholder="e.g. airway management, OT sterilisation, critical care"></label>
-      <label for="j-pubs">ORCID / Google Scholar link (optional)<input id="j-pubs" name="Profile link"></label>
-      <label for="j-role">Role<select id="j-role" name="Role"><option>Peer reviewer</option><option>Associate editor</option><option>Either</option></select></label>
-      <label for="j-cv">CV (optional, Word or PDF, max 10 MB)<input id="j-cv" name="attachment" type="file" accept=".doc,.docx,.pdf"></label>
     </div>
 
     <label for="j-name">Your name (corresponding author)<input id="j-name" name="name" required autocomplete="name"></label>
@@ -79,6 +65,7 @@
   </form>
   </div>
   <aside class="jr-side">
+    <div class="jr-facts" style="margin-bottom:14px"><h2>Want to review?</h2><p class="muted" style="margin:0 0 12px">Experienced in anaesthesia or OT technology? Join IJAOTT as a peer reviewer or editor.</p><a class="btn btn-ghost" href="journal/join.html">Join as reviewer / editor →</a></div>
     <div class="jr-facts"><h2>What happens next</h2>
       <ol class="jr-next"><li>You get a <b>reference number</b> on screen and by email.</li><li>Use it on <a href="journal/track.html">Track manuscript</a> to see your paper's status.</li><li>We check the submission within about 7 days.</li><li>Double-blind peer review; first decision in about 6–8 weeks.</li><li>APC (₹2,000 – ₹5,000) is decided only after acceptance.</li></ol>
     </div>
