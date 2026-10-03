@@ -685,8 +685,17 @@
     if (list.length < 2) return;
     const initials = (n) => String(n || "").replace(/^(dr|mr|ms|mrs|prof)\.?\s+/i, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
     const insts = [...new Set(list.map((t) => String(t.institution || "").split(",")[0].trim()).filter(Boolean))];
-    box.innerHTML = `<div class="av-stack" aria-hidden="true">${list.slice(0, 5).map((t) => t.photo ? `<img src="${esc(media(t.photo))}" alt="" loading="lazy">` : `<span>${esc(initials(t.title))}</span>`).join("")}</div>
-      <p><b>Guided faculty &amp; students</b> from ${insts.slice(0, 3).map(esc).join(", ")}${insts.length > 3 ? " and more" : ""}</p>`;
+    box.innerHTML = `<div class="av-stack">${list.slice(0, 5).map((t) => `<a href="#home-testimonials-section" data-t="${esc(t.title)}" title="Read what ${esc(t.title)} said" aria-label="Read what ${esc(t.title)} said">${t.photo ? `<img src="${esc(media(t.photo))}" alt="" loading="lazy">` : `<span>${esc(initials(t.title))}</span>`}</a>`).join("")}</div>
+      <p><a class="ht-link" href="#home-testimonials-section"><b>Guided faculty &amp; students</b> from ${insts.slice(0, 3).map(esc).join(", ")}${insts.length > 3 ? " and more" : ""} <span class="ht-cta">Read what they say&nbsp;→</span></a></p>`;
+    box.addEventListener("click", (e) => {
+      const a = e.target.closest("a[href='#home-testimonials-section']");
+      if (!a) return;
+      const sec = $("#home-testimonials-section");
+      if (!sec || sec.hidden) return;
+      e.preventDefault();
+      sec.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+      document.dispatchEvent(new CustomEvent("rmc:show-testimonial", { detail: a.dataset.t || "" }));
+    });
     box.hidden = false;
   }
 
@@ -772,6 +781,12 @@
     let x0 = null;
     deck.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
     deck.addEventListener("touchend", (e) => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) go(cur + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1); x0 = null; });
+    document.addEventListener("rmc:show-testimonial", (e) => {
+      const k = list.slice(0, 12).findIndex((t) => t.title === e.detail);
+      if (k >= 0 && k !== cur) go(k, k > cur ? 1 : -1);
+      hovering = true; place(0); schedule(); // hold the chosen card while it is read
+      setTimeout(() => { hovering = false; place(0); schedule(); }, 15000);
+    });
     if (n < 2) $(".tst-ctrl", grid).hidden = true;
     if (reduce) { pauseBtn.textContent = "▶"; pauseBtn.setAttribute("aria-label", "Play testimonials"); }
     fit(); window.addEventListener("resize", fit); window.addEventListener("load", fit);
