@@ -20,27 +20,161 @@
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="assets/css/style.css?v=20261003e">
 <script>try{var t=localStorage.getItem("rmc-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+.trk-hero{position:relative;overflow:hidden;padding-block:64px 88px;text-align:center;border-bottom:1px solid var(--line);background:radial-gradient(1200px 420px at 50% -10%,color-mix(in srgb,var(--primary) 22%,transparent),transparent 70%),linear-gradient(180deg,var(--hero-a),var(--hero-b))}
+.trk-hero::before,.trk-hero::after{content:"";position:absolute;border-radius:50%;filter:blur(60px);opacity:.45;pointer-events:none;animation:trkFloat 14s ease-in-out infinite}
+.trk-hero::before{width:340px;height:340px;left:-80px;top:10px;background:color-mix(in srgb,var(--teal) 55%,transparent)}
+.trk-hero::after{width:300px;height:300px;right:-60px;bottom:-60px;background:color-mix(in srgb,var(--primary) 55%,transparent);animation-delay:-7s}
+@keyframes trkFloat{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,-24px)}}
+.trk-hero .wrap{position:relative;z-index:1}
+.trk-hero h1{font-family:var(--font-display);font-size:clamp(2rem,5vw,3.2rem);line-height:1.1;margin:14px 0 12px;background:var(--grad-text,var(--primary));-webkit-background-clip:text;background-clip:text;color:transparent}
+.trk-hero p{color:var(--muted);max-width:560px;margin:0 auto;font-size:1.08rem}
+.trk-search{position:relative;z-index:2;max-width:680px;margin:-46px auto 0;padding:10px;display:flex;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:999px;box-shadow:0 18px 50px -18px color-mix(in srgb,var(--primary) 55%,transparent),var(--shadow);transition:box-shadow .3s,border-color .3s}
+.trk-search:focus-within{border-color:var(--primary);box-shadow:0 0 0 4px color-mix(in srgb,var(--primary) 18%,transparent),0 18px 50px -18px color-mix(in srgb,var(--primary) 70%,transparent)}
+.trk-search svg{flex:none;margin-left:12px;color:var(--muted)}
+.trk-search input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:600 1.05rem/1.2 var(--font-mono);letter-spacing:.04em;text-transform:uppercase;padding:12px 4px;outline:none}
+.trk-search input::placeholder{color:var(--muted);opacity:.7;font-weight:500}
+.trk-search button{flex:none;border:0;cursor:pointer;color:#fff;font-weight:700;font-size:1rem;padding:13px 26px;border-radius:999px;background:var(--grad,var(--primary));box-shadow:var(--glow);transition:transform .15s,filter .15s}
+.trk-search button:hover{transform:translateY(-1px);filter:brightness(1.08)}
+.trk-search button:disabled{opacity:.7;cursor:wait}
+.trk-hint{text-align:center;color:var(--muted);font-size:.92rem;margin:14px auto 0;max-width:640px}
+.trk-main{padding-block:36px 72px}
+.trk-card{max-width:880px;margin:0 auto;background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:clamp(20px,4vw,36px);animation:trkIn .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes trkIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.trk-top{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:flex-start;justify-content:space-between;margin-bottom:26px}
+.trk-ref{font:700 1.15rem/1.3 var(--font-mono);letter-spacing:.04em;color:var(--ink)}
+.trk-ref small{display:block;font:600 .74rem/1.4 var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.trk-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;font-weight:700;font-size:.95rem;color:var(--teal);background:color-mix(in srgb,var(--teal) 14%,transparent);border:1px solid color-mix(in srgb,var(--teal) 35%,transparent)}
+.trk-badge i{width:9px;height:9px;border-radius:50%;background:currentColor;box-shadow:0 0 0 0 currentColor;animation:trkPulse 1.8s infinite}
+.trk-badge.done{color:#1e9b5a;background:color-mix(in srgb,#1e9b5a 14%,transparent);border-color:color-mix(in srgb,#1e9b5a 35%,transparent)}
+.trk-badge.closed{color:var(--amber);background:color-mix(in srgb,var(--amber) 14%,transparent);border-color:color-mix(in srgb,var(--amber) 35%,transparent)}
+.trk-badge.done i,.trk-badge.closed i{animation:none}
+@keyframes trkPulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,currentColor 55%,transparent)}70%{box-shadow:0 0 0 10px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.trk-bar{height:8px;border-radius:99px;background:color-mix(in srgb,var(--line) 70%,transparent);overflow:hidden;margin:0 0 30px}
+.trk-bar span{display:block;height:100%;width:0;border-radius:inherit;background:var(--grad,var(--primary));transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+.trk-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(7,1fr);gap:8px;counter-reset:s}
+.trk-steps li{position:relative;text-align:center;padding-top:52px;font-size:.88rem;line-height:1.3;color:var(--muted);opacity:0;animation:trkIn .45s ease both}
+.trk-steps li::before{counter-increment:s;content:counter(s);position:absolute;top:0;left:50%;transform:translateX(-50%);width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:700;background:var(--surface);border:2px solid var(--line);color:var(--muted);transition:all .4s}
+.trk-steps li::after{content:"";position:absolute;top:19px;left:calc(50% + 24px);right:calc(-50% + 24px);height:2px;background:var(--line)}
+.trk-steps li:last-child::after{display:none}
+.trk-steps li.is-done{color:var(--ink)}
+.trk-steps li.is-done::before{content:"✓";background:var(--grad,var(--primary));border-color:transparent;color:#fff}
+.trk-steps li.is-done::after{background:var(--primary)}
+.trk-steps li.is-now{color:var(--ink);font-weight:700}
+.trk-steps li.is-now::before{border-color:var(--primary);color:var(--primary);box-shadow:0 0 0 6px color-mix(in srgb,var(--primary) 18%,transparent);animation:trkRing 2s infinite}
+@keyframes trkRing{50%{box-shadow:0 0 0 11px color-mix(in srgb,var(--primary) 8%,transparent)}}
+.trk-note{margin-top:28px;padding:16px 18px;border-radius:14px;background:color-mix(in srgb,var(--primary) 7%,transparent);border-left:4px solid var(--primary)}
+.trk-note b{display:block;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.trk-meta{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:22px;color:var(--muted);font-size:.92rem}
+.trk-empty{text-align:center}
+.trk-empty .ic{font-size:2.4rem;line-height:1;margin-bottom:10px}
+.trk-empty h2{font-family:var(--font-display);margin:0 0 8px}
+.trk-empty p{color:var(--muted);margin:0 auto;max-width:520px}
+.trk-journey h2{font-family:var(--font-display);text-align:center;margin:0 0 6px}
+.trk-journey>p{text-align:center;color:var(--muted);margin:0 0 30px}
+.trk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;max-width:1000px;margin:0 auto}
+.trk-tile{position:relative;padding:20px 18px 18px;border:1px solid var(--line);border-radius:16px;background:var(--surface);transition:transform .25s,box-shadow .25s,border-color .25s}
+.trk-tile:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--primary) 45%,var(--line));box-shadow:0 16px 40px -20px color-mix(in srgb,var(--primary) 60%,transparent)}
+.trk-tile .n{font:700 .78rem var(--font-mono);color:var(--primary);letter-spacing:.08em}
+.trk-tile h3{margin:6px 0 6px;font-size:1.05rem}
+.trk-tile p{margin:0;color:var(--muted);font-size:.92rem}
+.trk-tile .t{display:inline-block;margin-top:10px;font-size:.8rem;font-weight:700;color:var(--teal)}
+.trk-help{max-width:880px;margin:40px auto 0;text-align:center;color:var(--muted);font-size:.95rem}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:760px){
+  .trk-search{border-radius:20px;flex-wrap:wrap;margin-top:-40px}
+  .trk-search svg{display:none}
+  .trk-search input{flex:1 1 100%;padding:12px 10px;text-align:center}
+  .trk-search button{flex:1 1 100%}
+  .trk-steps{grid-template-columns:1fr;gap:0}
+  .trk-steps li{text-align:left;padding:8px 0 22px 56px;min-height:40px}
+  .trk-steps li::before{left:20px;top:2px}
+  .trk-steps li::after{left:19px;right:auto;top:44px;bottom:0;width:2px;height:auto}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
 </head>
 <body data-page="journal" data-jpage="track">
 <main id="main">
-<section class="page-hero jr-hero"><div class="wrap">
-  <span class="eyebrow pill-eyebrow">Track manuscript</span>
-  <h1>Track your manuscript</h1>
-  <p>Enter the reference number you received when you submitted (for example IJAOTT-261003-AB12).</p>
+<section class="trk-hero"><div class="wrap">
+  <span class="eyebrow pill-eyebrow">IJAOTT · Manuscript tracking</span>
+  <h1>Where is my manuscript?</h1>
+  <p>Enter the reference number from your submission email to see exactly where your paper is in its journey.</p>
 </div></section>
 <nav class="jr-subnav" aria-label="Journal"><div class="wrap"><a href="journal/">Home</a><a href="journal/authors.html">For authors</a><a href="journal/policies.html">Policies</a><a href="journal/board.html">Editorial board</a><a href="journal/issues.html">Issues</a><a href="journal/submit.html">Submit</a><a href="journal/track.html" aria-current="page">Track manuscript</a></div></nav>
-<section class="section" style="padding-top:36px"><div class="wrap jr-track">
-  <form class="jr-search" id="jr-track-form" role="search">
-    <label for="jr-ref" class="sr-only">Reference number</label>
-    <input id="jr-ref" name="ref" placeholder="IJAOTT-261003-AB12" autocomplete="off" spellcheck="false" required>
-    <input id="jr-track-email" name="email" type="email" placeholder="Submission email" autocomplete="email" required>
-    <button class="btn btn-primary" type="submit">Track</button>
+<section class="trk-main"><div class="wrap">
+  <form class="trk-search" id="trk-form" role="search">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <label for="trk-ref" class="sr-only">Reference number</label>
+    <input id="trk-ref" placeholder="IJAOTT-261003-AB12" autocomplete="off" spellcheck="false" required>
+    <button type="submit">Track</button>
   </form>
-  <div id="jr-track-result" aria-live="polite"></div>
-  <p class="muted" style="font-size:.9rem">For privacy, enter both your reference number and the email address used for submission. Status is updated by the editorial office, usually within 2 working days of each step. For questions, email <a href="mailto:ijaott@researchmed.in">ijaott@researchmed.in</a> quoting your reference number.</p>
+  <p class="trk-hint">Your reference number is in the confirmation email you received after submitting.</p>
+  <div id="trk-result" aria-live="polite" style="margin-top:34px"></div>
+
+  <div class="trk-journey" id="trk-journey" style="margin-top:56px">
+    <h2>Your manuscript’s journey</h2>
+    <p>Every submission to IJAOTT moves through these stages.</p>
+    <div class="trk-grid">
+      <div class="trk-tile"><span class="n">01</span><h3>Submitted</h3><p>Your manuscript reaches the editorial office and gets a reference number.</p><span class="t">Same day</span></div>
+      <div class="trk-tile"><span class="n">02</span><h3>Editorial check</h3><p>Scope, completeness, ethics statements and a similarity check.</p><span class="t">About 7 days</span></div>
+      <div class="trk-tile"><span class="n">03</span><h3>Peer review</h3><p>Double-blind review by at least two independent experts.</p><span class="t">About 4–6 weeks</span></div>
+      <div class="trk-tile"><span class="n">04</span><h3>Revision</h3><p>You respond to the reviewers point by point, if changes are requested.</p><span class="t">As agreed</span></div>
+      <div class="trk-tile"><span class="n">05</span><h3>Accepted</h3><p>The editors accept your manuscript for publication.</p><span class="t">After review</span></div>
+      <div class="trk-tile"><span class="n">06</span><h3>Production</h3><p>Copyediting, typesetting and proofs for your approval.</p><span class="t">About 2–3 weeks</span></div>
+      <div class="trk-tile"><span class="n">07</span><h3>Published</h3><p>Your article is online, open access, under CC BY 4.0.</p><span class="t">In the next issue</span></div>
+    </div>
+  </div>
+  <p class="trk-help">Questions about your manuscript? Email <a href="mailto:ijaott@researchmed.in">ijaott@researchmed.in</a> and quote your reference number. Status is updated by the editorial office after each step.</p>
 </div></section>
 </main>
 <script src="assets/js/site.js?v=20261003e" defer></script>
-<script src="assets/js/journal.js?v=20261003h" defer></script>
+<script>
+(function () {
+  var STEPS = ["Submitted", "Editorial check", "Peer review", "Revision", "Accepted", "Production", "Published"];
+  var MAP = { "submitted": 0, "initial editorial check": 1, "under peer review": 2, "revision requested": 3, "revised manuscript received": 3, "accepted": 4, "production (copyediting & proofs)": 5, "published": 6 };
+  var CLOSED = { "rejected": "Not accepted for publication", "withdrawn": "Withdrawn by the author" };
+  var form = document.getElementById("trk-form"), input = document.getElementById("trk-ref"), out = document.getElementById("trk-result"), btn = form.querySelector("button");
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+  var norm = function (s) { return String(s || "").toUpperCase().replace(/\s+/g, "").replace(/[–—_]/g, "-"); };
+  var fmt = function (d) { var x = new Date(String(d) + "T00:00:00"); return isNaN(x) ? esc(d) : x.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }); };
+  function empty(icon, title, text) { out.innerHTML = '<div class="trk-card trk-empty"><div class="ic" aria-hidden="true">' + icon + '</div><h2>' + title + '</h2><p>' + text + '</p></div>'; }
+  function show(r) {
+    var key = String(r.status || "Submitted").trim().toLowerCase();
+    var closed = CLOSED[key], idx = MAP.hasOwnProperty(key) ? MAP[key] : 0;
+    var published = idx === 6 && !closed;
+    var pct = closed ? 100 : Math.round((idx / (STEPS.length - 1)) * 100);
+    var badge = closed ? '<span class="trk-badge closed"><i></i>' + esc(closed) + '</span>' : '<span class="trk-badge' + (published ? " done" : "") + '"><i></i>' + esc(r.status || "Submitted") + '</span>';
+    var steps = STEPS.map(function (s, i) {
+      var cls = closed ? (i <= idx ? "is-done" : "") : (i < idx || published ? "is-done" : i === idx ? "is-now" : "");
+      return '<li class="' + cls + '" style="animation-delay:' + (i * 90) + 'ms">' + esc(s) + '</li>';
+    }).join("");
+    out.innerHTML = '<div class="trk-card"><div class="trk-top"><div class="trk-ref"><small>Reference number</small>' + esc(r.title) + '</div>' + badge + '</div>' +
+      '<div class="trk-bar"><span id="trk-fill"></span></div>' +
+      (closed ? "" : '<ol class="trk-steps">' + steps + '</ol>') +
+      (r.note ? '<div class="trk-note"><b>Message from the editorial office</b>' + esc(r.note) + '</div>' : "") +
+      '<div class="trk-meta">' + (r.updated ? '<span>Last updated: <b>' + fmt(r.updated) + '</b></span>' : "") + '<span>Questions? <a href="mailto:ijaott@researchmed.in?subject=' + encodeURIComponent("Query: " + r.title) + '">Email the editorial office</a></span></div></div>';
+    requestAnimationFrame(function () { setTimeout(function () { var f = document.getElementById("trk-fill"); if (f) f.style.width = Math.max(pct, 6) + "%"; }, 80); });
+  }
+  function run() {
+    var ref = norm(input.value);
+    if (!ref) return;
+    input.value = ref; btn.disabled = true; btn.textContent = "Checking…";
+    out.innerHTML = '<div class="trk-card trk-empty"><div class="ic" aria-hidden="true">⏳</div><h2>Looking up your manuscript…</h2></div>';
+    fetch("content/journal-tracking.json?t=" + Date.now(), { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : { items: [] }; }).catch(function () { return { items: [] }; }).then(function (j) {
+      var items = (j && j.items) || [];
+      var rec = items.filter(function (x) { return x && norm(x.title) === ref; })[0];
+      if (rec) show(rec);
+      else if (/^IJAOTT-(R-)?\d{6}-[A-Z0-9]{4}$/.test(ref)) empty("📬", "Received — not on the tracker yet", "We couldn’t find a status for <b>" + esc(ref) + "</b> yet. New submissions usually appear within 2 working days. If it has been longer, email <a href=\"mailto:ijaott@researchmed.in\">ijaott@researchmed.in</a>.");
+      else empty("🔎", "That doesn’t look like a reference number", "Reference numbers look like <b>IJAOTT-261003-AB12</b>. Please check your confirmation email and try again.");
+      btn.disabled = false; btn.textContent = "Track";
+      try { history.replaceState(null, "", "journal/track.html?ref=" + encodeURIComponent(ref)); } catch (e) {}
+    });
+  }
+  form.addEventListener("submit", function (e) { e.preventDefault(); run(); });
+  var q = new URLSearchParams(location.search).get("ref") || new URLSearchParams(location.search).get("reference");
+  if (q) { input.value = q; run(); }
+})();
+</script>
 </body>
 </html>
