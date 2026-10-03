@@ -91,6 +91,30 @@
   .trk-steps li::before{left:20px;top:2px}
   .trk-steps li::after{left:19px;right:auto;top:44px;bottom:0;width:2px;height:auto}
 }
+/* --- Motion: pop in and out --- */
+@keyframes trkPop{0%{opacity:0;transform:scale(.86) translateY(18px)}60%{opacity:1;transform:scale(1.03) translateY(-3px)}100%{opacity:1;transform:none}}
+@keyframes trkGrad{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes trkShine{0%{left:-60%}55%,100%{left:130%}}
+@keyframes trkBob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}
+.trk-hero .pill-eyebrow{display:inline-block;animation:trkPop .7s cubic-bezier(.2,.9,.3,1.3) both}
+.trk-hero h1{background-size:220% 220%;animation:trkPop .8s .08s cubic-bezier(.2,.9,.3,1.3) both,trkGrad 7s ease-in-out infinite}
+.trk-hero p{animation:trkPop .8s .16s cubic-bezier(.2,.9,.3,1.3) both}
+.trk-search{animation:trkPop .8s .26s cubic-bezier(.2,.9,.3,1.3) both}
+.trk-search:hover{transform:translateY(-2px)}
+.trk-search button{position:relative;overflow:hidden}
+.trk-search button::after{content:"";position:absolute;top:0;bottom:0;width:45%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg);animation:trkShine 3.2s ease-in-out infinite}
+.trk-search button:active{transform:scale(.95)}
+.trk-card{animation:trkPop .6s cubic-bezier(.2,.9,.3,1.3) both}
+.trk-steps li.is-now::before{animation:trkRing 2s infinite,trkBob 1.6s ease-in-out infinite}
+.trk-steps li{animation:trkPop .5s cubic-bezier(.2,.9,.3,1.3) both}
+.trk-tile{opacity:0;transform:scale(.88) translateY(26px);transition:opacity .55s ease,transform .6s cubic-bezier(.2,.9,.3,1.3),box-shadow .25s,border-color .25s}
+.trk-tile.in{opacity:1;transform:none}
+.trk-tile.in:hover{transform:translateY(-6px) scale(1.03)}
+.trk-tile .n{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--grad,var(--primary));color:#fff;box-shadow:var(--glow);transition:transform .4s cubic-bezier(.2,.9,.3,1.6)}
+.trk-tile:hover .n{transform:rotate(-8deg) scale(1.15)}
+.trk-journey h2{opacity:0;transform:translateY(16px) scale(.96);transition:opacity .6s,transform .6s cubic-bezier(.2,.9,.3,1.3)}
+.trk-journey h2.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.trk-tile,.trk-journey h2{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -174,6 +198,12 @@
   form.addEventListener("submit", function (e) { e.preventDefault(); run(); });
   var q = new URLSearchParams(location.search).get("ref") || new URLSearchParams(location.search).get("reference");
   if (q) { input.value = q; run(); }
+  var pop = document.querySelectorAll(".trk-tile, .trk-journey h2");
+  pop.forEach(function (el, i) { if (el.classList.contains("trk-tile")) el.style.transitionDelay = (i % 4) * 70 + "ms"; });
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { e.target.classList.toggle("in", e.isIntersecting); }); }, { threshold: 0.18, rootMargin: "0px 0px -6% 0px" });
+    pop.forEach(function (el) { io.observe(el); });
+  } else pop.forEach(function (el) { el.classList.add("in"); });
 })();
 </script>
 </body>
