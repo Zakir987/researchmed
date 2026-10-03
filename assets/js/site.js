@@ -107,7 +107,7 @@
       ["index.html", "Home", "home", true],
       ["highlights.html", "Publications", "highlights", n.highlights > 0],
       ["books.html", "Books", "books", true],
-      ["papers.html", "Join a Paper", "papers", n.papers > 0],
+      ["papers.html", "Collaborate", "papers", true],
       ["videos.html", "Videos", "videos", s.show_videos === true && n.videos > 0],
       ["notes.html", "Notes", "notes", n.notes > 0],
       ["gallery.html", "Gallery", "gallery", n.gallery > 0],
@@ -339,34 +339,39 @@
   function paperCard(p) {
     const open = bookOpen(p);
     const roles = String(p.roles || "").split(/\n+/).map((x) => x.replace(/^\s*[-•*\d.)]+\s*/, "").trim()).filter(Boolean);
-    const idx = (Array.isArray(p.indexing) ? p.indexing : String(p.indexing || "").split(",")).map((x) => String(x).trim()).filter(Boolean);
-    const apply = p.apply_link ? safeUrl(p.apply_link) : `contact.html?service=${encodeURIComponent("Publication guidance")}&paper=${encodeURIComponent(p.title)}`;
+    const NOT_INDEX = /^(researchgate|academia\.edu|orcid|and other)/i;
+    const idx = (Array.isArray(p.indexing) ? p.indexing : String(p.indexing || "").split(",")).map((x) => String(x).trim()).filter((x) => x && !NOT_INDEX.test(x));
+    const apply = p.apply_link ? safeUrl(p.apply_link) : `contact.html?service=${encodeURIComponent("Research collaboration")}&paper=${encodeURIComponent(p.title)}`;
     const ext = /^https?:/i.test(apply) ? ' target="_blank" rel="noopener"' : "";
     const img = p.image ? `<img src="${esc(media(p.image))}" alt="Poster: ${esc(p.title)}" loading="lazy">` : `<span class="bk-fallback"><span>${esc(p.field || "Research paper")}</span></span>`;
     const tags = [p.study_type, p.field].filter(Boolean);
     return `<article class="bk-card pp-card" id="${esc(p._id)}">
       <div class="bk-cover pp-img">${img}</div>
       <div class="bk-body">
-        <div class="bk-flags"><span class="bk-status ${open ? "is-open" : "is-closed"}">${open ? "Authors wanted" : "Closed"}</span>${open ? daysLeft(p.deadline) : ""}</div>
+        <div class="bk-flags"><span class="bk-status ${open ? "is-open" : "is-closed"}">${open ? "Collaborators wanted" : "Closed"}</span>${open ? daysLeft(p.deadline) : ""}</div>
         <h3>${esc(p.title)}</h3>
         ${tags.length ? `<p class="bk-sub">${tags.map(esc).join(" · ")}</p>` : ""}
         ${p.description ? `<p class="bk-desc">${esc(p.description)}</p>` : ""}
-        ${roles.length ? `<div class="bk-ch"><strong>Author positions open</strong><ul>${roles.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>` : ""}
+        ${roles.length ? `<div class="bk-ch"><strong>Contributor roles open</strong><ul>${roles.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>` : ""}
         ${p.requirements ? `<p class="bk-desc"><strong>Who can apply:</strong> ${esc(p.requirements)}</p>` : ""}
         ${idx.length ? `<div class="idx-row">${idx.map((x) => `<span class="idx idx-${slug(x)}">${esc(x)}</span>`).join("")}</div>` : ""}
-        <dl class="bk-meta">${p.authors_needed ? `<div><dt>Authors needed</dt><dd>${esc(p.authors_needed)}</dd></div>` : ""}${p.target_journal ? `<div><dt>Target journal</dt><dd>${esc(p.target_journal)}</dd></div>` : ""}${p.status ? `<div><dt>Stage</dt><dd>${esc(p.status)}</dd></div>` : ""}${p.deadline ? `<div><dt>Last date</dt><dd>${fmtDate(p.deadline)}</dd></div>` : ""}${p.fee ? `<div><dt>Author fee</dt><dd>${esc(p.fee)}</dd></div>` : ""}</dl>
-        ${open ? `<div class="btn-row"><a class="btn btn-primary" href="${esc(apply)}"${ext}>Apply as co-author</a>${p.details_pdf ? `<a class="btn btn-ghost" href="${esc(media(p.details_pdf))}" target="_blank" rel="noopener">Details (PDF)</a>` : ""}</div>` : ""}
+        <dl class="bk-meta">${p.authors_needed ? `<div><dt>Collaborators needed</dt><dd>${esc(p.authors_needed)}</dd></div>` : ""}${p.target_journal ? `<div><dt>Target journal</dt><dd>${esc(p.target_journal)}</dd></div>` : ""}${p.status ? `<div><dt>Stage</dt><dd>${esc(p.status)}</dd></div>` : ""}${p.deadline ? `<div><dt>Last date</dt><dd>${fmtDate(p.deadline)}</dd></div>` : ""}${p.fee ? `<div><dt>Author fee</dt><dd>${esc(p.fee)}</dd></div>` : ""}</dl>
+        ${open ? `<p class="collab-note">Authorship requires real contribution and approval of the final manuscript (ICMJE criteria).</p>` : ""}
+        ${open ? `<div class="btn-row"><a class="btn btn-primary" href="${esc(apply)}"${ext}>Apply to collaborate</a>${p.details_pdf ? `<a class="btn btn-ghost" href="${esc(media(p.details_pdf))}" target="_blank" rel="noopener">Details (PDF)</a>` : ""}</div>` : ""}
       </div>
     </article>`;
   }
   function papersPage(all) {
     const root = $("#list");
     if (!root) return;
-    const list = [...all].sort((a, b) => bookOpen(b) - bookOpen(a));
-    root.innerHTML = list.length ? `<div class="bk-list">${list.map(paperCard).join("")}</div>` : `<div class="empty"><strong>No open calls right now</strong>New papers needing co-authors will be announced here. <a href="contact.html">Send an enquiry</a> to be told first.</div>`;
+    const list = [...all].filter(bookOpen);
+    root.innerHTML = list.length ? `<div class="bk-list">${list.map(paperCard).join("")}</div>` : collabInvite();
     if (location.hash) { const el = document.getElementById(decodeURIComponent(location.hash.slice(1))); if (el) el.scrollIntoView(); }
   }
 
+  function collabInvite() {
+    return `<div class="empty collab-empty"><strong>New studies are being planned</strong>Register your interest to join our next study from day one &mdash; tell us your field, your institution and how you would like to contribute.<div class="btn-row" style="justify-content:center;margin-top:14px"><a class="btn btn-primary" href="contact.html?service=${encodeURIComponent("Research collaboration")}">Register interest</a></div></div>`;
+  }
   function empty(what, hint) {
     return `<div class="empty"><strong>No ${what} yet</strong>${hint || "New items appear here as soon as they are published."}</div>`;
   }
@@ -457,7 +462,7 @@
       journalCarousel($("#home-journals-logos"), js);
     });
     if (hl.length) {
-      $("#home-highlights").innerHTML = hl.slice(0, 6).map((h) => highlightCard(h)).join("");
+      $("#home-highlights").innerHTML = hl.slice(0, 4).map((h) => highlightCard(h)).join("");
     } else hide("#home-highlights-section");
     if (showVideos && videos.length) $("#home-videos").innerHTML = [...videos].sort(featuredFirst).slice(0, 3).map(videoCard).join("");
     else hide("#home-videos-section");
@@ -467,8 +472,7 @@
     if (openBooks.length && $("#home-books")) $("#home-books").innerHTML = `<div class="bk-list">${openBooks.slice(0, 2).map(bookCard).join("")}</div>`;
     else hide("#home-books-section");
     const openPapers = (data.papers || []).filter(bookOpen);
-    if (openPapers.length && $("#home-papers")) $("#home-papers").innerHTML = `<div class="bk-list">${openPapers.slice(0, 3).map(paperCard).join("")}</div>`;
-    else hide("#home-papers-section");
+    if ($("#home-papers")) $("#home-papers").innerHTML = openPapers.length ? `<div class="bk-list">${openPapers.slice(0, 2).map(paperCard).join("")}</div>` : collabInvite();
     const waNum = String(s.whatsapp || "").replace(/\D/g, "");
     const ctaWa = $("#cta-wa");
     if (ctaWa) { if (waNum) { ctaWa.href = `https://wa.me/${waNum}?text=${encodeURIComponent("Hello ResearchMed Connect, I would like guidance with ")}`; ctaWa.target = "_blank"; ctaWa.rel = "noopener"; } else ctaWa.remove(); }
@@ -544,7 +548,7 @@
     const sel = $("#c-service", f), want = qs.get("service");
     if (sel && want && [...sel.options].some((o) => o.text === want)) sel.value = want;
     if (qs.get("book") && $("#c-msg", f)) $("#c-msg", f).value = `I would like to contribute a chapter to the book "${qs.get("book")}".\n\nPreferred chapter: \nMy qualification / designation: \nInstitution: `;
-    if (qs.get("paper") && $("#c-msg", f)) $("#c-msg", f).value = `I would like to join as a co-author on the research paper "${qs.get("paper")}".\n\nPreferred author position / role: \nMy qualification / designation: \nInstitution: `;
+    if (qs.get("paper") && $("#c-msg", f)) $("#c-msg", f).value = `I would like to collaborate on the study "${qs.get("paper")}".\n\nHow I can contribute (literature review / data collection / analysis / writing): \nMy qualification / designation: \nInstitution: `;
     // Enquiries are emailed straight to the ResearchMed inbox via FormSubmit (no Google Form).
     // FormSubmit also sends the visitor an automatic thank-you reply.
     const INBOX = "info@researchmed.in";
@@ -922,7 +926,7 @@
   // ---------- Chat assistant (every public page) ----------
   if (PAGE !== "admin") {
     const sc = document.createElement("script");
-    sc.src = "assets/js/bot.js?v=20261002f"; sc.defer = true;
+    sc.src = "assets/js/bot.js?v=20261003b"; sc.defer = true;
     document.body.append(sc);
   }
 })();
