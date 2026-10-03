@@ -145,7 +145,7 @@
       f.prepend(n);
     }
 
-    f.addEventListener("submit", () => {
+    f.addEventListener("submit", async (event) => {
       const kind = selectedKind();
       const data = new FormData(f);
       if (data.get("_honey")) return;
@@ -157,6 +157,7 @@
       const title = String(data.get("Manuscript title") || "").trim();
       const name = String(data.get("name") || "").trim();
       const first = name.split(/\s+/)[0] || "there";
+      const endpoint = String(J.submission_endpoint || "").trim();
 
       f.querySelector("#j-ref").value = ref;
       f.querySelector("#j-subject").value =
@@ -170,10 +171,78 @@
       f.querySelector("#j-next").value =
         "https://researchmed.in/journal/thanks.html?reference=" + encodeURIComponent(ref);
 
+      if (!endpoint) {
+        // Temporary fallback until the Google Apps Script /exec URL is configured.
+        // FormSubmit receives the native multipart/form-data request.
+        btn.disabled = true;
+        btn.textContent = "Submitting…";
+        return;
+      }
+
+      event.preventDefault();
+      const fileInput = kind === "reviewer" ? $("#j-cv", f) : $("#j-file", f);
+      const file = fileInput && fileInput.files && fileInput.files[0];
+      if (kind === "manuscript" && !file) {
+        status.hidden = false;
+        status.className = "form-status err";
+        status.textContent = "Please select your manuscript file.";
+        return;
+      }
+
+      if (file && file.size > 10 * 1024 * 1024) {
+        status.hidden = false;
+        status.className = "form-status err";
+        status.textContent = "The selected file is larger than 10 MB.";
+        return;
+      }
+
       btn.disabled = true;
-      btn.textContent = "Submitting…";
-      // IMPORTANT: Do not preventDefault. FormSubmit must receive the native
-      // multipart/form-data request so the manuscript/CV file is attached.
+      btn.textContent = "Uploading…";
+      status.hidden = false;
+      status.className = "form-status";
+      status.textContent = "Uploading your submission securely…";
+
+      const hidden = (name, value) => {
+        let input = f.querySelector(`input[data-gas-field="${name}"]`);
+        if (!input) {
+          input = document.createElement("input");
+          input.type = "hidden";
+          input.dataset.gasField = name;
+          input.name = name;
+          f.appendChild(input);
+        }
+        input.value = value == null ? "" : String(value);
+      };
+
+      hidden("kind", kind);
+      hidden("filename", file ? file.name : "");
+      hidden("mimeType", file ? (file.type || "application/octet-stream") : "");
+      
+      const submitToGoogle = (base64) => {
+        hidden("fileData", base64);
+        f.action = endpoint;
+        f.method = "POST";
+        f.enctype = "application/x-www-form-urlencoded";
+        f.submit();
+      };
+
+      if (!file) {
+        submitToGoogle("");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = String(reader.result || "");
+        const comma = result.indexOf(",");
+        submitToGoogle(comma >= 0 ? result.slice(comma + 1) : result);
+      };
+      reader.onerror = () => {
+        btn.disabled = false;
+        btn.textContent = kind === "reviewer" ? "Send application" : "Submit manuscript";
+        status.textContent = "The file could not be read. Please try again.";
+      };
+      reader.readAsDataURL(file);
     });
   }
 
