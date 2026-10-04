@@ -790,7 +790,7 @@
     paint(); schedule();
   }
 
-  // ---------- Founder & Managing Director (home + about): black-and-gold cover story ----------
+  // ---------- Founder & Managing Director (home + about): "Vital signs" bento profile ----------
   function founder(f) {
     const sec = $("#founder-section"), box = $("#founder");
     if (!sec || !box) return;
@@ -806,9 +806,10 @@
     const quals = String(f.qualifications || "").split(/,(?![^()]*\))/).map((t) => t.trim()).filter(Boolean);
     const hl = String(f.highlights || "").split(/\n+/).map((t) => t.replace(/^[-•*]\s*/, "").trim()).filter(Boolean);
     const quote = String(f.message || "").replace(/^[\s"“”']+|[\s"“”']+$/g, "");
+    const role = f.designation || "Managing Director";
     const svg = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
     const IC = {
-      trophy: svg('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3a3 3 0 0 1-3 4M7 5H4a3 3 0 0 0 3 4"/>'),
+      award: svg('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3a3 3 0 0 1-3 4M7 5H4a3 3 0 0 0 3 4"/>'),
       mic: svg('<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M8 22h8"/>'),
       globe: svg('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>'),
       book: svg('<path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4zM20 4h-6a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h7z"/>'),
@@ -816,52 +817,77 @@
       badge: svg('<circle cx="12" cy="9" r="6"/><path d="m8.5 14-1.5 8 5-3 5 3-1.5-8"/>'),
       cap: svg('<path d="m2 9 10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5M22 9v6"/>')
     };
-    const icon = (t) => /award|excellence/i.test(t) ? IC.trophy : /chair|dialogue|speaker/i.test(t) ? IC.mic : /international|conference|global|panel/i.test(t) ? IC.globe : /record|book/i.test(t) ? IC.book : /unicef|charity/i.test(t) ? IC.heart : IC.badge;
-    const honour = (t) => { const i = t.search(/\s[–—-]\s/); const head = i < 0 ? t : t.slice(0, i).trim(), tail = i < 0 ? "" : t.slice(i + 3).trim();
-      return `<li class="fx-hon">${icon(t)}<span><b>${esc(head)}</b>${tail ? `<small>${esc(tail)}</small>` : ""}</span></li>`; };
+    const kind = (t) => /record|book/i.test(t) ? "book" : /award|excellence/i.test(t) ? "award" : /chair|dialogue|speaker/i.test(t) ? "mic" : /international|conference|global|panel/i.test(t) ? "globe" : /unicef|charity/i.test(t) ? "heart" : "badge";
+    const isMember = (t) => /^(life\s+)?member\b/i.test(t);
+    const honour = (t) => {
+      const i = t.search(/\s[–—-]\s/); let head = i < 0 ? t : t.slice(0, i).trim(), tail = i < 0 ? "" : t.slice(i + 3).trim();
+      if (isMember(head) && tail) [head, tail] = [tail, head];
+      const k = kind(t);
+      return `<li class="md-hi md-hi-${k}">${IC[k]}<span><b>${esc(head)}</b>${tail ? `<small>${esc(tail)}</small>` : ""}</span></li>`;
+    };
     const links = [["email", "Email", svg('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>')], ["linkedin", "LinkedIn", svg('<path d="M4 9h3v11H4zM5.5 4a1.6 1.6 0 1 1 0 3.2 1.6 1.6 0 0 1 0-3.2zM10 9h3v1.6c.6-1 1.8-1.8 3.4-1.8 3 0 3.6 2 3.6 4.6V20h-3v-5.8c0-1.3-.3-2.6-1.8-2.6s-2.2 1.1-2.2 2.6V20h-3z"/>')],
       ["scholar", "Google Scholar", IC.cap], ["orcid", "ORCID", svg('<circle cx="12" cy="12" r="9"/><path d="M9 8v8M12.5 8h1.5a4 4 0 0 1 0 8h-1.5z"/>')], ["researchgate", "ResearchGate", IC.book]]
-      .map(([k, l, ic]) => { const u = k === "email" ? (f.email ? "mailto:" + f.email : "") : safeUrl(f[k]); return u ? `<a class="fx-link" href="${esc(u)}" aria-label="${l}" ${k === "email" ? "" : 'target="_blank" rel="noopener"'}>${ic}<span>${l}</span></a>` : ""; }).join("");
-    const ring = "FOUNDER · MANAGING DIRECTOR · RESEARCHMED CONNECT · ";
-    const run = hl.map(honour).join("");
-    sec.classList.add("fx-sec");
-    box.className = "fx";
-    box.innerHTML = `
-      <div class="fx-grain" aria-hidden="true"></div>
-      <div class="fx-stage">
-        <div class="fx-portrait" aria-hidden="${f.photo ? "false" : "true"}">
-          <div class="fx-halo" aria-hidden="true"></div>
-          <svg class="fx-ring" viewBox="0 0 200 200" aria-hidden="true"><defs><path id="fxRingPath" d="M100,100 m-86,0 a86,86 0 1,1 172,0 a86,86 0 1,1 -172,0"/></defs><text><textPath href="#fxRingPath" textLength="538" lengthAdjust="spacing">${esc(ring)}</textPath></text></svg>
-          ${f.photo ? `<img class="fx-img" src="${esc(media(f.photo))}" alt="${esc(name)}" loading="lazy" decoding="async">` : `<span class="fx-init" aria-hidden="true">${esc(initials)}</span>`}
-          ${quals[0] ? `<span class="fx-seal"><b>${esc(quals[0].replace(/\s*\(.*$/, ""))}</b><small>${esc((quals[0].match(/\(([^)]+)\)/) || ["", ""])[1])}</small></span>` : ""}
-        </div>
-        <div class="fx-copy">
-          <p class="fx-kicker"><span></span>Meet our ${esc(f.designation || "Managing Director")}</p>
-          <h2 class="fx-name">${title ? `<span class="fx-title">${esc(title)}</span>` : ""}<span class="fx-first">${esc(first)}</span> <span class="fx-last">${esc(last)}</span></h2>
-          ${f.position ? `<p class="fx-pos">${esc(f.position)}</p>` : ""}
-          ${quals.length ? `<ul class="fx-quals" aria-label="Qualifications">${quals.map((q, i) => `<li style="--d:${i}">${esc(q)}</li>`).join("")}</ul>` : ""}
-          ${paras.length ? `<div class="fx-bio" id="fx-bio">${paras.map((t) => `<p>${esc(t)}</p>`).join("")}${paras.length > 1 ? `<button type="button" class="fx-more" aria-expanded="false" aria-controls="fx-bio">Read full profile</button>` : ""}</div>` : ""}
-          ${quote ? `<figure class="fx-quote"><blockquote>${esc(quote)}</blockquote><figcaption><span class="fx-sign">${esc(bare)}</span><span class="fx-sign-line" aria-hidden="true"></span></figcaption></figure>` : ""}
-          ${links ? `<div class="fx-links">${links}</div>` : ""}
-        </div>
+      .map(([k, l, ic]) => { const u = k === "email" ? (f.email ? "mailto:" + f.email : "") : safeUrl(f[k]); return u ? `<a class="md-link" href="${esc(u)}" ${k === "email" ? "" : 'target="_blank" rel="noopener"'}>${ic}<span>${l}</span></a>` : ""; }).join("");
+    // Monitor channels: ECG (qualifications), SpO2 pleth (recognitions), EtCO2 capnography (memberships)
+    const beat = (d) => d + " " + d.replace(/-?\d+(\.\d+)?,/g, (m) => (parseFloat(m) + 100) + ",");
+    const WAVE = {
+      ecg: "M0,26 L16,26 Q20,21 24,26 L32,26 L35,29 L39,4 L43,35 L46,26 L58,26 Q66,17 74,26 L100,26",
+      pleth: "M0,31 C8,31 14,7 24,7 C31,7 33,19 39,19 C43,19 45,15 49,16 C60,19 72,31 100,31",
+      capno: "M0,33 L14,33 C18,33 18,11 24,11 L68,8 C72,8 72,33 78,33 L100,33"
+    };
+    const four = (k) => { const one = beat(WAVE[k]); return one + " " + one.replace(/-?\d+(\.\d+)?,/g, (m) => (parseFloat(m) + 200) + ","); };
+    const rec = hl.filter((t) => !isMember(t)).length, mem = hl.length - rec;
+    const ch = [["ecg", "ECG II", "Qualifications", "Degrees", quals.length, "#3dff8f", "3.2s"], ["pleth", "SpO₂", "Recognitions", "Honours", rec, "#4fd8ff", "4.2s"], ["capno", "EtCO₂", "Memberships", "Bodies", mem, "#ffd24a", "5.4s"]].filter((c) => c[4] > 0);
+    const monitor = ch.length ? `<div class="md-tile md-monitor" style="--i:2" role="img" aria-label="Profile at a glance: ${ch.map((c) => c[4] + " " + c[2].toLowerCase()).join(", ")}">
+        <div class="md-mon-top" aria-hidden="true"><span>Profile monitor</span><span class="md-live"><i></i>Live<span class="md-clock">--:--</span></span></div>
+        ${ch.map(([k, lead, lab, unit, n, c, sp]) => `<div class="md-ch" style="--c:${c};--sp:${sp}" aria-hidden="true"><div class="md-ch-l"><span class="md-ch-lab">${lead} · ${lab}</span><div class="md-wave"><svg viewBox="0 0 400 40" preserveAspectRatio="none"><path d="${four(k)}"/></svg></div></div><div class="md-ch-v"><b data-n="${n}">${reduce ? String(n).padStart(2, "0") : "00"}</b><small>${unit}</small></div></div>`).join("")}
+      </div>` : "";
+    const sealQ = quals[0] || "";
+    const pic = f.photo
+      ? `<img class="md-img md-img-bw" src="${esc(media(f.photo))}" alt="" aria-hidden="true" decoding="async"><span class="md-mesh" aria-hidden="true"></span><img class="md-img md-img-co" src="${esc(media(f.photo))}" alt="${esc(name)}, ${esc(role)}" decoding="async"><span class="md-scan" aria-hidden="true"></span>`
+      : `<span class="md-init" aria-hidden="true">${esc(initials)}</span>`;
+    sec.classList.add("md-sec");
+    box.className = "md";
+    box.innerHTML = `<div class="md-grid">
+      <figure class="md-tile md-portrait" style="--i:0">
+        <div class="md-photo">${pic}</div>
+        ${sealQ ? `<span class="md-seal" aria-hidden="true"><b>${esc(sealQ.replace(/\s*\(.*$/, ""))}</b><small>${esc((sealQ.match(/\(([^)]+)\)/) || ["", ""])[1])}</small></span>` : ""}
+        <figcaption class="md-cap"><span><b>${esc(role)}</b><small>ResearchMed Connect</small></span><span class="md-pulse" aria-hidden="true"><i></i></span></figcaption>
+      </figure>
+      <div class="md-tile md-id" style="--i:1">
+        <p class="md-kick"><svg viewBox="0 0 46 16" aria-hidden="true"><path d="M0 9h12l3-5 4 10 3-7 2 2h22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Meet our ${esc(role)}</p>
+        <h2 class="md-name">${title ? `<small>${esc(title)}</small>` : ""}${esc(first)} <em>${esc(last)}</em></h2>
+        ${f.position ? `<p class="md-pos">${esc(f.position)}</p>` : ""}
+        ${quals.length ? `<ul class="md-quals" aria-label="Qualifications">${quals.map((q) => `<li>${esc(q)}</li>`).join("")}</ul>` : ""}
       </div>
-      ${hl.length ? `<div class="fx-honours"><p class="fx-hon-head"><span>${hl.length}</span> Honours &amp; memberships</p>
-        <div class="fx-ribbon"><ul class="fx-track">${run}</ul><ul class="fx-track" aria-hidden="true">${run}</ul></div></div>` : ""}`;
+      ${monitor}
+      ${quote ? `<figure class="md-tile md-quote" style="--i:3"><blockquote>${esc(quote)}</blockquote><figcaption><b>${esc(name)}</b><small>${esc(role)}, ResearchMed Connect</small></figcaption></figure>` : ""}
+      ${paras.length ? `<div class="md-tile md-bio" style="--i:4"><h3>Profile</h3><p class="md-lead">${esc(paras[0])}</p>${paras.length > 1 ? `<div class="md-more" id="md-more" hidden>${paras.slice(1).map((t) => `<p>${esc(t)}</p>`).join("")}</div><button type="button" class="md-toggle" aria-expanded="false" aria-controls="md-more">Read full profile <span aria-hidden="true">↓</span></button>` : ""}${links ? `<div class="md-links" aria-label="Profiles and contact">${links}</div>` : ""}</div>` : ""}
+      ${hl.length ? `<div class="md-tile md-hon" style="--i:5"><h3><span>${hl.length}</span>Honours &amp; memberships</h3><ul>${hl.map(honour).join("")}</ul></div>` : ""}
+    </div>`;
     sec.hidden = false;
-    const more = $(".fx-more", box);
-    if (more) more.addEventListener("click", () => { const open = more.getAttribute("aria-expanded") !== "true"; more.setAttribute("aria-expanded", String(open)); more.textContent = open ? "Show less" : "Read full profile"; $(".fx-bio", box).classList.toggle("open", open); });
-    const go = () => box.classList.add("fx-in");
-    if (reduce || !("IntersectionObserver" in window)) go();
-    else new IntersectionObserver((es, o) => es.forEach((e) => { if (e.isIntersecting) { go(); o.disconnect(); } }), { threshold: 0.2 }).observe(box);
-    const portrait = $(".fx-portrait", box);
-    if (!reduce && portrait && matchMedia("(hover: hover)").matches) {
+    const tg = $(".md-toggle", box);
+    if (tg) tg.addEventListener("click", () => { const open = tg.getAttribute("aria-expanded") !== "true"; tg.setAttribute("aria-expanded", String(open)); $(".md-more", box).hidden = !open; tg.firstChild.textContent = open ? "Show less " : "Read full profile "; });
+    const clock = $(".md-clock", box);
+    const tick = () => { if (clock) clock.textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false }); };
+    tick(); if (clock) setInterval(tick, 15000);
+    const count = () => box.querySelectorAll(".md-ch-v b").forEach((el) => {
+      const n = Number(el.dataset.n) || 0, t0 = performance.now(), D = 1400;
+      const step = (t) => { const k = Math.min(1, (t - t0) / D), v = Math.round(n * (1 - Math.pow(1 - k, 3))); el.textContent = String(v).padStart(2, "0"); if (k < 1) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    });
+    if (reduce || !("IntersectionObserver" in window)) box.classList.add("md-in");
+    else {
+      box.classList.add("md-js");
+      new IntersectionObserver((es, o) => es.forEach((e) => { if (e.isIntersecting) { box.classList.add("md-in"); setTimeout(count, 500); o.disconnect(); } }), { threshold: 0, rootMargin: "0px 0px -18% 0px" }).observe(box);
+    }
+    const grid = $(".md-grid", box), tiles = [...box.querySelectorAll(".md-tile")];
+    if (!reduce && grid && matchMedia("(hover: hover)").matches) {
       let raf = 0;
-      box.addEventListener("pointermove", (e) => {
+      grid.addEventListener("pointermove", (e) => {
         cancelAnimationFrame(raf);
-        raf = requestAnimationFrame(() => { const r = box.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
-          box.style.setProperty("--mx", x.toFixed(3)); box.style.setProperty("--my", y.toFixed(3)); });
+        raf = requestAnimationFrame(() => tiles.forEach((t) => { const r = t.getBoundingClientRect(); t.style.setProperty("--x", (e.clientX - r.left).toFixed(0) + "px"); t.style.setProperty("--y", (e.clientY - r.top).toFixed(0) + "px"); }));
       });
-      box.addEventListener("pointerleave", () => { box.style.setProperty("--mx", "0"); box.style.setProperty("--my", "0"); });
     }
   }
 
