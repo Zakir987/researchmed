@@ -958,7 +958,7 @@
     gc.async = true; gc.src = "https://gc.zgo.at/count.js"; gc.setAttribute("data-goatcounter", base + "/count");
     document.body.appendChild(gc);
     if (s.show_visitors === false) return;
-    fetch(base + "/counter/TOTAL.json").then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+    fetch(base + "/counter/TOTAL.json?t=" + Date.now(), { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
       if (!d || !d.count) return;
       var tries = 0;
       (function put() {
