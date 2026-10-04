@@ -245,18 +245,6 @@
   <div class="btn-row"><a class="btn btn-primary btn-lg" href="contact.html">Send an enquiry</a><a class="btn btn-ghost btn-lg" id="cta-wa" href="contact.html">Chat on WhatsApp</a></div>
 </div></div></section>
 </main>
-<script>
-/* Contributors on the home page (drawn from content/contributors.json) */
-(function(){var e=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
-var m=function(p){return !p?"":/^https?:/i.test(p)?p:String(p).replace(/^\//,"")};
-var ini=function(n){return String(n||"").replace(/^(dr|mr|ms|mrs|prof)\.?\s+/i,"").split(/\s+/).filter(Boolean).slice(0,2).map(function(w){return w[0].toUpperCase()}).join("")};
-fetch("content/contributors.json",{cache:"no-cache"}).then(function(r){return r.ok?r.json():{}}).then(function(j){
-var l=((j&&j.items)||[]).filter(function(p){return p&&p.title&&p.draft!==true}).sort(function(a,b){return(Number(a.order)||999)-(Number(b.order)||999)});
-var sec=document.getElementById("home-team-section"),g=document.getElementById("home-team");if(!sec||!g)return;if(!l.length){sec.hidden=true;return}
-g.innerHTML=l.map(function(p){var i=(p.photo?'<img class="tm-photo" src="'+e(m(p.photo))+'" alt="'+e(p.title)+'" loading="lazy">':'<span class="tm-photo tm-init" aria-hidden="true">'+e(ini(p.title))+'</span>')+'<span class="tm-name">'+e(p.title)+'</span>'+(p.role?'<span class="tm-role">'+e(p.role)+'</span>':"")+(p.institution?'<span class="tm-inst">'+e(p.institution)+'</span>':"");
-return p.link&&/^https?:/i.test(p.link)?'<a class="tm-card" href="'+e(p.link)+'" target="_blank" rel="noopener">'+i+'</a>':'<div class="tm-card">'+i+'</div>'}).join("");
-var N=4,cards=g.children,mb=document.getElementById("home-team-more");if(cards.length>N&&mb){for(var k=N;k<cards.length;k++)cards[k].hidden=true;mb.hidden=false;var b=mb.querySelector("button");b.textContent="Show all "+cards.length+" contributors";b.onclick=function(){var open=b.getAttribute("aria-expanded")==="true";for(var k=N;k<cards.length;k++)cards[k].hidden=open;b.setAttribute("aria-expanded",String(!open));b.textContent=open?"Show all "+cards.length+" contributors":"Show fewer"}}}).catch(function(){})})();
-</script>
 <script src="assets/js/site.js?v=20261003c" defer></script>
 <style>@media (max-width:600px){body[data-page="home"] .rb-fab,body[data-page="home"] .rb-tease,body[data-page="home"] .wa-fab{transition:opacity .25s ease,transform .25s ease}body[data-page="home"]:not(.past-hero) .rb-fab,body[data-page="home"]:not(.past-hero) .rb-tease,body[data-page="home"]:not(.past-hero) .wa-fab{opacity:0!important;transform:translateY(16px)!important;pointer-events:none!important}}</style>
 <script>(function(){var f=function(){document.body.classList.toggle("past-hero",scrollY>240)};addEventListener("scroll",f,{passive:true});f()})();</script>
