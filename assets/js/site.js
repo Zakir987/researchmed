@@ -946,3 +946,32 @@
     document.body.append(sc);
   }
 })();
+/* Visitor analytics (GoatCounter: no cookies) + live visitor count in the footer. Set the code in Admin > Numbers & contact. */
+(function () {
+  var page = document.body.dataset.page || "";
+  if (page === "admin" || /^(localhost|127\.)/.test(location.hostname)) return;
+  fetch("content/settings.json", { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; }).then(function (s) {
+    var code = String(s.goatcounter || "").trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\.goatcounter\.com.*$/, "");
+    if (!/^[a-z0-9-]+$/.test(code)) return;
+    var base = "https://" + code + ".goatcounter.com";
+    var gc = document.createElement("script");
+    gc.async = true; gc.src = "https://gc.zgo.at/count.js"; gc.setAttribute("data-goatcounter", base + "/count");
+    document.body.appendChild(gc);
+    if (s.show_visitors === false) return;
+    fetch(base + "/counter/TOTAL.json").then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+      if (!d || !d.count) return;
+      var tries = 0;
+      (function put() {
+        var fb = document.querySelector(".site-footer .foot-bottom");
+        if (!fb) { if (++tries < 40) setTimeout(put, 250); return; }
+        if (fb.querySelector(".visit-count")) return;
+        var el = document.createElement("span");
+        el.className = "visit-count";
+        el.style.cssText = "display:inline-flex;align-items:center;gap:6px;font-weight:600";
+        el.innerHTML = '<span aria-hidden="true" style="width:8px;height:8px;border-radius:50%;background:#2bb3a3;box-shadow:0 0 0 4px rgba(43,179,163,.2)"></span>';
+        el.appendChild(document.createTextNode(String(d.count).trim() + " visitors"));
+        fb.appendChild(el);
+      })();
+    }).catch(function () {});
+  });
+})();
