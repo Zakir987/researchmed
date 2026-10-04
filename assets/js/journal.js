@@ -331,3 +331,66 @@
 /* Journal facts: indexing, archiving and DOI prefix from the admin panel */ (function () { fetch("content/journal.json", { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; }).then(function (J) { var rows = [["Indexed in", Array.isArray(J.indexing) ? J.indexing.join(", ") : J.indexing], ["Archiving", J.archiving], ["DOI prefix", J.doi_prefix]].filter(function (x) { return x[1] && String(x[1]).trim(); }); if (!rows.length) return; var tries = 0; (function add() { var dl = document.querySelector("#jr-facts dl"); if (!dl) { if (++tries < 40) setTimeout(add, 150); return; } rows.forEach(function (x) { var d = document.createElement("div"), t = document.createElement("dt"), v = document.createElement("dd"); t.textContent = x[0]; v.textContent = String(x[1]); d.appendChild(t); d.appendChild(v); dl.appendChild(d); }); })(); }); })();
 /* Journal: send submissions in the background so authors never see a Google page */ (function () { var f = document.getElementById("jr-form"); if (!f) return; f.submit = function () { var form = this, ep = form.action || "", btn = form.querySelector("button[type=submit]"), st = document.getElementById("jr-status"); if (!/script\.google\.com/.test(ep)) return HTMLFormElement.prototype.submit.call(form); var body = new URLSearchParams(); new FormData(form).forEach(function (v, k) { if (typeof v === "string") body.append(k, v); }); body.set("ajax", "1"); var rev = body.get("kind") === "reviewer"; if (st) { st.hidden = false; st.className = "form-status"; st.textContent = "Uploading your submission securely. Please keep this page open."; } fetch(ep, { method: "POST", body: body }).then(function (r) { return r.json(); }).then(function (d) { if (d && d.ok) { location.href = "/journal/thanks.html?reference=" + encodeURIComponent(d.reference || ""); return; } throw new Error((d && d.message) || "The submission could not be completed."); }).catch(function (e) { if (st) { st.hidden = false; st.className = "form-status err"; st.textContent = (e && e.message ? e.message : "Upload failed.") + " Please try again or email ijaott@researchmed.in."; } if (btn) { btn.disabled = false; btn.textContent = rev ? "Send application" : "Submit manuscript"; } }); }; })();
 /* Journal menu: Join as reviewer link */ (function () { var w = document.querySelector(".jr-subnav .wrap"); if (!w || w.querySelector('a[href="journal/join.html"]')) return; var a = document.createElement("a"); a.href = "journal/join.html"; a.textContent = "Join as reviewer"; w.appendChild(a); })();
+/* Journal submission: every field is mandatory; a missed field is highlighted and the page scrolls back to it */ (function () {
+  var f = document.getElementById("jr-form"); if (!f) return;
+  f.noValidate = true;
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches, tried = false, uid = 0;
+  var fields = function () { return [].slice.call(f.querySelectorAll("input,select,textarea")).filter(function (i) { return i.required && !i.disabled && i.type !== "hidden" && i.name !== "_honey" && !i.closest("[hidden]"); }); };
+  var nameOf = function (i) { return i.dataset.label || (i.closest("label") ? i.closest("label").textContent.replace(/\(.*?\)/g, "").trim().split("\n")[0] : i.name); };
+  var check = function (i) {
+    if (i.type === "checkbox") return i.checked ? "" : "Please tick this box to confirm the declaration.";
+    if (i.type === "file") { var x = i.files && i.files[0]; if (!x) return "Please attach your manuscript file."; if (!/\.docx?$/i.test(x.name)) return "Please upload a Word file (.doc or .docx)."; if (x.size > 10 * 1024 * 1024) return "This file is larger than 10 MB. Please reduce its size."; return ""; }
+    var v = String(i.value || "").trim();
+    if (!v) return i.dataset.msg || (i.tagName === "SELECT" ? "Please choose an option." : "Please fill in " + nameOf(i).toLowerCase() + ".");
+    if (i.type === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) return "Please enter a valid email address, for example name@college.edu.";
+    if (i.type === "tel" && v.replace(/\D/g, "").length < 10) return "Please enter a valid phone number with at least 10 digits.";
+    if (i.minLength > 0 && v.length < i.minLength) return "Please enter at least " + i.minLength + " characters.";
+    return "";
+  };
+  var show = function (i, msg) {
+    var lab = i.closest("label"); if (!lab) return;
+    var err = lab.querySelector(".f-err");
+    if (!err) { err = document.createElement("span"); err.className = "f-err"; err.id = "f-err-" + (++uid); err.setAttribute("aria-live", "polite"); lab.appendChild(err); i.setAttribute("aria-describedby", err.id); }
+    err.textContent = msg;
+    lab.classList.toggle("is-invalid", !!msg);
+    lab.classList.toggle("is-ok", !msg && tried);
+    i.setAttribute("aria-invalid", msg ? "true" : "false");
+  };
+  var box = document.createElement("div"); box.className = "f-summary"; box.setAttribute("role", "alert"); box.tabIndex = -1; box.hidden = true;
+  f.insertBefore(box, f.firstChild);
+  var note = document.createElement("p"); note.className = "f-note"; note.innerHTML = '<span aria-hidden="true">*</span> All fields are required.';
+  f.insertBefore(note, box);
+  fields().forEach(function (i) {
+    var lab = i.closest("label"); if (!lab || i.type === "checkbox" || lab.querySelector(".req-star")) return;
+    var t = [].slice.call(lab.childNodes).find(function (n) { return n.nodeType === 3 && n.textContent.trim(); }); if (!t) return;
+    var w = document.createElement("span"); w.className = "f-lab"; w.textContent = t.textContent.trim();
+    var s = document.createElement("span"); s.className = "req-star"; s.setAttribute("aria-hidden", "true"); s.textContent = "*";
+    w.appendChild(s); lab.replaceChild(w, t);
+  });
+  var jump = function (i) {
+    var lab = i.closest("label") || i;
+    lab.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+    setTimeout(function () { try { i.focus({ preventScroll: true }); } catch (e) { i.focus(); } lab.classList.remove("f-shake"); void lab.offsetWidth; lab.classList.add("f-shake"); }, reduce ? 0 : 420);
+  };
+  var summary = function (bad) {
+    if (!bad.length) { box.hidden = true; box.innerHTML = ""; return; }
+    var html = "<b>" + (bad.length === 1 ? "1 required field needs your attention" : bad.length + " required fields need your attention") + "</b><ul>" + bad.map(function (x) { return '<li><button type="button" data-id="' + x[0].id + '">' + nameOf(x[0]).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }) + "</button></li>"; }).join("") + "</ul>";
+    if (box.innerHTML !== html) box.innerHTML = html;
+    box.hidden = false;
+  };
+  box.addEventListener("mousedown", function (e) { if (e.target.closest("button")) e.preventDefault(); });
+  box.addEventListener("click", function (e) { var b = e.target.closest("button[data-id]"); if (!b) return; var i = document.getElementById(b.dataset.id); if (i) jump(i); });
+  var refresh = function () { if (!tried) return; var bad = fields().map(function (i) { return [i, check(i)]; }).filter(function (x) { return x[1]; }); summary(bad); };
+  f.addEventListener("submit", function (e) {
+    if (f.querySelector('[name="_honey"]') && f.querySelector('[name="_honey"]').value) return;
+    tried = true;
+    var bad = [];
+    fields().forEach(function (i) { var m = check(i); show(i, m); if (m) bad.push([i, m]); });
+    summary(bad);
+    if (!bad.length) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    jump(bad[0][0]);
+  }, true);
+  ["input", "change"].forEach(function (ev) { f.addEventListener(ev, function (e) { var i = e.target; if (!i || !i.required || !tried) return; show(i, check(i)); refresh(); }); });
+  f.addEventListener("focusout", function (e) { var i = e.target; if (i && i.required && (tried || (i.value && i.type !== "file"))) { var m = check(i); if (m && !tried && !String(i.value).trim()) return; show(i, m); refresh(); } });
+})();
