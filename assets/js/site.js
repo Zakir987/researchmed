@@ -324,7 +324,8 @@
     const root = $("#list");
     if (!root) return;
     const list = [...all].sort((a, b) => bookOpen(b) - bookOpen(a));
-    root.innerHTML = list.length ? `<div class="bk-list">${list.map(bookCard).join("")}</div>` : `<div class="empty"><strong>No open calls right now</strong>New book projects will be announced here. <a href="contact.html">Send an enquiry</a> to be told first.</div>`;
+    const soon = list.some(bookOpen) ? "" : `<div class="bk-soon" style="display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin:0 0 24px;padding:20px 22px;border-radius:20px;border:1px solid color-mix(in srgb,var(--teal) 35%,var(--line));background:linear-gradient(120deg,color-mix(in srgb,var(--primary) 9%,var(--surface)),color-mix(in srgb,var(--teal) 11%,var(--surface)))"><span aria-hidden="true" style="font-size:2rem;line-height:1">📚</span><div style="flex:1 1 260px"><strong style="display:block;font-family:var(--font-display);font-size:1.25rem">Next book coming soon</strong><span class="muted">All current chapter calls are closed. Register your interest and we will tell you first when the next book opens.</span></div><a class="btn btn-primary" href="contact.html?service=${encodeURIComponent("Book chapter authorship")}">Register interest</a></div>`;
+    root.innerHTML = list.length ? `${soon}<div class="bk-list">${list.map(bookCard).join("")}</div>` : `<div class="empty"><strong>No open calls right now</strong>New book projects will be announced here. <a href="contact.html">Send an enquiry</a> to be told first.</div>`;
     if (location.hash) { const el = document.getElementById(decodeURIComponent(location.hash.slice(1))); if (el) el.scrollIntoView(); }
   }
 
