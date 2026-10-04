@@ -1316,3 +1316,41 @@ a.card:hover .pub-more { letter-spacing: .02em; }
   .md-hon ul{grid-template-columns:minmax(0,1fr)}
 }
 @media (prefers-reduced-motion:reduce){.md-wave svg,.md-seal,.md-live i,.md-pulse::before{animation:none}.md-img,.md-hi,.md-link{transition:none}}
+
+/* ---------- Hero: IJAOTT call-for-papers card ---------- */
+@property --hja{syntax:"<angle>";inherits:false;initial-value:0deg}
+@keyframes hjSpin{to{--hja:360deg}}
+@keyframes hjIn{from{opacity:0;transform:translateY(-16px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes hjShine{0%,60%{transform:translateX(-140%) skewX(-18deg)}78%,100%{transform:translateX(380%) skewX(-18deg)}}
+@keyframes hjRing{0%{transform:scale(.9);opacity:.75}100%{transform:scale(1.6);opacity:0}}
+@keyframes hjDot{0%{box-shadow:0 0 0 0 rgba(255,211,110,.65)}100%{box-shadow:0 0 0 9px rgba(255,211,110,0)}}
+@keyframes hjFacts{0%,20%{transform:translateY(0)}25%,45%{transform:translateY(-1.45em)}50%,70%{transform:translateY(-2.9em)}75%,95%{transform:translateY(-4.35em)}100%{transform:translateY(-5.8em)}}
+.hero-side{display:grid;gap:28px;align-content:center;min-width:0}
+.hj{position:relative;isolation:isolate;overflow:hidden;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:16px;padding:14px 16px 14px 14px;border-radius:22px;color:#fff;text-decoration:none;background:linear-gradient(120deg,rgba(20,48,82,.95),rgba(9,62,74,.92));box-shadow:0 22px 50px -24px rgba(0,0,0,.85),inset 0 1px 0 rgba(255,255,255,.08);animation:hjIn .9s cubic-bezier(.2,.8,.2,1) .4s both;transition:transform .4s cubic-bezier(.2,.9,.3,1.4),box-shadow .4s}
+.hj::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;padding:1.6px;background:conic-gradient(from var(--hja),#7cc4ff,#5ef0d6,#ffd36e,#ff9ec0,#7cc4ff);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:hjSpin 5s linear infinite}
+.hj::after{content:"";position:absolute;top:-10%;bottom:-10%;left:0;width:32%;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);animation:hjShine 6.5s ease-in-out 1.6s infinite}
+.hj:hover{transform:translateY(-4px);box-shadow:0 30px 64px -24px rgba(0,0,0,.9),0 0 46px -8px rgba(94,240,214,.5),inset 0 1px 0 rgba(255,255,255,.1)}
+.hj:active{transform:translateY(-1px) scale(.985)}
+.hj:focus-visible{outline:3px solid #5ef0d6;outline-offset:4px}
+.hj-logo{position:relative;z-index:1;flex:none;width:70px;height:70px;border-radius:50%}
+.hj-logo::before,.hj-logo::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid rgba(94,240,214,.8);animation:hjRing 2.6s ease-out infinite}
+.hj-logo::after{animation-delay:1.3s}
+.hj-logo img{position:relative;z-index:1;display:block;width:100%;height:100%;border-radius:50%;object-fit:cover;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.14),0 12px 26px -10px rgba(0,0,0,.8);transition:transform .7s cubic-bezier(.2,.9,.3,1.4)}
+.hj:hover .hj-logo img{transform:rotate(-14deg) scale(1.08)}
+.hj-body{position:relative;z-index:1;display:grid;gap:3px;min-width:0}
+.hj-tag{display:flex;align-items:center;gap:0;white-space:nowrap;overflow:hidden;font:800 .64rem var(--font-body);letter-spacing:.11em;text-transform:uppercase;color:#ffd36e}
+.hj-tag i{flex:none;width:7px;height:7px;margin-right:7px;border-radius:50%;background:#ffd36e;animation:hjDot 1.8s ease-out infinite}
+.hj-name{display:flex;align-items:baseline;gap:9px;font:700 1.5rem/1.1 var(--font-display);letter-spacing:.03em;background:linear-gradient(100deg,#fff 20%,#9fd8ff 55%,#5ef0d6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hj-name small{white-space:nowrap;flex:none;font:700 .62rem var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:#05241f;-webkit-text-fill-color:#05241f;padding:3px 8px;border-radius:999px;background:linear-gradient(120deg,#5ef0d6,#b9f5a6);align-self:center}
+.hj-full{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:.8rem;line-height:1.35;color:#b9cddf}
+.hj-facts{display:block;height:1.45em;overflow:hidden;font-size:.82rem;font-weight:700;line-height:1.45em;color:#5ef0d6}
+.hj-roll{display:block;animation:hjFacts 12s cubic-bezier(.7,0,.3,1) infinite}
+.hj-roll span{display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.hj-go{position:relative;z-index:1;display:inline-flex;align-items:center;gap:8px;padding:11px 16px;border-radius:999px;font:800 .9rem var(--font-body);color:#04213a;background:linear-gradient(120deg,#7cc4ff,#5ef0d6);box-shadow:0 12px 26px -10px rgba(94,240,214,.85);transition:gap .3s,padding .3s,box-shadow .3s}
+.hj-go svg{width:16px;height:16px;transition:transform .3s}
+.hj:hover .hj-go{gap:12px;padding-right:20px;box-shadow:0 14px 32px -8px rgba(94,240,214,1)}
+.hj:hover .hj-go svg{transform:translateX(3px)}
+@media (max-width:1180px) and (min-width:881px){.hj{gap:12px}.hj-x{display:none}.hj-go{padding:12px}.hj-go span{display:none}.hj:hover .hj-go{padding-right:12px}}
+@media (max-width:880px){.hero-side{gap:24px}.hero-x .hero-side .hero-panel{margin-top:0}}
+@media (max-width:480px){.hj-x{display:none}.hj{gap:12px;padding:12px}.hj-logo{width:58px;height:58px}.hj-name{font-size:1.3rem}.hj-go{padding:12px}.hj-go span{display:none}.hj:hover .hj-go{padding-right:12px}}
+@media (prefers-reduced-motion:reduce){.hj,.hj::before,.hj::after,.hj-logo::before,.hj-logo::after,.hj-tag i,.hj-roll{animation:none}.hj::after{display:none}}
