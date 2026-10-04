@@ -82,7 +82,7 @@
 .jd-type:hover{transform:translateY(-5px) rotate(-.4deg);box-shadow:0 18px 34px -20px var(--c)}
 .jd-type h3{margin:4px 0 12px;font-size:1.02rem;font-family:var(--font-body);min-height:2.5em}
 .jd-words{display:flex;align-items:baseline;gap:6px}
-.jd-words b{font:800 1.9rem/1 var(--font-display);color:var(--c)}
+.jd-words b{font:800 1.9rem/1 var(--font-display);color:color-mix(in srgb,var(--c) 72%,var(--ink))}
 .jd-words small{color:var(--muted);font-weight:600}
 .jd-meter{height:6px;border-radius:6px;background:var(--line);margin:10px 0 14px;overflow:hidden}
 .jd-meter i{display:block;height:100%;border-radius:inherit;background:var(--c);transform-origin:left}
