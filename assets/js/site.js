@@ -701,98 +701,74 @@
     box.hidden = false;
   }
 
-  // ---------- Testimonials (home page) ----------
+  // ---------- Testimonials (home page): cinematic, name + designation only ----------
   function testimonials(all) {
     const sec = $("#home-testimonials-section"), grid = $("#home-testimonials");
     if (!sec || !grid) return;
     const list = (all || []).filter((t) => t.quote && t.consent !== false)
       .sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999) || byDate(a, b));
     if (!list.length) { sec.hidden = true; return; }
-    const initials = (n) => String(n || "").replace(/^(dr|mr|ms|mrs|prof)\.?\s+/i, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
-    const cards = list.slice(0, 12).map((t, k) => {
-      const stars = "";
-      const who = [t.role, t.institution].filter(Boolean).map(esc).join(", ");
-      return `<figure class="tst-card" data-k="${k}" aria-roledescription="slide" aria-label="${k + 1} of ${Math.min(list.length, 12)}">
-        ${stars}
-        <blockquote>${esc(t.quote)}</blockquote>
-        ${t.service ? `<span class="tst-service">${esc(t.service)}</span>` : ""}
-        <figcaption>${t.photo ? `<img src="${esc(media(t.photo))}" alt="${esc(t.title)}" loading="lazy">` : `<span class="tst-init" aria-hidden="true">${esc(initials(t.title))}</span>`}
-          <span><b>${esc(t.title)}</b>${who ? `<small>${who}</small>` : ""}</span></figcaption>
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const words = (q) => String(q).trim().split(/\s+/);
+    const slides = list.map((t, k) => {
+      const w = words(t.quote), who = [t.role, t.institution].filter(Boolean).map(esc).join(", ");
+      return `<figure class="tc-slide" data-k="${k}" aria-roledescription="slide" aria-label="${k + 1} of ${list.length}" style="--n:${w.length}">
+        <blockquote>${w.map((x, i) => `<span class="w" style="--i:${i}">${esc(x)}</span>`).join(" ")}</blockquote>
+        <figcaption><b>${esc(t.title)}</b>${who ? `<small>${who}</small>` : ""}</figcaption>
       </figure>`;
     });
-    grid.className = "tst-deck-wrap";
+    grid.className = "tc-wrap";
     grid.setAttribute("role", "region"); grid.setAttribute("aria-roledescription", "carousel"); grid.setAttribute("aria-label", "Testimonials");
-    grid.innerHTML = `<div class="tst-deck">${cards.join("")}</div>
-      <div class="tst-ctrl">
-        <button class="jr-nav tst-prev" type="button" aria-label="Previous testimonial">‹</button>
-        <div class="tst-dots">${cards.map((_, k) => `<button type="button" class="tst-dot" aria-label="Show testimonial ${k + 1}"><span><i></i></span></button>`).join("")}</div>
-        <button class="jr-nav tst-next" type="button" aria-label="Next testimonial">›</button>
-        <button class="jr-pause tst-pause" type="button" aria-label="Pause testimonials">❚❚</button>
-      </div>`;
-    const deck = $(".tst-deck", grid), els = [...deck.children], dots = [...grid.querySelectorAll(".tst-dot")], pauseBtn = $(".tst-pause", grid);
-    const n = els.length, DELAY = 6000, reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    grid.innerHTML = `<span class="tc-mark" aria-hidden="true">&ldquo;</span>
+      <div class="tc-stage" aria-live="polite">${slides.join("")}</div>
+      <div class="tc-ctrl">
+        <button class="tc-btn tc-prev" type="button" aria-label="Previous testimonial">‹</button>
+        <div class="tc-segs">${list.map((_, k) => `<button type="button" class="tc-seg" aria-label="Show testimonial ${k + 1}"><span><i></i></span></button>`).join("")}</div>
+        <button class="tc-btn tc-next" type="button" aria-label="Next testimonial">›</button>
+        <button class="tc-btn tc-pause" type="button" aria-label="Pause testimonials">❚❚</button>
+      </div>
+      <a class="tc-share" href="feedback.html">Guided by us? Share your experience</a>`;
+    const els = [...grid.querySelectorAll(".tc-slide")], segs = [...grid.querySelectorAll(".tc-seg")], pauseBtn = $(".tc-pause", grid);
+    const n = els.length;
     let cur = 0, timer = null, userPaused = reduce, hovering = false;
-    // Size the deck to the card in front; cards behind take the same height so they peek out below it.
-    const fit = () => {
-      const f = els[cur]; f.style.height = "auto"; const h = f.offsetHeight;
-      els.forEach((e) => { if (e !== f) e.style.height = h + "px"; });
-      deck.style.height = h + (n > 1 ? 40 : 0) + "px";
-    };
-    const place = (dir) => {
-      els.forEach((e, k) => {
-        const rel = (k - cur + n) % n;
-        let pos = rel === 0 ? "0" : rel === 1 ? "1" : rel === 2 ? "2" : "hide";
-        if (dir === 1 && rel === n - 1 && n > 1) pos = "out";
-        e.dataset.pos = pos;
-        const front = rel === 0;
-        e.setAttribute("aria-hidden", front ? "false" : "true");
-        if (front) e.removeAttribute("inert"); else e.setAttribute("inert", "");
-        e.classList.toggle("is-front", front);
-      });
-      dots.forEach((d, k) => { d.classList.toggle("on", k === cur); d.setAttribute("aria-current", k === cur ? "true" : "false"); });
-      dots.forEach((d, k) => { const b = $("i", d); b.style.animation = "none"; b.style.transform = k === cur ? "scaleX(1)" : "scaleX(0)"; });
-      const bar = dots[cur] && $("i", dots[cur]);
-      if (bar && running()) { void bar.offsetWidth; bar.style.transform = ""; bar.style.animation = `jr-fill ${DELAY}ms linear forwards`; }
-      fit();
-      // replay the front card's entrance animation
-      const f = els[cur]; f.classList.remove("enter"); void f.offsetWidth; f.classList.add("enter");
-    };
-    const go = (to, dir) => {
-      if (dir === -1) { // coming back: start the new front card from the left
-        const e = els[(to + n) % n]; e.style.transition = "none"; e.dataset.pos = "out"; void e.offsetWidth; e.style.transition = "";
-      }
-      cur = (to + n) % n; place(dir); schedule();
-    };
+    const delayFor = (k) => Math.min(13000, 3800 + words(list[k].quote).length * 170);
     const running = () => n > 1 && !userPaused && !hovering && !document.hidden;
-    const schedule = () => { clearTimeout(timer); if (running()) timer = setTimeout(() => go(cur + 1, 1), DELAY); };
-    $(".tst-prev", grid).addEventListener("click", () => go(cur - 1, -1));
-    $(".tst-next", grid).addEventListener("click", () => go(cur + 1, 1));
-    dots.forEach((d, k) => d.addEventListener("click", () => go(k, k > cur ? 1 : -1)));
+    const paint = () => {
+      els.forEach((e, k) => { const on = k === cur; e.classList.toggle("on", on); e.setAttribute("aria-hidden", on ? "false" : "true"); if (on) e.removeAttribute("inert"); else e.setAttribute("inert", ""); });
+      segs.forEach((g, k) => {
+        g.classList.toggle("done", k < cur); g.classList.toggle("on", k === cur); g.setAttribute("aria-current", k === cur ? "true" : "false");
+        const i = $("i", g); i.style.animation = "none"; void i.offsetWidth;
+        if (k === cur && running()) { i.style.transform = "scaleX(0)"; i.style.animation = `tcFill ${delayFor(k)}ms linear forwards`; } else { i.style.animation = ""; i.style.transform = k <= cur ? "scaleX(1)" : "scaleX(0)"; }
+      });
+    };
+    const schedule = () => { clearTimeout(timer); if (running()) timer = setTimeout(() => go(cur + 1), delayFor(cur)); };
+    const go = (to) => { cur = (to + n) % n; paint(); schedule(); };
+    const hold = (on) => { hovering = on; paint(); schedule(); };
+    $(".tc-prev", grid).addEventListener("click", () => go(cur - 1));
+    $(".tc-next", grid).addEventListener("click", () => go(cur + 1));
+    segs.forEach((g, k) => g.addEventListener("click", () => go(k)));
     pauseBtn.addEventListener("click", () => {
       userPaused = !userPaused;
       pauseBtn.textContent = userPaused ? "▶" : "❚❚";
       pauseBtn.setAttribute("aria-label", userPaused ? "Play testimonials" : "Pause testimonials");
-      place(0); schedule();
+      paint(); schedule();
     });
-    grid.addEventListener("mouseenter", () => { hovering = true; place(0); schedule(); });
-    grid.addEventListener("mouseleave", () => { hovering = false; place(0); schedule(); });
-    grid.addEventListener("focusin", () => { hovering = true; place(0); schedule(); });
-    grid.addEventListener("focusout", (e) => { if (!grid.contains(e.relatedTarget)) { hovering = false; place(0); schedule(); } });
-    grid.addEventListener("keydown", (e) => { if (e.key === "ArrowRight") go(cur + 1, 1); if (e.key === "ArrowLeft") go(cur - 1, -1); });
-    document.addEventListener("visibilitychange", () => { place(0); schedule(); });
+    const stage = $(".tc-stage", grid);
+    stage.addEventListener("mouseenter", () => hold(true));
+    stage.addEventListener("mouseleave", () => hold(false));
+    grid.addEventListener("keydown", (e) => { if (e.key === "ArrowRight") go(cur + 1); if (e.key === "ArrowLeft") go(cur - 1); });
+    document.addEventListener("visibilitychange", () => { paint(); schedule(); });
     let x0 = null;
-    deck.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
-    deck.addEventListener("touchend", (e) => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) go(cur + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1); x0 = null; });
+    stage.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+    stage.addEventListener("touchend", (e) => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) go(cur + (dx < 0 ? 1 : -1)); x0 = null; });
     document.addEventListener("rmc:show-testimonial", (e) => {
-      const k = list.slice(0, 12).findIndex((t) => t.title === e.detail);
-      if (k >= 0 && k !== cur) go(k, k > cur ? 1 : -1);
-      hovering = true; place(0); schedule(); // hold the chosen card while it is read
-      setTimeout(() => { hovering = false; place(0); schedule(); }, 15000);
+      const k = list.findIndex((t) => t.title === e.detail);
+      if (k >= 0) go(k);
+      hold(true); setTimeout(() => hold(false), 15000);
     });
-    if (n < 2) $(".tst-ctrl", grid).hidden = true;
+    if (n < 2) $(".tc-ctrl", grid).hidden = true;
     if (reduce) { pauseBtn.textContent = "▶"; pauseBtn.setAttribute("aria-label", "Play testimonials"); }
-    fit(); window.addEventListener("resize", fit); window.addEventListener("load", fit);
-    place(0); schedule();
+    paint(); schedule();
   }
 
   // ---------- Founder & Managing Director (home + about) ----------
