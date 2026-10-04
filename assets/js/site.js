@@ -790,34 +790,79 @@
     paint(); schedule();
   }
 
-  // ---------- Founder & Managing Director (home + about) ----------
+  // ---------- Founder & Managing Director (home + about): black-and-gold cover story ----------
   function founder(f) {
     const sec = $("#founder-section"), box = $("#founder");
     if (!sec || !box) return;
     f = f || {};
     if (f.show === false || !f.name) { sec.hidden = true; return; }
-    const initials = String(f.name).replace(/^(dr|mr|ms|mrs|prof)\.?\s+/i, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const name = String(f.name).trim();
+    const title = (name.match(/^(dr|mr|ms|mrs|prof)\.?\s+/i) || [""])[0].trim();
+    const bare = name.slice(title ? name.indexOf(title) + title.length : 0).trim();
+    const parts = bare.split(/\s+/), last = parts.length > 1 ? parts.pop() : "", first = parts.join(" ");
+    const initials = bare.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
     const paras = String(f.bio || "").split(/\n\s*\n/).map((t) => t.trim()).filter(Boolean);
+    const quals = String(f.qualifications || "").split(/,(?![^()]*\))/).map((t) => t.trim()).filter(Boolean);
     const hl = String(f.highlights || "").split(/\n+/).map((t) => t.replace(/^[-•*]\s*/, "").trim()).filter(Boolean);
-    const tags = (Array.isArray(f.expertise) ? f.expertise : String(f.expertise || "").split(",")).map((t) => String(t).trim()).filter(Boolean);
-    const tick = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
-    const links = [["linkedin", "LinkedIn"], ["scholar", "Google Scholar"], ["orcid", "ORCID"], ["researchgate", "ResearchGate"]]
-      .filter(([k]) => safeUrl(f[k])).map(([k, l]) => `<a class="btn btn-ghost btn-sm" href="${esc(safeUrl(f[k]))}" target="_blank" rel="noopener">${l} ↗</a>`);
-    if (f.email) links.unshift(`<a class="btn btn-ghost btn-sm" href="mailto:${esc(f.email)}">Email</a>`);
+    const quote = String(f.message || "").replace(/^[\s"“”']+|[\s"“”']+$/g, "");
+    const svg = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+    const IC = {
+      trophy: svg('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3a3 3 0 0 1-3 4M7 5H4a3 3 0 0 0 3 4"/>'),
+      mic: svg('<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M8 22h8"/>'),
+      globe: svg('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>'),
+      book: svg('<path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4zM20 4h-6a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h7z"/>'),
+      heart: svg('<path d="M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6-8 11-8 11z"/>'),
+      badge: svg('<circle cx="12" cy="9" r="6"/><path d="m8.5 14-1.5 8 5-3 5 3-1.5-8"/>'),
+      cap: svg('<path d="m2 9 10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5M22 9v6"/>')
+    };
+    const icon = (t) => /award|excellence/i.test(t) ? IC.trophy : /chair|dialogue|speaker/i.test(t) ? IC.mic : /international|conference|global|panel/i.test(t) ? IC.globe : /record|book/i.test(t) ? IC.book : /unicef|charity/i.test(t) ? IC.heart : IC.badge;
+    const honour = (t) => { const i = t.search(/\s[–—-]\s/); const head = i < 0 ? t : t.slice(0, i).trim(), tail = i < 0 ? "" : t.slice(i + 3).trim();
+      return `<li class="fx-hon">${icon(t)}<span><b>${esc(head)}</b>${tail ? `<small>${esc(tail)}</small>` : ""}</span></li>`; };
+    const links = [["email", "Email", svg('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>')], ["linkedin", "LinkedIn", svg('<path d="M4 9h3v11H4zM5.5 4a1.6 1.6 0 1 1 0 3.2 1.6 1.6 0 0 1 0-3.2zM10 9h3v1.6c.6-1 1.8-1.8 3.4-1.8 3 0 3.6 2 3.6 4.6V20h-3v-5.8c0-1.3-.3-2.6-1.8-2.6s-2.2 1.1-2.2 2.6V20h-3z"/>')],
+      ["scholar", "Google Scholar", IC.cap], ["orcid", "ORCID", svg('<circle cx="12" cy="12" r="9"/><path d="M9 8v8M12.5 8h1.5a4 4 0 0 1 0 8h-1.5z"/>')], ["researchgate", "ResearchGate", IC.book]]
+      .map(([k, l, ic]) => { const u = k === "email" ? (f.email ? "mailto:" + f.email : "") : safeUrl(f[k]); return u ? `<a class="fx-link" href="${esc(u)}" aria-label="${l}" ${k === "email" ? "" : 'target="_blank" rel="noopener"'}>${ic}<span>${l}</span></a>` : ""; }).join("");
+    const ring = "FOUNDER · MANAGING DIRECTOR · RESEARCHMED CONNECT · ";
+    const run = hl.map(honour).join("");
+    sec.classList.add("fx-sec");
+    box.className = "fx";
     box.innerHTML = `
-      <div class="fd-photo">${f.photo ? `<img src="${esc(media(f.photo))}" alt="${esc(f.name)}" loading="lazy">` : `<span class="fd-init" aria-hidden="true">${esc(initials)}</span>`}</div>
-      <div class="fd-body">
-        <span class="eyebrow">${esc(f.designation || "Founder & Managing Director")}</span>
-        <h2 class="fd-name">${esc(f.name)}</h2>
-        ${f.qualifications ? `<p class="fd-qual">${esc(f.qualifications)}</p>` : ""}
-        ${f.position ? `<p class="fd-pos">${esc(f.position)}</p>` : ""}
-        ${paras.map((t) => `<p class="fd-bio">${esc(t)}</p>`).join("")}
-        ${hl.length ? `<ul class="ticks fd-hl">${hl.map((t) => `<li>${tick}${esc(t)}</li>`).join("")}</ul>` : ""}
-        ${tags.length ? `<div class="fd-tags">${tags.map((t) => `<span class="fd-chip">${esc(t)}</span>`).join("")}</div>` : ""}
-        ${f.message ? `<blockquote class="fd-msg">${esc(f.message)}</blockquote>` : ""}
-        ${links.length ? `<div class="btn-row">${links.join("")}</div>` : ""}
-      </div>`;
+      <div class="fx-grain" aria-hidden="true"></div>
+      <div class="fx-stage">
+        <div class="fx-portrait" aria-hidden="${f.photo ? "false" : "true"}">
+          <div class="fx-halo" aria-hidden="true"></div>
+          <svg class="fx-ring" viewBox="0 0 200 200" aria-hidden="true"><defs><path id="fxRingPath" d="M100,100 m-86,0 a86,86 0 1,1 172,0 a86,86 0 1,1 -172,0"/></defs><text><textPath href="#fxRingPath" textLength="538" lengthAdjust="spacing">${esc(ring)}</textPath></text></svg>
+          ${f.photo ? `<img class="fx-img" src="${esc(media(f.photo))}" alt="${esc(name)}" loading="lazy" decoding="async">` : `<span class="fx-init" aria-hidden="true">${esc(initials)}</span>`}
+          ${quals[0] ? `<span class="fx-seal"><b>${esc(quals[0].replace(/\s*\(.*$/, ""))}</b><small>${esc((quals[0].match(/\(([^)]+)\)/) || ["", ""])[1])}</small></span>` : ""}
+        </div>
+        <div class="fx-copy">
+          <p class="fx-kicker"><span></span>Meet our ${esc(f.designation || "Managing Director")}</p>
+          <h2 class="fx-name">${title ? `<span class="fx-title">${esc(title)}</span>` : ""}<span class="fx-first">${esc(first)}</span> <span class="fx-last">${esc(last)}</span></h2>
+          ${f.position ? `<p class="fx-pos">${esc(f.position)}</p>` : ""}
+          ${quals.length ? `<ul class="fx-quals" aria-label="Qualifications">${quals.map((q, i) => `<li style="--d:${i}">${esc(q)}</li>`).join("")}</ul>` : ""}
+          ${paras.length ? `<div class="fx-bio" id="fx-bio">${paras.map((t) => `<p>${esc(t)}</p>`).join("")}${paras.length > 1 ? `<button type="button" class="fx-more" aria-expanded="false" aria-controls="fx-bio">Read full profile</button>` : ""}</div>` : ""}
+          ${quote ? `<figure class="fx-quote"><blockquote>${esc(quote)}</blockquote><figcaption><span class="fx-sign">${esc(bare)}</span><span class="fx-sign-line" aria-hidden="true"></span></figcaption></figure>` : ""}
+          ${links ? `<div class="fx-links">${links}</div>` : ""}
+        </div>
+      </div>
+      ${hl.length ? `<div class="fx-honours"><p class="fx-hon-head"><span>${hl.length}</span> Honours &amp; memberships</p>
+        <div class="fx-ribbon"><ul class="fx-track">${run}</ul><ul class="fx-track" aria-hidden="true">${run}</ul></div></div>` : ""}`;
     sec.hidden = false;
+    const more = $(".fx-more", box);
+    if (more) more.addEventListener("click", () => { const open = more.getAttribute("aria-expanded") !== "true"; more.setAttribute("aria-expanded", String(open)); more.textContent = open ? "Show less" : "Read full profile"; $(".fx-bio", box).classList.toggle("open", open); });
+    const go = () => box.classList.add("fx-in");
+    if (reduce || !("IntersectionObserver" in window)) go();
+    else new IntersectionObserver((es, o) => es.forEach((e) => { if (e.isIntersecting) { go(); o.disconnect(); } }), { threshold: 0.2 }).observe(box);
+    const portrait = $(".fx-portrait", box);
+    if (!reduce && portrait && matchMedia("(hover: hover)").matches) {
+      let raf = 0;
+      box.addEventListener("pointermove", (e) => {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => { const r = box.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+          box.style.setProperty("--mx", x.toFixed(3)); box.style.setProperty("--my", y.toFixed(3)); });
+      });
+      box.addEventListener("pointerleave", () => { box.style.setProperty("--mx", "0"); box.style.setProperty("--my", "0"); });
+    }
   }
 
   // ---------- Contributors (home + about): cinematic 3D spotlight stage ----------
