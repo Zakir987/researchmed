@@ -9,6 +9,26 @@
       "orcid": "https://orcid.org/0000-0002-7284-470X",
       "email": "",
       "order": 1
+    },
+    {
+      "title": "Mr. Dinesh N",
+      "role": "Peer Reviewer",
+      "qualifications": "M.Sc. (Anaesthesia & Operation Theatre Technology)",
+      "affiliation": "Assistant Professor, St. John's College of Allied Health Sciences, Bangalore",
+      "photo": "",
+      "orcid": "https://orcid.org/0009-0008-3395-8617",
+      "email": "",
+      "order": 2
+    },
+    {
+      "title": "Ms. Preethi P",
+      "role": "Peer Reviewer",
+      "qualifications": "M.Sc. (Anaesthesia & Operation Theatre Technology)",
+      "affiliation": "Assistant Professor, Chittoor",
+      "photo": "",
+      "orcid": "",
+      "email": "",
+      "order": 3
     }
   ]
 }
