@@ -38,13 +38,20 @@
 
   function facts(J) {
     const box = $("#jr-facts"); if (!box) return;
+    const split = (v) => { const m = String(v || "").match(/^(.*?)\s*\((.*)\)\s*$/); return m ? [m[1], m[2]] : [String(v || ""), ""]; };
+    const [freq, months] = split(J.frequency);
     const rows = [
-      ["Abbreviation", J.short], ["Publisher", J.publisher], ["Editor-in-Chief", J.editor_in_chief],
-      ["ISSN", J.issn || "To be assigned"], ["Frequency", J.frequency], ["Peer review", J.review_type],
-      ["Access", `Open access · ${J.licence || "CC BY 4.0"}`], ["Submission fee", J.submission_fee],
-      ["Article processing charge", J.apc || "Announced before the first issue"], ["Language", J.language], ["Since", J.start_year], ["Contact", J.email ? `<a href="mailto:${esc(J.email)}">${esc(J.email)}</a>` : ""],
-    ].filter(([, v]) => v);
-    box.innerHTML = `<h2>Journal at a glance</h2><dl>${rows.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${k === "Contact" ? v : esc(v)}</dd></div>`).join("")}</dl>`;
+      ["👤", "Editor-in-Chief", J.editor_in_chief, "", "wide"],
+      ["#️⃣", "ISSN", J.issn || "To be assigned"],
+      ["📅", "Frequency", freq, months.replace(/January/g, "Jan").replace(/April/g, "Apr").replace(/July/g, "Jul").replace(/October/g, "Oct").replace(/,\s*/g, " · ")],
+      ["🕶️", "Peer review", String(J.review_type || "").replace(/\s*peer review$/i, "")],
+      ["🔓", "Open access", J.licence || "CC BY 4.0"], ["💸", "Submission fee", J.submission_fee || "Free"],
+      ["🌐", "Language", J.language], ["🗓️", "Since", J.start_year],
+      ["🏢", "Publisher", J.publisher],
+      ["🧾", "Article processing charge", J.apc || "Announced before the first issue", "", "wide"],
+    ].filter((r) => r[2]);
+    const mail = J.email ? `<a class="gl-mail" href="mailto:${esc(J.email)}"><span aria-hidden="true">✉️</span><span><small>Contact</small>${esc(J.email)}</span><b aria-hidden="true">→</b></a>` : "";
+    box.innerHTML = `<div class="gl-head"><h2>Journal at a glance</h2>${J.short ? `<span>${esc(J.short)}</span>` : ""}</div><dl class="gl-grid">${rows.map(([ic, k, v, sub, w]) => `<div class="gl-i${w ? " " + w : ""}"><dt><i aria-hidden="true">${ic}</i>${esc(k)}</dt><dd>${esc(v)}${sub ? `<small>${esc(sub)}</small>` : ""}</dd></div>`).join("")}</dl>${mail}`;
   }
   function cfp(J) {
     const box = $("#jr-cfp"); if (!box || J.accepting === false || !J.cfp_title) return;
