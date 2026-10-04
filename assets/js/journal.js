@@ -100,7 +100,8 @@
   }
   function fees(J) {
     const box = $("#jr-fees"); if (!box) return;
-    box.innerHTML = `<p>${esc(J.submission_fee || "There is no fee to submit a manuscript.")}.</p><p><b>Article processing charge (APC):</b> ${J.apc ? esc(J.apc) + " — charged only after a manuscript is accepted." : "will be announced here before the first issue. No charge applies to manuscripts submitted before then."}</p>`;
+    const sf = String(J.submission_fee || "There is no fee to submit a manuscript").trim().replace(/\.+$/, "");
+    box.innerHTML = `${box.dataset.apcOnly ? "" : `<p>${esc(sf)}.</p>`}<p><b>Article processing charge (APC):</b> ${J.apc ? esc(J.apc) + " — charged only after a manuscript is accepted." : "will be announced here before the first issue. No charge applies to manuscripts submitted before then."}</p>`;
   }
 
   function form(J) {
