@@ -334,6 +334,8 @@
         { k: "hero_text", l: "Home page intro", t: "area" },
         { k: "youtube_channel", l: "YouTube channel link", t: "text" },
         { k: "linkedin", l: "LinkedIn link", t: "text" },
+        { k: "goatcounter", l: "Visitor counter code (your GoatCounter code, e.g. researchmed)", t: "text", ph: "researchmed" },
+        { k: "show_visitors", l: "Show the visitor count in the website footer", t: "check", def: () => true },
       ],
     },
   };
