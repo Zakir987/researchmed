@@ -13,78 +13,220 @@
 <meta property="og:url" content="https://researchmed.in/journal/">
 <meta property="og:site_name" content="ResearchMed Connect">
 <meta property="og:locale" content="en_IN">
-<meta property="og:image" content="https://researchmed.in/assets/img/og.png">
+<meta property="og:image" content="https://researchmed.in/media/brand/ijaott-logo.webp">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="apple-touch-icon" href="/media/brand/apple-touch-icon.png">
 <meta name="theme-color" content="#1b5896">
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="assets/css/style.css?v=20261003e">
+<link rel="stylesheet" href="assets/css/style.css?v=20261004a">
 <script>try{var t=localStorage.getItem("rmc-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Periodical","name":"Indian Journal of Anaesthesia & Operation Theatre Technology","alternateName":"IJAOTT","url":"https://researchmed.in/journal/","publisher":{"@type":"Organization","name":"ResearchMed Connect","url":"https://researchmed.in/"},"inLanguage":"en","isAccessibleForFree":true,"license":"https://creativecommons.org/licenses/by/4.0/","image":"https://researchmed.in/media/brand/ijaott-logo.webp"}</script>
 <style>
-.page-hero .wrap.jr-brand{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:32px}
-.jr-brand-text{flex:1;min-width:0}
-.jr-logo{flex:none;width:clamp(130px,17vw,200px);height:auto;border-radius:50%;filter:drop-shadow(0 14px 28px rgba(0,0,0,.28));animation:jrLogoIn .9s cubic-bezier(.2,.9,.3,1.3) both,jrLogoFloat 6s ease-in-out .9s infinite;transition:transform .4s cubic-bezier(.2,.9,.3,1.5)}
-.jr-logo:hover{transform:scale(1.06) rotate(-3deg)}
-@keyframes jrLogoIn{0%{opacity:0;transform:scale(.6) rotate(-12deg)}70%{opacity:1;transform:scale(1.06) rotate(2deg)}100%{opacity:1;transform:none}}
-@keyframes jrLogoFloat{0%,100%{translate:0 0}50%{translate:0 -8px}}
-@media (max-width:700px){.page-hero .wrap.jr-brand{gap:14px}.jr-logo{width:96px}}
-@media (prefers-reduced-motion:reduce){.jr-logo{animation:none}}
+@keyframes jhPop{0%{opacity:0;transform:scale(.9) translateY(18px)}60%{opacity:1;transform:scale(1.02) translateY(-2px)}100%{opacity:1;transform:none}}
+@keyframes jhGrad{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes jhFloat{0%,100%{translate:0 0}50%{translate:0 -10px}}
+@keyframes jhBlob{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-30px) scale(1.12)}}
+@keyframes jhSpin{to{transform:rotate(360deg)}}
+@keyframes jhShine{0%{left:-60%}55%,100%{left:130%}}
+@keyframes jhPulse{0%{box-shadow:0 0 0 0 rgba(43,179,163,.55)}70%{box-shadow:0 0 0 12px rgba(43,179,163,0)}100%{box-shadow:0 0 0 0 rgba(43,179,163,0)}}
+.jh-hero{position:relative;overflow:hidden;padding-block:72px 64px;border-bottom:1px solid var(--line);background:radial-gradient(900px 480px at 85% 30%,color-mix(in srgb,var(--teal) 22%,transparent),transparent 70%),radial-gradient(900px 500px at 10% 0%,color-mix(in srgb,var(--primary) 26%,transparent),transparent 70%),linear-gradient(180deg,var(--hero-a),var(--hero-b))}
+.jh-hero .blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.4;pointer-events:none;animation:jhBlob 16s ease-in-out infinite}
+.jh-hero .b1{width:380px;height:380px;left:-120px;top:-60px;background:var(--primary)}
+.jh-hero .b2{width:320px;height:320px;right:-80px;bottom:-120px;background:var(--teal);animation-delay:-8s}
+.jh-ecg{position:absolute;left:0;right:0;bottom:18px;height:60px;opacity:.18;pointer-events:none}
+.jh-ecg path{stroke-dasharray:1400;stroke-dashoffset:1400;animation:jhEcg 6s linear infinite}
+@keyframes jhEcg{to{stroke-dashoffset:0}}
+.jh-grid{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:40px;align-items:center}
+.jh-copy .pill-eyebrow{display:inline-block;animation:jhPop .7s cubic-bezier(.2,.9,.3,1.3) both}
+.jh-copy h1{font-family:var(--font-display);font-size:clamp(2.1rem,4.6vw,3.4rem);line-height:1.08;margin:14px 0 14px;background:var(--grad-text,var(--primary));background-size:220% 220%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:jhPop .8s .08s cubic-bezier(.2,.9,.3,1.3) both,jhGrad 8s ease-in-out infinite}
+.jh-copy .lead{font-size:1.12rem;color:var(--muted);max-width:620px;margin:0;animation:jhPop .8s .16s cubic-bezier(.2,.9,.3,1.3) both}
+.jh-badges{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 0;padding:0;list-style:none;animation:jhPop .8s .22s cubic-bezier(.2,.9,.3,1.3) both}
+.jh-badges li{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:999px;font-size:.88rem;font-weight:600;background:color-mix(in srgb,var(--surface) 70%,transparent);border:1px solid var(--line);backdrop-filter:blur(6px)}
+.jh-badges li b{color:var(--teal)}
+.jh-ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px;animation:jhPop .8s .3s cubic-bezier(.2,.9,.3,1.3) both}
+.jh-btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px;padding:14px 24px;border-radius:999px;font-weight:700;text-decoration:none;transition:transform .2s cubic-bezier(.2,.9,.3,1.6),box-shadow .2s,filter .2s}
+.jh-btn.primary{color:#fff;background:var(--grad,var(--primary));box-shadow:var(--glow)}
+.jh-btn.primary::after{content:"";position:absolute;top:0;bottom:0;width:45%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg);animation:jhShine 3.4s ease-in-out infinite}
+.jh-btn.ghost{color:var(--ink);background:color-mix(in srgb,var(--surface) 75%,transparent);border:1px solid var(--line)}
+.jh-btn:hover{transform:translateY(-3px);filter:brightness(1.06)}
+.jh-btn:active{transform:scale(.96)}
+.jh-emblem{position:relative;justify-self:center;width:min(320px,80%);aspect-ratio:1;display:grid;place-items:center;animation:jhPop 1s .1s cubic-bezier(.2,.9,.3,1.3) both}
+.jh-emblem::before{content:"";position:absolute;inset:-6%;border-radius:50%;background:conic-gradient(from 0deg,var(--primary),var(--teal),#e2b24f,var(--primary));opacity:.55;filter:blur(2px);animation:jhSpin 14s linear infinite;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3px));mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3px))}
+.jh-emblem::after{content:"";position:absolute;inset:8%;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--teal) 30%,transparent),transparent 70%);filter:blur(24px);z-index:-1}
+.jh-emblem img{width:88%;height:auto;border-radius:50%;filter:drop-shadow(0 18px 34px rgba(0,0,0,.35));animation:jhFloat 6s ease-in-out infinite;transition:transform .5s cubic-bezier(.2,.9,.3,1.5)}
+.jh-emblem:hover img{transform:scale(1.05) rotate(-4deg)}
+.jh-live{position:absolute;bottom:4%;right:2%;display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:.8rem;font-weight:700;box-shadow:var(--shadow)}
+.jh-live i{width:9px;height:9px;border-radius:50%;background:#2bb3a3;animation:jhPulse 1.8s infinite}
+.jh-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:30px auto 0;position:relative;z-index:2;max-width:1080px}
+.jh-stat{padding:20px 16px;text-align:center;border-radius:18px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+.jh-stat b{display:block;font:700 clamp(1.5rem,3vw,2rem)/1.1 var(--font-display);background:var(--grad-text,var(--primary));-webkit-background-clip:text;background-clip:text;color:transparent}
+.jh-stat span{display:block;margin-top:6px;color:var(--muted);font-size:.88rem}
+.jh-sec{padding-block:64px 0}
+.jh-head{text-align:center;max-width:680px;margin:0 auto 32px}
+.jh-head .eyebrow{display:inline-block}
+.jh-head h2{font-family:var(--font-display);font-size:clamp(1.6rem,3.4vw,2.3rem);margin:8px 0 8px}
+.jh-head p{color:var(--muted);margin:0}
+.pop{opacity:0;transform:scale(.9) translateY(26px);transition:opacity .6s ease,transform .7s cubic-bezier(.2,.9,.3,1.3)}
+.pop.in{opacity:1;transform:none}
+.jh-cfp-wrap{max-width:1080px;margin:0 auto}
+.jh-cfp-wrap .jr-cfp{border-radius:22px;padding:clamp(22px,4vw,34px);background:linear-gradient(135deg,color-mix(in srgb,var(--primary) 16%,var(--surface)),color-mix(in srgb,var(--teal) 14%,var(--surface)));border:1px solid color-mix(in srgb,var(--primary) 30%,var(--line));box-shadow:0 20px 50px -26px color-mix(in srgb,var(--primary) 70%,transparent)}
+.jh-flow{list-style:none;margin:0 auto;padding:0;max-width:1080px;display:grid;grid-template-columns:repeat(5,1fr);gap:14px;counter-reset:f}
+.jh-flow li{position:relative;padding:22px 16px 18px;border-radius:18px;background:var(--surface);border:1px solid var(--line);text-align:center}
+.jh-flow li::before{counter-increment:f;content:counter(f);display:grid;place-items:center;width:44px;height:44px;margin:0 auto 12px;border-radius:14px;color:#fff;font-weight:800;background:var(--grad,var(--primary));box-shadow:var(--glow)}
+.jh-flow li:not(:last-child)::after{content:"→";position:absolute;right:-13px;top:34px;color:var(--teal);font-weight:800;z-index:1}
+.jh-flow b{display:block;margin-bottom:4px}
+.jh-flow span{color:var(--muted);font-size:.88rem}
+.jh-flow em{display:inline-block;margin-top:10px;font-style:normal;font-size:.78rem;font-weight:700;color:var(--teal)}
+.jh-aims{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1080px;margin:0 auto}
+.jh-card{padding:24px 22px;border-radius:20px;background:var(--surface);border:1px solid var(--line);transition:transform .3s cubic-bezier(.2,.9,.3,1.4),box-shadow .3s,border-color .3s}
+.jh-card.in:hover{transform:translateY(-6px);border-color:color-mix(in srgb,var(--primary) 45%,var(--line));box-shadow:0 20px 44px -22px color-mix(in srgb,var(--primary) 65%,transparent)}
+.jh-ic{display:inline-grid;place-items:center;width:52px;height:52px;border-radius:16px;font-size:1.6rem;background:color-mix(in srgb,var(--primary) 14%,transparent);transition:transform .4s cubic-bezier(.2,.9,.3,1.7)}
+.jh-card:hover .jh-ic{transform:rotate(-10deg) scale(1.15)}
+.jh-card h3{margin:14px 0 6px;font-size:1.12rem}
+.jh-card p{margin:0;color:var(--muted)}
+.jh-scope{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;max-width:1080px;margin:0 auto;padding:0;list-style:none}
+.jh-scope li{display:flex;align-items:center;gap:12px;padding:16px;border-radius:16px;background:var(--surface);border:1px solid var(--line);font-weight:600;font-size:.95rem;transition:transform .25s cubic-bezier(.2,.9,.3,1.6),border-color .25s,background .25s}
+.jh-scope li.in:hover{transform:translateY(-4px) scale(1.03);border-color:var(--teal);background:color-mix(in srgb,var(--teal) 8%,var(--surface))}
+.jh-scope li span{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:12px;font-size:1.25rem;background:color-mix(in srgb,var(--teal) 14%,transparent)}
+.jh-two{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:22px;max-width:1080px;margin:0 auto;align-items:start}
+.jh-panel{padding:clamp(20px,3.5vw,30px);border-radius:22px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+.jh-panel h2{font-family:var(--font-display);margin:0 0 14px;font-size:1.4rem}
+.jh-panel .jr-facts h2{font-size:1.25rem}
+.jh-panel .jr-facts dl{margin:0}
+.jh-panel .jr-facts dl div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line)}
+.jh-panel .jr-facts dl div:last-child{border-bottom:0}
+.jh-panel .jr-facts dt{color:var(--muted);font-size:.9rem}
+.jh-panel .jr-facts dd{margin:0;font-weight:600;text-align:right;font-size:.92rem}
+.jh-side{display:grid;gap:14px;position:sticky;top:90px}
+.jh-cta{max-width:1080px;margin:64px auto 72px;padding:clamp(28px,5vw,48px);border-radius:28px;text-align:center;position:relative;overflow:hidden;color:#fff;background:linear-gradient(120deg,#123f6e,#0a6f78 55%,#178f84);background-size:200% 200%;animation:jhGrad 10s ease-in-out infinite;box-shadow:0 30px 60px -30px rgba(10,111,120,.8)}
+.jh-cta h2{font-family:var(--font-display);font-size:clamp(1.6rem,3.4vw,2.3rem);margin:0 0 10px;color:#fff}
+.jh-cta p{margin:0 auto 22px;max-width:560px;color:rgba(255,255,255,.85)}
+.jh-cta .jh-ctas{justify-content:center;animation:none}
+.jh-cta .jh-btn.ghost{color:#fff;background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.3)}
+.jh-cta .jh-btn.primary{background:#fff;color:#0a4f6e}
+@media (max-width:980px){.jh-flow{grid-template-columns:repeat(2,1fr)}.jh-flow li:not(:last-child)::after{display:none}.jh-scope{grid-template-columns:repeat(2,1fr)}.jh-aims{grid-template-columns:1fr}.jh-two{grid-template-columns:1fr}.jh-side{position:static}}
+@media (max-width:760px){.jh-grid{grid-template-columns:1fr;gap:18px}.jh-emblem{order:-1;width:190px}.jh-copy{text-align:center}.jh-copy .lead{margin-inline:auto}.jh-badges,.jh-ctas{justify-content:center}.jh-stats{grid-template-columns:repeat(2,1fr);margin-top:20px}.jh-hero{padding-block:44px 56px}}
+@media (max-width:480px){.jh-scope{grid-template-columns:1fr}.jh-flow{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.pop{opacity:1;transform:none}}
 </style>
 </head>
 <body data-page="journal" data-jpage="home">
 <main id="main">
-<section class="page-hero jr-hero"><div class="wrap jr-brand">
-  <div class="jr-brand-text">
-  <span class="eyebrow pill-eyebrow">Peer-reviewed · Open access</span>
-  <h1>Indian Journal of Anaesthesia &amp; Operation Theatre Technology</h1>
-  <p>A peer-reviewed, open-access journal for anaesthesia technology, operation theatre practice and perioperative care.</p>
+<section class="jh-hero">
+  <span class="blob b1" aria-hidden="true"></span><span class="blob b2" aria-hidden="true"></span>
+  <svg class="jh-ecg" viewBox="0 0 1400 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 30 H520 L545 30 L560 6 L575 54 L590 18 L602 30 H900 L925 30 L940 4 L955 56 L970 16 L982 30 H1400" fill="none" stroke="currentColor" stroke-width="2.5" style="color:var(--teal)"/></svg>
+  <div class="wrap jh-grid">
+    <div class="jh-copy">
+      <span class="eyebrow pill-eyebrow">IJAOTT · Peer-reviewed · Open access</span>
+      <h1>Indian Journal of Anaesthesia &amp; Operation Theatre Technology</h1>
+      <p class="lead">A peer-reviewed, open-access home for research in anaesthesia technology, operation theatre practice and perioperative care.</p>
+      <ul class="jh-badges">
+        <li><b>✓</b> Double-blind peer review</li>
+        <li><b>✓</b> Free to read · CC BY 4.0</li>
+        <li><b>✓</b> No submission fee</li>
+        <li><b>✓</b> COPE &amp; ICMJE guided</li>
+      </ul>
+      <div class="jh-ctas">
+        <a class="jh-btn primary" href="journal/submit.html">Submit a manuscript <span aria-hidden="true">→</span></a>
+        <a class="jh-btn ghost" href="journal/authors.html">Author guidelines</a>
+        <a class="jh-btn ghost" href="journal/track.html">Track manuscript</a>
+      </div>
+    </div>
+    <div class="jh-emblem">
+      <img src="media/brand/ijaott-logo.webp" alt="IJAOTT emblem" width="240" height="240" onerror="this.closest('.jh-emblem').remove()">
+      <span class="jh-live"><i aria-hidden="true"></i> Accepting submissions</span>
+    </div>
   </div>
-  <img class="jr-logo" src="media/brand/ijaott-logo.webp" alt="IJAOTT logo" width="200" height="200" onerror="this.remove()">
-</div></section>
+</section>
 <nav class="jr-subnav" aria-label="Journal"><div class="wrap"><a href="journal/" aria-current="page">Home</a><a href="journal/authors.html">For authors</a><a href="journal/policies.html">Policies</a><a href="journal/board.html">Editorial board</a><a href="journal/issues.html">Issues</a><a href="journal/submit.html">Submit</a><a href="journal/track.html">Track manuscript</a></div></nav>
-<section class="section" style="padding-top:36px"><div class="wrap jr-home">
-  <div class="jr-main">
-    <div class="jr-cfp" id="jr-cfp" hidden></div>
 
-    <h2>About the journal</h2>
-    <p>The <i>Indian Journal of Anaesthesia &amp; Operation Theatre Technology</i> (IJAOTT) publishes research and educational work by and for anaesthesia technologists, operation theatre technologists, perioperative nurses, anaesthesiologists, surgeons and allied health educators. It is published by ResearchMed Connect.</p>
-    <p>Every manuscript is checked for originality and sent for double-blind peer review. Accepted articles are published open access, free to read, under the Creative Commons Attribution (CC BY 4.0) licence.</p>
-
-    <h2>Aims</h2>
-    <ul class="jr-list">
-      <li>Publish sound, ethical research that improves the safety and quality of anaesthesia and operation theatre care.</li>
-      <li>Give allied health professionals and students a dedicated, peer-reviewed home for their work.</li>
-      <li>Strengthen evidence-based practice and education in anaesthesia and OT technology.</li>
-    </ul>
-
-    <h2>Scope</h2>
-    <ul class="jr-scope">
-      <li>Anaesthesia technology, equipment and monitoring</li>
-      <li>Airway management and difficult-airway preparedness</li>
-      <li>Operation theatre practice, workflow and safety</li>
-      <li>Sterilisation, asepsis and infection control</li>
-      <li>Perioperative and post-anaesthesia care</li>
-      <li>Patient safety, checklists and human factors</li>
-      <li>Critical care, ventilation and respiratory support</li>
-      <li>Pain management and regional anaesthesia</li>
-      <li>Biomedical equipment in the OT and ICU</li>
-      <li>Ergonomics and occupational health in the OT</li>
-      <li>Education, simulation and competency assessment</li>
-      <li>Emergency, trauma and disaster preparedness</li>
-    </ul>
-
-    <h2>Latest articles</h2>
-    <div id="jr-latest"><div class="skeleton"></div></div>
+<div class="wrap">
+  <div class="jh-stats">
+    <div class="jh-stat pop"><b>₹0</b><span>Submission fee</span></div>
+    <div class="jh-stat pop"><b>2+</b><span>Independent reviewers per paper</span></div>
+    <div class="jh-stat pop"><b>6–8 wks</b><span>Target first decision</span></div>
+    <div class="jh-stat pop"><b>12</b><span>Areas in scope</span></div>
   </div>
 
-  <aside class="jr-side">
-    <div class="jr-facts" id="jr-facts"><div class="skeleton"></div></div>
-    <a class="btn btn-primary btn-block" href="journal/submit.html">Submit a manuscript</a>
-    <a class="btn btn-ghost btn-block" href="journal/authors.html">Author guidelines</a>
-  </aside>
-</div></section>
+  <section class="jh-sec" style="padding-top:44px"><div class="jh-cfp-wrap pop"><div class="jr-cfp" id="jr-cfp" hidden></div></div></section>
+
+  <section class="jh-sec">
+    <div class="jh-head pop"><span class="eyebrow">How it works</span><h2>From submission to publication</h2><p>A clear, ethical journey, so you always know what happens next.</p></div>
+    <ol class="jh-flow">
+      <li class="pop"><b>Submit</b><span>Upload your Word file and get a reference number.</span><em>Same day</em></li>
+      <li class="pop"><b>Editorial check</b><span>Scope, ethics and similarity screening.</span><em>About 7 days</em></li>
+      <li class="pop"><b>Peer review</b><span>Double-blind review by at least two experts.</span><em>4–6 weeks</em></li>
+      <li class="pop"><b>Decision</b><span>Accept, revise or decline, with reviewer comments.</span><em>6–8 weeks total</em></li>
+      <li class="pop"><b>Published</b><span>Open access online under CC BY 4.0.</span><em>Next issue</em></li>
+    </ol>
+  </section>
+
+  <section class="jh-sec">
+    <div class="jh-head pop"><span class="eyebrow">Our aims</span><h2>Why IJAOTT exists</h2><p>A dedicated journal for the people who keep operating theatres safe.</p></div>
+    <div class="jh-aims">
+      <div class="jh-card pop"><span class="jh-ic" aria-hidden="true">🛡️</span><h3>Safer patient care</h3><p>Publish sound, ethical research that improves the safety and quality of anaesthesia and operation theatre care.</p></div>
+      <div class="jh-card pop"><span class="jh-ic" aria-hidden="true">🎓</span><h3>A home for allied health</h3><p>Give allied health professionals and students a dedicated, peer-reviewed home for their work.</p></div>
+      <div class="jh-card pop"><span class="jh-ic" aria-hidden="true">📈</span><h3>Evidence into practice</h3><p>Strengthen evidence-based practice and education in anaesthesia and OT technology.</p></div>
+    </div>
+  </section>
+
+  <section class="jh-sec">
+    <div class="jh-head pop"><span class="eyebrow">Scope</span><h2>What we publish</h2><p>Original research, reviews, case reports, short communications and educational articles in these areas.</p></div>
+    <ul class="jh-scope">
+      <li class="pop"><span aria-hidden="true">🩺</span>Anaesthesia technology, equipment &amp; monitoring</li>
+      <li class="pop"><span aria-hidden="true">🫁</span>Airway management &amp; difficult airway</li>
+      <li class="pop"><span aria-hidden="true">🏥</span>OT practice, workflow &amp; safety</li>
+      <li class="pop"><span aria-hidden="true">🧼</span>Sterilisation, asepsis &amp; infection control</li>
+      <li class="pop"><span aria-hidden="true">🛏️</span>Perioperative &amp; post-anaesthesia care</li>
+      <li class="pop"><span aria-hidden="true">✅</span>Patient safety, checklists &amp; human factors</li>
+      <li class="pop"><span aria-hidden="true">💨</span>Critical care, ventilation &amp; respiratory support</li>
+      <li class="pop"><span aria-hidden="true">💉</span>Pain management &amp; regional anaesthesia</li>
+      <li class="pop"><span aria-hidden="true">⚙️</span>Biomedical equipment in the OT &amp; ICU</li>
+      <li class="pop"><span aria-hidden="true">🧍</span>Ergonomics &amp; occupational health</li>
+      <li class="pop"><span aria-hidden="true">🧑‍🏫</span>Education, simulation &amp; competency</li>
+      <li class="pop"><span aria-hidden="true">🚑</span>Emergency, trauma &amp; disaster preparedness</li>
+    </ul>
+  </section>
+
+  <section class="jh-sec">
+    <div class="jh-two">
+      <div class="jh-panel pop">
+        <h2>Latest articles</h2>
+        <div id="jr-latest"><div class="skeleton"></div></div>
+      </div>
+      <aside class="jh-side">
+        <div class="jh-panel pop"><div class="jr-facts" id="jr-facts"><div class="skeleton"></div></div></div>
+        <div class="jh-panel pop" style="text-align:center">
+          <h2 style="font-size:1.15rem">Join our reviewers</h2>
+          <p class="muted" style="margin:0 0 14px">Experienced in anaesthesia or OT technology? Help shape the field.</p>
+          <a class="jh-btn ghost" href="journal/join.html">Join as reviewer / editor →</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="jh-cta pop">
+    <h2>Ready to share your research?</h2>
+    <p>Read the author guidelines, prepare your manuscript in Word, and submit in a few minutes. There is no fee to submit.</p>
+    <div class="jh-ctas">
+      <a class="jh-btn primary" href="journal/submit.html">Submit a manuscript →</a>
+      <a class="jh-btn ghost" href="journal/policies.html">Editorial policies</a>
+    </div>
+  </section>
+</div>
 </main>
-<script src="assets/js/site.js?v=20261003e" defer></script>
-<script src="assets/js/journal.js?v=20261003e" defer></script>
+<script src="assets/js/site.js?v=20261004a" defer></script>
+<script src="assets/js/journal.js?v=20261004a" defer></script>
+<script>
+(function () {
+  var els = document.querySelectorAll(".pop");
+  var groups = new Map();
+  els.forEach(function (el) { var p = el.parentElement; var n = groups.get(p) || 0; el.style.transitionDelay = (n % 6) * 70 + "ms"; groups.set(p, n + 1); });
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { e.target.classList.toggle("in", e.isIntersecting); }); }, { threshold: 0.12, rootMargin: "0px 0px -5% 0px" });
+    els.forEach(function (el) { io.observe(el); });
+  } else els.forEach(function (el) { el.classList.add("in"); });
+})();
+</script>
 </body>
 </html>

@@ -3,35 +3,74 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="/">
 <title>Submission received | IJAOTT</title>
 <meta name="description" content="Your IJAOTT submission has been received.">
-<base href="/">
-<link rel="stylesheet" href="assets/css/style.css?v=20261003e">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1b5896">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/css/style.css?v=20261004a">
+<script>try{var t=localStorage.getItem("rmc-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+@keyframes thPop{0%{opacity:0;transform:scale(.85) translateY(18px)}60%{opacity:1;transform:scale(1.04)}100%{opacity:1;transform:none}}
+@keyframes thDraw{to{stroke-dashoffset:0}}
+@keyframes thFall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(420px) rotate(540deg);opacity:0}}
+.th-wrap{position:relative;overflow:hidden;padding-block:56px 72px;background:radial-gradient(900px 420px at 50% -10%,color-mix(in srgb,var(--teal) 22%,transparent),transparent 70%),linear-gradient(180deg,var(--hero-a),var(--hero-b))}
+.th-card{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:clamp(24px,5vw,40px);border-radius:26px;text-align:center;background:var(--surface);border:1px solid var(--line);box-shadow:0 30px 60px -30px color-mix(in srgb,var(--primary) 60%,transparent);animation:thPop .7s cubic-bezier(.2,.9,.3,1.3) both}
+.th-tick{width:84px;height:84px;margin:0 auto 14px}
+.th-tick circle{fill:color-mix(in srgb,var(--teal) 16%,transparent);stroke:var(--teal);stroke-width:3}
+.th-tick path{fill:none;stroke:var(--teal);stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:60;stroke-dashoffset:60;animation:thDraw .6s .35s ease forwards}
+.th-card h1{font-family:var(--font-display);font-size:clamp(1.7rem,4vw,2.4rem);margin:0 0 8px}
+.th-card>p{color:var(--muted);margin:0 0 18px}
+.th-ref{display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;padding:12px 16px;border-radius:14px;border:1px dashed var(--primary);background:color-mix(in srgb,var(--primary) 8%,transparent)}
+.th-ref code{font:700 1.25rem var(--font-mono);letter-spacing:.05em;color:var(--ink)}
+.th-ref button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;font-weight:600;cursor:pointer}
+.th-steps{list-style:none;margin:24px 0 0;padding:0;text-align:left;display:grid;gap:10px}
+.th-steps li{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:var(--bg);border:1px solid var(--line)}
+.th-steps li b{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;color:#fff;font-size:.85rem;background:var(--grad,var(--primary))}
+.th-steps li span{color:var(--muted);font-size:.94rem}
+.th-btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:24px}
+.th-conf{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.th-conf i{position:absolute;top:0;width:9px;height:14px;border-radius:2px;animation:thFall 2.6s ease-in forwards}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}.th-tick path{stroke-dashoffset:0}.th-conf{display:none}}
+</style>
 </head>
 <body data-page="journal">
 <main id="main">
-<section class="page-hero jr-hero"><div class="wrap">
-  <span class="eyebrow pill-eyebrow">Submission received</span>
-  <h1>Thank you for your submission</h1>
-  <p>Your manuscript has been sent to the IJAOTT editorial office.</p>
-</div></section>
-<section class="section" style="padding-top:36px"><div class="wrap">
-  <div class="contact-card">
-    <h2>Your reference number</h2>
-    <p id="reference" style="font-size:1.5rem;font-weight:700">—</p>
-    <p>Please keep this reference number for future correspondence and manuscript tracking.</p>
-    <div class="btn-row">
-      <a class="btn btn-primary" href="journal/track.html">Track manuscript</a>
+<section class="th-wrap"><div class="th-conf" id="th-conf" aria-hidden="true"></div><div class="wrap">
+  <div class="th-card">
+    <svg class="th-tick" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="38"/><path d="M26 43 l11 11 l21 -23"/></svg>
+    <h1>Thank you for your submission</h1>
+    <p>Your manuscript has reached the IJAOTT editorial office. A confirmation has been emailed to you.</p>
+    <div class="th-ref"><span class="muted">Reference number</span> <code id="reference">—</code> <button type="button" id="th-copy">Copy</button></div>
+    <ol class="th-steps">
+      <li><b>1</b><span><strong>Keep your reference number.</strong> Quote it in every email to <a href="mailto:ijaott@researchmed.in">ijaott@researchmed.in</a>.</span></li>
+      <li><b>2</b><span><strong>Editorial check within about 7 days</strong>: scope, ethics statements and similarity screening.</span></li>
+      <li><b>3</b><span><strong>Double-blind peer review</strong>, with a first decision usually within 6–8 weeks.</span></li>
+    </ol>
+    <div class="th-btns">
+      <a class="btn btn-primary" id="th-track" href="journal/track.html">Track my manuscript</a>
       <a class="btn btn-ghost" href="journal/">Back to IJAOTT</a>
     </div>
   </div>
 </div></section>
 </main>
+<script src="assets/js/site.js?v=20261004a" defer></script>
 <script>
-(function(){
-  const ref = new URLSearchParams(location.search).get("reference");
-  const el = document.getElementById("reference");
-  if (ref) el.textContent = ref;
+(function () {
+  var ref = new URLSearchParams(location.search).get("reference") || "";
+  ref = ref.replace(/[^A-Za-z0-9-]/g, "").slice(0, 40);
+  var el = document.getElementById("reference");
+  if (ref) { el.textContent = ref; document.getElementById("th-track").href = "journal/track.html?ref=" + encodeURIComponent(ref); }
+  else document.querySelector(".th-ref").style.display = "none";
+  document.getElementById("th-copy").addEventListener("click", function () {
+    var b = this; var done = function () { b.textContent = "Copied ✓"; setTimeout(function () { b.textContent = "Copy"; }, 1600); };
+    if (navigator.clipboard) navigator.clipboard.writeText(ref).then(done, done); else done();
+  });
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    var c = document.getElementById("th-conf"), cols = ["#1b5896", "#0a8a93", "#2bb3a3", "#e2b24f", "#8fc2ff"];
+    for (var i = 0; i < 40; i++) { var p = document.createElement("i"); p.style.left = Math.random() * 100 + "%"; p.style.background = cols[i % cols.length]; p.style.animationDelay = Math.random() * 0.8 + "s"; p.style.transform = "rotate(" + Math.random() * 360 + "deg)"; c.appendChild(p); }
+  }
 })();
 </script>
 </body>
