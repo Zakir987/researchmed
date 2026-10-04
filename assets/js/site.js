@@ -801,18 +801,67 @@
     sec.hidden = false;
   }
 
-  // ---------- Contributors (home page) ----------
+  // ---------- Contributors (home + about): cinematic 3D spotlight stage ----------
   function contributors(all) {
     const sec = $("#home-team-section"), grid = $("#home-team");
     if (!sec || !grid) return;
-    const list = (all || []).slice().sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999));
+    const list = (all || []).filter((p) => p && p.title && p.draft !== true).sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999));
     if (!list.length) { sec.hidden = true; return; }
+    const more = $("#home-team-more"); if (more) more.hidden = true;
     const initials = (n) => String(n || "").replace(/^(dr|mr|ms|mrs|prof)\.?\s+/i, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
-    grid.innerHTML = list.map((p) => {
-      const inner = `${p.photo ? `<img class="tm-photo" src="${esc(media(p.photo))}" alt="${esc(p.title)}" loading="lazy">` : `<span class="tm-photo tm-init" aria-hidden="true">${esc(initials(p.title))}</span>`}
-        <span class="tm-name">${esc(p.title)}</span>${p.role ? `<span class="tm-role">${esc(p.role)}</span>` : ""}${p.institution ? `<span class="tm-inst">${esc(p.institution)}</span>` : ""}`;
-      return p.link ? `<a class="tm-card" href="${esc(safeUrl(p.link))}" target="_blank" rel="noopener">${inner}</a>` : `<div class="tm-card">${inner}</div>`;
-    }).join("");
+    const split = (role) => { const r = String(role || ""), i = r.indexOf(","); return i < 0 ? [r, ""] : [r.slice(0, i).trim(), r.slice(i + 1).trim().replace(/^Department of\s+/i, "")]; };
+    const n = list.length, reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    sec.classList.add("cf-sec");
+    grid.removeAttribute("style");
+    grid.className = "cf";
+    grid.setAttribute("role", "region"); grid.setAttribute("aria-roledescription", "carousel"); grid.setAttribute("aria-label", "Contributors");
+    grid.innerHTML = `<div class="cf-beam" aria-hidden="true"></div><div class="cf-stage">${list.map((p, k) => {
+      const [desig, dept] = split(p.role);
+      const pic = p.photo ? `<img src="${esc(media(p.photo))}" alt="${esc(p.title)}" loading="lazy" decoding="async">` : `<span class="cf-init" aria-hidden="true">${esc(initials(p.title))}</span>`;
+      const link = p.link ? `<a class="cf-link" href="${esc(safeUrl(p.link))}" target="_blank" rel="noopener" aria-label="${esc(p.title)} profile">↗</a>` : "";
+      return `<article class="cf-card" data-k="${k}" aria-roledescription="slide" aria-label="${k + 1} of ${n}: ${esc(p.title)}">
+        <div class="cf-ring" aria-hidden="true"></div>
+        <div class="cf-inner"><div class="cf-photo">${pic}<span class="cf-num" aria-hidden="true">${String(k + 1).padStart(2, "0")}</span>${link}</div>
+          <div class="cf-info"><h3>${esc(p.title)}</h3>${desig ? `<p class="cf-desig">${esc(desig)}</p>` : ""}${dept ? `<p class="cf-dept">${esc(dept)}</p>` : ""}${p.institution ? `<p class="cf-inst">${esc(p.institution)}</p>` : ""}</div></div>
+      </article>`;
+    }).join("")}</div>
+      <div class="cf-ctrl"><button type="button" class="cf-btn cf-prev" aria-label="Previous contributor">‹</button><span class="cf-count" aria-live="polite"><b>01</b> / ${String(n).padStart(2, "0")}</span><button type="button" class="cf-btn cf-next" aria-label="Next contributor">›</button></div>`;
+    const cards = [...grid.querySelectorAll(".cf-card")], count = $(".cf-count b", grid), stage = $(".cf-stage", grid);
+    let cur = 0, timer = null, hold = false, userStop = reduce;
+    const place = () => {
+      const wide = grid.clientWidth, step = wide < 560 ? 0.62 : wide < 900 ? 0.6 : 0.56;
+      cards.forEach((c, k) => {
+        let d = k - cur; if (d > n / 2) d -= n; if (d < -n / 2) d += n;
+        const a = Math.abs(d), vis = a <= (wide < 560 ? 1 : 3);
+        c.style.transform = `translate(-50%,0) translateX(${d * step * 100}%) translateZ(${-a * 160}px) rotateY(${d === 0 ? 0 : d < 0 ? 38 : -38}deg) scale(${d === 0 ? 1 : 0.9})`;
+        c.style.zIndex = String(100 - a);
+        c.style.opacity = vis ? String(a === 0 ? 1 : Math.max(0.25, 0.75 - (a - 1) * 0.22)) : "0";
+        c.style.pointerEvents = vis ? "" : "none";
+        c.classList.toggle("on", d === 0);
+        c.setAttribute("aria-hidden", d === 0 ? "false" : "true");
+        c.tabIndex = vis ? 0 : -1;
+      });
+      count.textContent = String(cur + 1).padStart(2, "0");
+    };
+    const schedule = () => { clearTimeout(timer); if (!userStop && !hold && !document.hidden && n > 1) timer = setTimeout(() => go(cur + 1), 4200); };
+    const go = (k) => { cur = (k + n) % n; place(); schedule(); };
+    cards.forEach((c, k) => {
+      c.addEventListener("click", (e) => { if (k !== cur) { e.preventDefault(); userStop = true; go(k); } });
+      c.addEventListener("keydown", (e) => { if (e.key === "Enter" && k !== cur) { userStop = true; go(k); } });
+    });
+    $(".cf-prev", grid).addEventListener("click", () => { userStop = true; go(cur - 1); });
+    $(".cf-next", grid).addEventListener("click", () => { userStop = true; go(cur + 1); });
+    grid.addEventListener("keydown", (e) => { if (e.key === "ArrowRight") { userStop = true; go(cur + 1); } if (e.key === "ArrowLeft") { userStop = true; go(cur - 1); } });
+    stage.addEventListener("mouseenter", () => { hold = true; schedule(); });
+    stage.addEventListener("mouseleave", () => { hold = false; schedule(); });
+    let x0 = null;
+    stage.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+    stage.addEventListener("touchend", (e) => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) { userStop = true; go(cur + (dx < 0 ? 1 : -1)); } x0 = null; });
+    document.addEventListener("visibilitychange", schedule);
+    if ("IntersectionObserver" in window) new IntersectionObserver((es) => es.forEach((e) => { hold = !e.isIntersecting; schedule(); }), { threshold: 0.3 }).observe(grid);
+    window.addEventListener("resize", place);
+    if (n < 2) $(".cf-ctrl", grid).hidden = true;
+    place(); schedule();
   }
 
   // ---------- Scrolling notice ticker (top of home page) ----------
@@ -849,7 +898,7 @@
     renderLayout(settings, counts);
     if (PAGE === "home" || PAGE === "about") load("founder").then(founder);
     if (PAGE === "home") { home(settings, data); noticeBoard(data.notices); testimonials(data.testimonials); heroTrust(data.testimonials); }
-    if (PAGE === "about") contributors(data.contributors);
+    if (PAGE === "about" || PAGE === "home") contributors(data.contributors);
     requestAnimationFrame(() => setTimeout(enhance, 60));
     if (PAGE === "videos") {
       if (settings.show_videos === true) listing({ items: data.videos, mount: "#list", card: videoCard, noun: "videos" });
