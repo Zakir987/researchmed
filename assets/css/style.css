@@ -1133,3 +1133,7 @@ a.card:hover .pub-more { letter-spacing: .02em; }
 .cf-count b{color:#fff;font-size:1.15rem}
 @media (max-width:560px){.cf-stage{height:440px}.cf-card{width:250px}.cf-info h3{font-size:1.2rem}.cf-sec{padding-block:48px 40px}}
 @media (prefers-reduced-motion:reduce){.cf-card,.cf-photo img{transition:none}.cf-ring::before,.cf-beam,.cf-sec::before{animation:none}}
+
+/* ---------- Audit fixes: readable active states in every theme ---------- */
+.jr-subnav a[aria-current="page"]{background:linear-gradient(120deg,#1b5896,#0a8a93);color:#fff}
+.nav a.nav-cta,.nav a.nav-cta[aria-current="page"],.nav a.nav-cta:hover{background:linear-gradient(120deg,#1b5896,#0a8a93);color:#fff!important}
