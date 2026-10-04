@@ -170,30 +170,49 @@
     const email = s.email || "", wa = s.whatsapp || "";
     const footer = document.createElement("footer");
     footer.className = "site-footer";
+    const fIco = {
+      mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>',
+      wa: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.4a.5.5 0 0 0 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.2.7a2.8 2.8 0 0 0 1.8-1.3 2.3 2.3 0 0 0 .2-1.3c-.1-.1-.2-.2-.4-.3z"/></svg>',
+      li: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.1c.5-1 1.8-2 3.8-2 4 0 4.8 2.6 4.8 6V21h-4v-5.6c0-1.3 0-3-1.9-3s-2.1 1.4-2.1 2.9V21H9z"/></svg>',
+      yt: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12a31 31 0 0 0 .5 4.8 3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.8 31 31 0 0 0-.5-4.8zM9.8 15V9l5.2 3z"/></svg>',
+      up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>'
+    };
+    const waUrl = wa ? "https://wa.me/" + wa.replace(/\D/g, "") : "";
+    const fName = esc(s.site_name || "ResearchMed Connect");
+    const fLink = (h, t) => `<li><a href="${h}"><span>${t}</span><i aria-hidden="true">→</i></a></li>`;
     footer.innerHTML = `
+      <div class="ft-pulse" aria-hidden="true"></div>
       <div class="wrap">
-        <div class="foot-grid">
-          <div class="foot-brand">
-            <span class="brand-name">${esc(s.site_name || "ResearchMed Connect")}</span>
-            <span>${esc(s.tagline || "Research. Learn. Publish. Grow.")}</span>
+        <div class="ft-cta">
+          <p class="ft-cta-title">Have a research idea? <span>Let&rsquo;s take it to publication.</span></p>
+          <div class="ft-cta-btns"><a class="ft-btn ft-btn-p" href="contact.html">Send an enquiry</a>${waUrl ? `<a class="ft-btn ft-btn-g" href="${esc(waUrl)}" target="_blank" rel="noopener">${fIco.wa}<span>WhatsApp us</span></a>` : ""}</div>
+        </div>
+        <div class="foot-grid ft-grid">
+          <div class="foot-brand ft-brand">
+            <a class="ft-logo" href="index.html" aria-label="${fName} home"><span class="ft-mark">${s.logo ? `<img src="${esc(media(s.logo))}" alt="">` : ICON.logo}</span><span><span class="brand-name">${fName}</span><span class="ft-tag">${esc(s.tagline || "Research. Learn. Publish. Grow.")}</span></span></a>
             <p>${esc(s.footer_about || "Educational and academic guidance for healthcare professionals, students, researchers, and aspiring authors.")}</p>
+            <div class="ft-social">
+              ${email ? `<a href="mailto:${esc(email)}" aria-label="Email ${esc(email)}">${fIco.mail}</a>` : ""}
+              ${waUrl ? `<a href="${esc(waUrl)}" target="_blank" rel="noopener" aria-label="WhatsApp">${fIco.wa}</a>` : ""}
+              ${s.linkedin ? `<a href="${esc(safeUrl(s.linkedin))}" target="_blank" rel="noopener" aria-label="LinkedIn">${fIco.li}</a>` : ""}
+              ${s.youtube_channel ? `<a href="${esc(safeUrl(s.youtube_channel))}" target="_blank" rel="noopener" aria-label="YouTube channel">${fIco.yt}</a>` : ""}
+            </div>
           </div>
-          <div><h2>Explore</h2><ul>
-            ${NAV.map(([h, t]) => `<li><a href="${h}">${t}</a></li>`).join("")}</ul></div>
-          <div><h2>Get in touch</h2><ul>
-            <li><a href="contact.html">Send an enquiry</a></li><li><a href="services.html">Our services</a></li><li><a href="feedback.html">Share your experience</a></li><li><a href="disclaimer.html">Disclaimer</a></li><li><a href="privacy.html">Privacy Policy</a></li><li><a href="terms.html">Terms of Use</a></li></ul></div>
-          <div><h2>Connect</h2><ul>
-            ${email ? `<li>Email: <a href="mailto:${esc(email)}">${esc(email)}</a></li>` : ""}
-            ${wa ? `<li>WhatsApp: <a href="https://wa.me/${esc(wa.replace(/\D/g, ""))}" target="_blank" rel="noopener">${esc(wa)}</a></li>` : ""}
-            ${s.youtube_channel ? `<li><a href="${esc(safeUrl(s.youtube_channel))}" target="_blank" rel="noopener">YouTube channel ↗</a></li>` : ""}
-            ${s.linkedin ? `<li><a href="${esc(safeUrl(s.linkedin))}" target="_blank" rel="noopener">LinkedIn ↗</a></li>` : ""}
-          </ul></div>
+          <nav class="ft-col ft-explore" aria-label="Explore"><h2>Explore</h2><ul>${NAV.map(([h, t]) => fLink(h, t)).join("")}</ul></nav>
+          <nav class="ft-col" aria-label="Help and legal"><h2>Help &amp; legal</h2><ul>${fLink("contact.html", "Send an enquiry")}${fLink("services.html", "Our services")}${fLink("feedback.html", "Share your experience")}${fLink("disclaimer.html", "Disclaimer")}${fLink("privacy.html", "Privacy Policy")}${fLink("terms.html", "Terms of Use")}</ul></nav>
+          <div class="ft-col"><h2>Reach us</h2><div class="ft-cards">
+            ${email ? `<a class="ft-card" href="mailto:${esc(email)}"><span class="ft-ic">${fIco.mail}</span><span><small>Email</small><b>${esc(email)}</b></span></a>` : ""}
+            ${waUrl ? `<a class="ft-card" href="${esc(waUrl)}" target="_blank" rel="noopener"><span class="ft-ic ft-ic-wa">${fIco.wa}</span><span><small>WhatsApp</small><b>${esc(wa)}</b></span></a>` : ""}
+          </div><p class="ft-reply"><span aria-hidden="true"></span>We reply within 1&ndash;2 working days</p></div>
         </div>
-        <div class="foot-bottom">
-          <span>© ${new Date().getFullYear()} ${esc(s.site_name || "ResearchMed Connect")}. All rights reserved.</span>
+        <div class="foot-bottom ft-bottom">
+          <span>© ${new Date().getFullYear()} ${fName}. All rights reserved.</span>
           <span>Educational and editorial guidance only — no guarantee of publication.</span>
+          <button type="button" class="ft-top" aria-label="Back to top">${fIco.up}<span>Top</span></button>
         </div>
-      </div>`;
+      </div>
+      <div class="ft-word" aria-hidden="true">ResearchMed</div>`;
+    footer.querySelector(".ft-top").addEventListener("click", () => window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }));
     document.body.append(footer);
     if (wa && PAGE !== "contact") {
       const fab = document.createElement("a");
