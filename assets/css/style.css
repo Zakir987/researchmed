@@ -923,14 +923,21 @@ a.card:hover .pub-more { letter-spacing: .02em; }
   .brand-mark,.site-header.is-scrolled .brand-mark{width:42px;height:42px;border-radius:13px}
   .brand-name{font-size:1.15rem}
   .nav{padding:4px}
-  .nav a{padding:8px 9px;font-size:.9rem}
-  .nav a.nav-cta{padding:8px 13px;margin-left:4px}
+  .nav a{padding:8px 8px;font-size:.89rem}
+  .nav a.nav-cta{padding:8px 12px;margin-left:4px}
   .theme-toggle{width:40px;height:40px}
 }
-@media (min-width:1301px) and (max-width:1480px){
-  .nav a{padding:8px 11px;font-size:.95rem}
-  .nav a.nav-cta{padding:9px 16px}
+@media (min-width:1301px){.site-header .wrap{max-width:1400px}}
+@media (min-width:1561px){.site-header .wrap{max-width:1480px}}
+@media (min-width:1301px) and (max-width:1560px){
+  .site-header .wrap{gap:12px}
+  .brand-name{font-size:1.22rem}
+  .brand-tag{font-size:.72rem;letter-spacing:.02em}
+  .nav a{padding:8px 10px;font-size:.93rem}
+  .nav a.nav-cta{padding:9px 14px;margin-left:4px}
 }
+.form,.form label{min-width:0}
+.form input,.form select,.form textarea{min-width:0;max-width:100%}
 @media (min-width:1021px) and (max-width:1180px){
   .menu-toggle{display:grid}
   .nav{display:none;position:absolute;background:var(--surface);flex-direction:column;align-items:stretch;box-shadow:var(--shadow);max-height:calc(100vh - 90px);overflow-y:auto}
