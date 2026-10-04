@@ -18,7 +18,7 @@
 <link rel="apple-touch-icon" href="/media/brand/apple-touch-icon.png">
 <meta name="theme-color" content="#1b5896">
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="assets/css/style.css?v=20261003e">
+<link rel="stylesheet" href="assets/css/style.css?v=20261004j">
 <script>try{var t=localStorage.getItem("rmc-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-page="journal" data-jpage="submit">
@@ -34,24 +34,24 @@
   <div id="jr-status" class="form-status" role="status" hidden></div>
   <form class="form" id="jr-form" method="POST" enctype="multipart/form-data" action="https://formsubmit.co/ijaott@researchmed.in">
     <div data-for="manuscript">
-      <label for="j-title">Manuscript title<input id="j-title" name="Manuscript title" required></label>
+      <label for="j-title">Manuscript title<input id="j-title" name="Manuscript title" required minlength="10" data-label="Manuscript title"></label>
       <label for="j-type">Article type
-        <select id="j-type" name="Article type">
-          <option>Original research</option><option>Review article / systematic review</option><option>Short communication</option><option>Case report / case series</option><option>Educational / technical article</option><option>Letter to the editor</option>
+        <select id="j-type" name="Article type" required data-label="Article type">
+          <option value="" disabled selected>Select article type</option><option>Original research</option><option>Review article / systematic review</option><option>Short communication</option><option>Case report / case series</option><option>Educational / technical article</option><option>Letter to the editor</option>
         </select></label>
-      <label for="j-authors">All authors, in order (with affiliations)<textarea id="j-authors" name="Authors" required placeholder="1. Name, designation, institution&#10;2. …"></textarea></label>
-      <label for="j-file">Manuscript file (Word .doc or .docx, max 10 MB)<input id="j-file" name="attachment" type="file" accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required></label>
-      <label for="j-ethics">Ethics approval / trial registration (or "not applicable")<input id="j-ethics" name="Ethics / registration" required></label>
+      <label for="j-authors">All authors, in order (with affiliations)<textarea id="j-authors" name="Authors" required minlength="5" data-label="All authors" data-msg="Please list all authors, in order, with their affiliations." placeholder="1. Name, designation, institution&#10;2. …"></textarea></label>
+      <label for="j-file">Manuscript file (Word .doc or .docx, max 10 MB)<input id="j-file" name="attachment" type="file" accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required data-label="Manuscript file"></label>
+      <label for="j-ethics">Ethics approval / trial registration (or "not applicable")<input id="j-ethics" name="Ethics / registration" required data-label="Ethics approval / registration"></label>
       <label for="j-rmc">Did you receive guidance from ResearchMed Connect for this manuscript?
-        <select id="j-rmc" name="ResearchMed guidance received"><option>No</option><option>Yes</option></select></label>
+        <select id="j-rmc" name="ResearchMed guidance received" required data-label="ResearchMed Connect guidance"><option value="" disabled selected>Select an answer</option><option>No</option><option>Yes</option></select></label>
     </div>
 
-    <label for="j-name">Your name (corresponding author)<input id="j-name" name="name" required autocomplete="name"></label>
-    <label for="j-email">Email<input id="j-email" name="email" type="email" required autocomplete="email"></label>
-    <label for="j-phone">Phone / WhatsApp (optional)<input id="j-phone" name="Phone" type="tel" autocomplete="tel"></label>
-    <label for="j-inst">Institution<input id="j-inst" name="Institution" required></label>
+    <label for="j-name">Your name (corresponding author)<input id="j-name" name="name" required autocomplete="name" data-label="Your name"></label>
+    <label for="j-email">Email<input id="j-email" name="email" type="email" required autocomplete="email" data-label="Email"></label>
+    <label for="j-phone">Phone / WhatsApp<input id="j-phone" name="Phone" type="tel" inputmode="tel" required autocomplete="tel" placeholder="+91 98765 43210" data-label="Phone / WhatsApp"></label>
+    <label for="j-inst">Institution<input id="j-inst" name="Institution" required data-label="Institution"></label>
 
-    <label class="jr-agree" data-for="manuscript"><input type="checkbox" name="Declaration" value="Original, not under review elsewhere, all authors meet ICMJE criteria and approved submission" required> I confirm the manuscript is original, is not under review elsewhere, and that all authors meet the ICMJE authorship criteria and have approved this submission.</label>
+    <label class="jr-agree" data-for="manuscript"><input type="checkbox" name="Declaration" value="Original, not under review elsewhere, all authors meet ICMJE criteria and approved submission" required data-label="Declaration"> I confirm the manuscript is original, is not under review elsewhere, and that all authors meet the ICMJE authorship criteria and have approved this submission.</label>
 
     <input type="hidden" name="Reference" id="j-ref">
     <input type="hidden" name="_subject" id="j-subject">
@@ -73,6 +73,6 @@
 </div></section>
 </main>
 <script src="assets/js/site.js?v=20261003e" defer></script>
-<script src="assets/js/journal.js?v=20261003h" defer></script>
+<script src="assets/js/journal.js?v=20261004j" defer></script>
 </body>
 </html>
