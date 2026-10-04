@@ -1354,3 +1354,4 @@ a.card:hover .pub-more { letter-spacing: .02em; }
 @media (max-width:880px){.hero-side{gap:24px}.hero-x .hero-side .hero-panel{margin-top:0}}
 @media (max-width:480px){.hj-x{display:none}.hj{gap:12px;padding:12px}.hj-logo{width:58px;height:58px}.hj-name{font-size:1.3rem}.hj-go{padding:12px}.hj-go span{display:none}.hj:hover .hj-go{padding-right:12px}}
 @media (prefers-reduced-motion:reduce){.hj,.hj::before,.hj::after,.hj-logo::before,.hj-logo::after,.hj-tag i,.hj-roll{animation:none}.hj::after{display:none}}
+@media (max-width:640px){.hj-x{display:none}}
