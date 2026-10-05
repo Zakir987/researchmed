@@ -967,9 +967,9 @@
     }).join("")}</div>
       <div class="cf-ctrl"><button type="button" class="cf-btn cf-prev" aria-label="Previous contributor">‹</button><i class="cf-heart" aria-hidden="true">♥</i><span class="cf-count" aria-live="polite"><b>01</b> / ${String(n).padStart(2, "0")}</span><button type="button" class="cf-btn cf-next" aria-label="Next contributor">›</button></div>`;
     const cards = [...grid.querySelectorAll(".cf-card")], count = $(".cf-count b", grid), stage = $(".cf-stage", grid);
-    let cur = 0, timer = null, hold = false, userStop = reduce, resume = null;
+    let cur = 0, timer = null, hold = false, userStop = false, resume = null;
     const BEAT = 833; // 72 bpm — cards change on the 4th beat
-    const user = () => { if (reduce) return; userStop = true; clearTimeout(resume); resume = setTimeout(() => { userStop = false; schedule(); }, 9000); };
+    const user = () => { userStop = true; clearTimeout(resume); resume = setTimeout(() => { userStop = false; schedule(); }, 5000); };
     const place = () => {
       const wide = grid.clientWidth, step = wide < 560 ? 0.62 : wide < 900 ? 0.6 : 0.56;
       cards.forEach((c, k) => {
@@ -994,8 +994,6 @@
     $(".cf-prev", grid).addEventListener("click", () => { user(); go(cur - 1); });
     $(".cf-next", grid).addEventListener("click", () => { user(); go(cur + 1); });
     grid.addEventListener("keydown", (e) => { if (e.key === "ArrowRight") { user(); go(cur + 1); } if (e.key === "ArrowLeft") { user(); go(cur - 1); } });
-    stage.addEventListener("mouseenter", () => { hold = true; schedule(); });
-    stage.addEventListener("mouseleave", () => { hold = false; schedule(); });
     let x0 = null;
     stage.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
     stage.addEventListener("touchend", (e) => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) { user(); go(cur + (dx < 0 ? 1 : -1)); } x0 = null; });
