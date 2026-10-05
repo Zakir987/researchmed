@@ -1480,3 +1480,40 @@ a.card:hover .pub-more { letter-spacing: .02em; }
 .ab-no{color:#c7d3de}.ab-no span{background:#ff8a7a;color:#3a0d08}
 @media (max-width:960px){.ab-who{grid-template-columns:repeat(2,minmax(0,1fr))}.ab-panel,.ab-approach{grid-template-columns:1fr}}
 @media (max-width:520px){.ab-who{grid-template-columns:1fr}.ab-w{display:grid;grid-template-columns:auto 1fr;column-gap:14px;padding:18px}.ab-ic{grid-row:span 2;margin:0;width:44px;height:44px}}
+
+/* ---------- Live ECG monitor trace (canvas) ---------- */
+.has-ecg::after,.ft-pulse.has-ecg{animation:none!important}
+.hero-x .hero-bg.has-ecg::after,.page-hero.has-ecg::after{background:none!important}
+.ft-pulse.has-ecg{background:none!important}
+.ecg-cv{display:block;pointer-events:none;color:#5ef0d6;-webkit-mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.ecg-hero{position:absolute;left:0;bottom:40px;width:100%;height:64px;opacity:.6}
+.ecg-page{position:absolute;left:0;bottom:8px;width:100%;height:56px;z-index:-1;opacity:.55}
+.ecg-ft{width:100%;height:100%;opacity:.6}
+canvas.jh-ecg,canvas.jd-ecg{width:100%;opacity:.4!important;color:var(--teal)}
+
+/* ---------- Spacing tune-up: tighter rhythm, no dead gaps ---------- */
+.section{padding-block:56px}
+.section:not(.band):not([hidden]) + .section:not(.band):not([hidden]){padding-top:8px}
+main > .section:last-child{padding-bottom:44px}
+.section-head{margin-bottom:26px}
+.page-hero{padding-block:52px 60px}
+.ft-pulse{height:48px;margin-bottom:-10px}
+@media (max-width:880px){.section{padding-block:42px}.page-hero{padding-block:40px 50px}.section-head{margin-bottom:22px}}
+/* Home "How it works" step cards: compact side-by-side numbers on phones */
+@media (max-width:640px){
+  #home-steps .steps-x{gap:12px}
+  #home-steps .steps-x li{padding:18px 18px 18px 92px;min-height:0}
+  #home-steps .steps-x li::before{font-size:3rem;top:50%;left:18px;transform:translateY(-50%)}
+}
+/* Journal "From submission to publication": badge on its own line, compact on phones */
+main .jh-flow em{display:block;margin-top:8px}
+@media (max-width:480px){
+  main .jh-flow{gap:10px}
+  main .jh-flow li{display:grid;grid-template-columns:44px 1fr;column-gap:14px;align-items:start;text-align:left;padding:16px}
+  main .jh-flow li::before{grid-row:span 3;margin:0}
+  main .jh-flow em{margin-top:4px}
+}
+main .jh-sec{padding-top:44px}
+main .jh-cta{margin:44px auto 52px}
+.ab-approach-wrap{padding-bottom:40px}
+@media (max-width:880px){main .jh-sec{padding-top:34px}main .jh-cta{margin:34px auto 40px}}
