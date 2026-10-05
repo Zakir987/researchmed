@@ -1530,3 +1530,19 @@ main .jh-cta{margin:44px auto 52px}
 .jr-eic .jr-plinks{display:flex;gap:14px;margin:4px 0 0}
 .jr-eic .jr-plinks a{color:#5ef0d6;font-weight:700}
 @media (max-width:560px){.jr-eic{grid-template-columns:1fr;justify-items:center;text-align:center;padding:24px 20px}.jr-eic-tag{justify-self:center}.jr-eic .jr-plinks{justify-content:center}.jr-eic-ph img,.jr-eic-ph .jr-init{width:120px;height:120px}}
+
+/* ---------- Contributors: heartbeat (72 bpm, lub-dub) ---------- */
+@keyframes cfLubDub{0%,40%,100%{transform:scale(1)}8%{transform:scale(1.035)}16%{transform:scale(.995)}24%{transform:scale(1.02)}}
+@keyframes cfHalo{0%{transform:scale(1);opacity:.55}60%,100%{transform:scale(1.14);opacity:0}}
+@keyframes cfGlow{0%,40%,100%{opacity:.75}8%,24%{opacity:1}}
+@keyframes cfTrace{0%{stroke-dashoffset:1}70%,100%{stroke-dashoffset:0}}
+@keyframes cfHeart{0%,40%,100%{transform:scale(1)}8%{transform:scale(1.35)}24%{transform:scale(1.2)}}
+.cf-card.on .cf-inner{animation:cfLubDub .833s ease-out infinite;transform-origin:50% 60%}
+.cf-card.on .cf-ring{animation:cfGlow .833s ease-out infinite}
+.cf-halo{position:absolute;inset:-2px;border-radius:24px;border:2px solid #5ef0d6;opacity:0;pointer-events:none}
+.cf-card.on .cf-halo{animation:cfHalo .833s ease-out infinite}
+.cf-ecg{width:150px;height:22px;margin-top:6px;overflow:visible}
+.cf-ecg path{fill:none;stroke:#5ef0d6;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;filter:drop-shadow(0 0 3px rgba(94,240,214,.8))}
+.cf-card.on .cf-ecg path{animation:cfTrace .833s linear infinite}
+.cf-heart{display:inline-block;font-style:normal;color:#ff6b81;font-size:1.05rem;text-shadow:0 0 10px rgba(255,107,129,.7);animation:cfHeart .833s ease-out infinite}
+@media (prefers-reduced-motion:reduce){.cf-card.on .cf-inner,.cf-card.on .cf-ring,.cf-card.on .cf-halo,.cf-heart{animation:none}.cf-card.on .cf-ecg path{animation:none;stroke-dashoffset:0}}
