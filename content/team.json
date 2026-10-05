@@ -14,6 +14,31 @@
       "orcid": "",
       "order": 1,
       "draft": false
+    },
+    {
+      "title": "Mr. Arvind G D",
+      "designation": "Research & Academic Coordinator",
+      "qualifications": "M.Sc. Anaesthesia and Operation Theatre Technology, B.Sc. Anaesthesia and Operation Theatre Technology",
+      "position": "Assistant Professor, MS Ramaiah College of Allied Health Sciences, Bengaluru, Karnataka",
+      "photo": "/media/people/muuws70i-arvind.webp",
+      "bio": "Arvind G D is an Assistant Professor in Anaesthesia and Operation Theatre Technology with an M.Sc. in OT & AT. He has experience in academic teaching, clinical instruction, student mentoring, curriculum-related activities and research. His academic and research work includes postoperative pain management, perioperative care and clinical education. He has also presented research at conferences and has experience mentoring students in academic and scientific presentations.",
+      "expertise": [
+        "Anaesthesia Technology",
+        "Operation Theatre Technology",
+        "Perioperative Care",
+        "Postoperative Pain Management",
+        "Clinical Education",
+        "Research & Mentorship",
+        "Anaesthesia Equipment",
+        "Patient Monitoring",
+        "Airway Management"
+      ],
+      "email": "",
+      "linkedin": "",
+      "scholar": "",
+      "orcid": "",
+      "order": 2,
+      "draft": false
     }
   ]
 }
