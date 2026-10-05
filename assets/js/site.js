@@ -1106,6 +1106,85 @@
     }).observe(document.getElementById("main") || document.body, { childList: true, subtree: true });
   }
 
+  // ---------- Bedside-monitor ECG: sweep-and-erase trace on every page ----------
+  (function ecgMonitors() {
+    const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let hosts = [];
+    const add = (host, cls) => { if (!host || host.querySelector(":scope > .ecg-cv")) return; const c = document.createElement("canvas"); c.className = "ecg-cv " + (cls || ""); c.setAttribute("aria-hidden", "true"); host.classList.add("has-ecg"); host.appendChild(c); hosts.push(c); };
+    const scan = () => {
+    hosts = [];
+    document.querySelectorAll(".hero-x .hero-bg").forEach((h) => add(h, "ecg-hero"));
+    document.querySelectorAll(".page-hero").forEach((h) => add(h, "ecg-page"));
+    document.querySelectorAll(".ft-pulse").forEach((h) => add(h, "ecg-ft"));
+    document.querySelectorAll("svg.jh-ecg, svg.jd-ecg").forEach((svg) => { const c = document.createElement("canvas"); c.className = "ecg-cv " + svg.getAttribute("class") + " ecg-svg"; c.setAttribute("aria-hidden", "true"); svg.replaceWith(c); hosts.push(c); });
+    hosts.forEach(Monitor);
+    };
+    // Lead II PQRST built from gaussians (seconds after beat onset, amplitude in R units)
+    const W = [[0.10, 0.024, 0.12], [0.205, 0.008, -0.11], [0.226, 0.009, 1], [0.248, 0.010, -0.24], [0.44, 0.046, 0.27], [0.62, 0.03, 0.03]];
+    const beatVal = (t) => { let v = 0; for (const [m, sd, a] of W) { const d = (t - m) / sd; if (d > -5 && d < 5) v += a * Math.exp(-0.5 * d * d); } return v; };
+    const SPEED = 140; // px per second (≈ 25 mm/s feel)
+    const GAP = 26; // erase bar ahead of the write head
+    function Monitor(cv) {
+      const ctx = cv.getContext("2d");
+      let w = 0, h = 0, dpr = 1, buf = null, head = 0, T = 0, beat0 = 0, rr = 0.83, color = "#5ef0d6", visible = true, last = 0, running = false;
+      const nextRR = () => 0.80 + Math.random() * 0.07 + (Math.random() < 0.04 ? 0.08 : 0); // mild sinus arrhythmia
+      const sample = () => { while (T - beat0 >= rr) { beat0 += rr; rr = nextRR(); } return beatVal(T - beat0) + (Math.random() - 0.5) * 0.012; };
+      const write = (x) => { buf[x] = sample(); T += 1 / SPEED; };
+      const size = () => {
+        const r = cv.getBoundingClientRect(); dpr = Math.min(2, window.devicePixelRatio || 1);
+        const nw = Math.max(1, Math.round(r.width)), nh = Math.max(1, Math.round(r.height));
+        if (nw === w && nh === h) return; w = nw; h = nh; cv.width = w * dpr; cv.height = h * dpr;
+        color = getComputedStyle(cv).color || color;
+        buf = new Float32Array(w).fill(NaN); head = Math.floor(Math.random() * w);
+        for (let i = 0; i < w; i++) write((head + 1 + i) % w); // pre-fill one full sweep so the screen is never blank
+        for (let g = 1; g <= GAP; g++) buf[(head + g) % w] = NaN;
+        draw();
+      };
+      const Y = (v) => h * 0.62 - v * h * 0.5;
+      function draw() {
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
+        ctx.lineWidth = 1.6; ctx.lineJoin = "round"; ctx.lineCap = "round"; ctx.strokeStyle = color; ctx.shadowColor = color; ctx.shadowBlur = 6;
+        const BANDS = 10, band = Math.ceil(w / BANDS);
+        for (let k = 0; k < BANDS; k++) { // phosphor persistence: newest trace brightest
+          ctx.globalAlpha = 1 - (k / BANDS) * 0.6; ctx.beginPath(); let pen = false;
+          for (let j = k * band; j <= Math.min(w - 1, (k + 1) * band); j++) {
+            const x = ((head - j) % w + w) % w, v = buf[x];
+            if (v !== v || (pen && x === w - 1)) { pen = false; if (v !== v) continue; }
+            if (!pen) { ctx.moveTo(x, Y(v)); pen = true; } else ctx.lineTo(x, Y(v));
+          }
+          ctx.stroke();
+        }
+        if (!reduce) { // glowing write head
+          ctx.globalAlpha = 1; ctx.shadowBlur = 14; ctx.fillStyle = "#fff";
+          ctx.beginPath(); ctx.arc(head, Y(buf[head] || 0), 2.2, 0, 6.283); ctx.fill();
+        }
+        ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+      }
+      function frame(now) {
+        if (!visible || document.hidden) { last = 0; running = false; return; }
+        if (!last) last = now;
+        let adv = Math.floor(((now - last) / 1000) * SPEED);
+        if (adv > 0) {
+          last += (adv / SPEED) * 1000; if (adv > w) adv = w;
+          for (let i = 0; i < adv; i++) { head = (head + 1) % w; write(head); }
+          for (let g = 1; g <= GAP; g++) buf[(head + g) % w] = NaN;
+          draw();
+        }
+        requestAnimationFrame(frame);
+      }
+      const start = () => { if (!running && !reduce && visible && !document.hidden) { running = true; last = 0; requestAnimationFrame(frame); } };
+      size();
+      if ("ResizeObserver" in window) new ResizeObserver(size).observe(cv);
+      if ("IntersectionObserver" in window) new IntersectionObserver((es) => { const was = visible; visible = es[0].isIntersecting; if (visible && !was) start(); }).observe(cv);
+      document.addEventListener("visibilitychange", () => { if (!document.hidden) start(); });
+      start();
+    }
+    scan();
+    // The footer is drawn after site settings load, so catch it when it arrives.
+    const mo = new MutationObserver(() => { if (document.querySelector(".ft-pulse:not(.has-ecg)")) scan(); if (document.querySelector(".ft-pulse.has-ecg")) mo.disconnect(); });
+    mo.observe(document.body, { childList: true, subtree: true });
+  })();
+
   // ---------- Chat assistant (every public page) ----------
   if (PAGE !== "admin") {
     const sc = document.createElement("script");
