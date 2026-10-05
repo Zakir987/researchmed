@@ -243,7 +243,7 @@
       fields: [
         { k: "title", l: "Journal title", t: "text", req: true },
         { k: "short", l: "Abbreviation", t: "text", ph: "IJAOTT" },
-        { k: "editor_in_chief", l: "Editor-in-Chief", t: "text" },
+        { k: "editor_in_chief", l: "Editor-in-Chief (backup only — the journal uses whoever has the Editor-in-Chief role in Journal: Editorial Board)", t: "text" },
         { k: "publisher", l: "Publisher", t: "text", ph: "ResearchMed Connect" },
         { k: "issn", l: "ISSN (only once assigned)", t: "text", ph: "e.g. 1234-5678 (Online)" },
         { k: "frequency", l: "Publication frequency", t: "text", ph: "Quarterly (January, April, July, October)" },
@@ -265,10 +265,10 @@
     },
     journal_board: {
       label: "Journal: Editorial Board", file: "content/journal-board.json", list: true, noun: "board member",
-      hint: "Add only people who have agreed in writing to serve. They appear on the Editorial board page, grouped by role.",
+      hint: "Add only people who have agreed in writing to serve. They appear on the Editorial board page, grouped by role. To change the Editor-in-Chief, edit a person (or add a new one) and set Role to “Editor-in-Chief” — the previous Editor-in-Chief automatically moves to Editorial Board Member, and the journal pages update everywhere.",
       fields: [
         { k: "title", l: "Full name", t: "text", req: true, ph: "Dr. …" },
-        { k: "role", l: "Role", t: "text", req: true, ph: "Editor-in-Chief, Associate Editor, Editorial Board Member, Reviewer" },
+        { k: "role", l: "Role", t: "select", req: true, opts: ["Editorial Board Member", "Editor-in-Chief", "Managing Editor", "Associate Editor", "Section Editor", "International Advisory Board", "Peer Reviewer"] },
         { k: "qualifications", l: "Qualifications", t: "text" },
         { k: "affiliation", l: "Designation & institution", t: "text" },
         { k: "photo", l: "Photo (optional)", t: "image", folder: "media/people" },
@@ -276,7 +276,7 @@
         { k: "email", l: "Email (optional)", t: "text" },
         { k: "order", l: "Order within the role (1 = first)", t: "number" },
       ],
-      summary: (x) => [x.role, x.affiliation].filter(Boolean).join(" · "),
+      summary: (x) => [/editor-in-chief/i.test(x.role || "") ? "★ Editor-in-Chief" : x.role, x.affiliation].filter(Boolean).join(" · "),
     },
     journal_articles: {
       label: "Journal: Articles", file: "content/journal-articles.json", list: true, noun: "article",
@@ -531,7 +531,7 @@ if (SECTIONS[current].tracking) { try { if (!localStorage.getItem(IJAOTT_ENDPOIN
   function field(f, v) {
     const id = "f-" + f.k;
     const val = v == null ? (f.def ? f.def() : "") : v;
-    if (f.t === "select") return `<label for="${id}">${f.l}<select id="${id}">${f.opts.map((o) => `<option ${o === val ? "selected" : ""}>${esc(o)}</option>`).join("")}</select></label>`;
+    if (f.t === "select") { const opts = val && !f.opts.includes(val) ? [val, ...f.opts] : f.opts; return `<label for="${id}">${f.l}<select id="${id}">${opts.map((o) => `<option ${o === val ? "selected" : ""}>${esc(o)}</option>`).join("")}</select></label>`; }
     if (f.t === "check") return `<label class="check" for="${id}"><input id="${id}" type="checkbox" ${val ? "checked" : ""}> ${f.l}</label>`;
     if (f.t === "area") return `<label for="${id}">${f.l}${f.req ? " *" : ""}<textarea id="${id}" rows="${f.req ? 5 : 3}" ${f.req ? "required" : ""}>${esc(val)}</textarea></label>`;
     if (f.t === "tags") return `<label for="${id}">${f.l}<input id="${id}" value="${esc(Array.isArray(val) ? val.join(", ") : val)}" placeholder="${esc(f.ph || "")}"></label>`;
@@ -619,8 +619,14 @@ if (SECTIONS[current].tracking) { try { if (!localStorage.getItem(IJAOTT_ENDPOIN
       const item = await collect(s.fields, editing >= 0 ? doc.items[editing] : {});
       if (editing >= 0) doc.items[editing] = item; else if (s.append) doc.items.push(item); else doc.items.unshift(item);
       if (current === "highlights") { if (item.featured === undefined) item.featured = true; if (item.logo) logos.add(item.logo); }
+      let note = "";
+      if (current === "journal_board" && /editor-in-chief/i.test(item.role || "")) {
+        doc.items.forEach((x) => { if (x !== item && /editor-in-chief/i.test(x.role || "")) { x.role = "Editorial Board Member"; note = note ? note + ", " + x.title : x.title; } });
+        item.order = 1;
+      }
       await commit(`${editing >= 0 ? "Update" : "Add"} ${s.noun}: ${item.title || ""}`.slice(0, 70));
       editing = -1; renderSection();
+      if (note) toast(item.title + " is now Editor-in-Chief. " + note + " moved to Editorial Board Member.");
     });
   }
   async function saveSingle(e) {
