@@ -29,6 +29,16 @@
       "orcid": "",
       "email": "",
       "order": 3
+    },
+    {
+      "title": "Ms. Iscelin M",
+      "role": "Peer Reviewer",
+      "qualifications": "M.Sc. (Anaesthesia & Operation Theatre Technology)",
+      "affiliation": "Assistant Professor, St. John's Medical College & Hospital, Bengaluru",
+      "photo": "/media/people/iscelin-m.jpeg",
+      "orcid": "",
+      "email": "",
+      "order": 4
     }
   ]
 }
