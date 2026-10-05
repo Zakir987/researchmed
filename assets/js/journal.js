@@ -60,13 +60,20 @@
   }
   function board(list) {
     const box = $("#jr-board"); if (!box) return;
-    const ROLE_ORDER = ["editor-in-chief", "managing editor", "deputy editor", "associate editor", "section editor", "editorial board member", "reviewer"];
+    const ROLE_ORDER = ["editor-in-chief", "managing editor", "deputy editor", "associate editor", "section editor", "editorial board member", "international advisory board", "reviewer"];
     const rank = (r) => { const i = ROLE_ORDER.findIndex((x) => String(r || "").toLowerCase().includes(x)); return i < 0 ? 50 : i; };
     list = list.slice().sort((a, b) => rank(a.role) - rank(b.role) || (Number(a.order) || 999) - (Number(b.order) || 999));
     if (!list.length) { box.innerHTML = `<div class="empty"><strong>Editorial board being formed</strong>Board members will be listed here.</div>`; return; }
     const groups = []; list.forEach((p) => { const g = p.role || "Editorial board"; let x = groups.find((y) => y.k === g); if (!x) groups.push(x = { k: g, p: [] }); x.p.push(p); });
     const init = (n) => String(n || "").replace(/^(dr|mr|ms|mrs|prof)\.?\s+/i, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
-    box.innerHTML = groups.map((g) => `<h2 class="jr-board-h">${esc(g.k)}</h2><div class="jr-board">${g.p.map((p) => `<div class="jr-person">
+    const isEic = (g) => /editor-in-chief/i.test(g.k);
+    const eicCard = (p) => `<article class="jr-eic">
+        <div class="jr-eic-ph">${p.photo ? `<img src="${esc(media(p.photo))}" alt="${esc(p.title)}" loading="lazy">` : `<span class="jr-init" aria-hidden="true">${esc(init(p.title))}</span>`}</div>
+        <div class="jr-eic-tx"><span class="jr-eic-tag">Editor-in-Chief</span><h3>${esc(p.title)}</h3>
+        ${p.qualifications ? `<p class="jr-eic-q">${esc(p.qualifications)}</p>` : ""}${p.affiliation ? `<p class="jr-eic-a">${esc(p.affiliation)}</p>` : ""}
+        ${p.orcid || p.email ? `<p class="jr-plinks">${p.orcid ? `<a href="${esc(safeUrl(p.orcid))}" target="_blank" rel="noopener">ORCID ↗</a>` : ""}${p.email ? `<a href="mailto:${esc(p.email)}">Email</a>` : ""}</p>` : ""}</div>
+      </article>`;
+    box.innerHTML = groups.map((g) => isEic(g) ? `<h2 class="jr-board-h sr-only">Editor-in-Chief</h2>${g.p.map(eicCard).join("")}` : `<h2 class="jr-board-h">${esc(g.p.length > 1 && /(member|reviewer|editor)$/i.test(g.k) ? g.k + "s" : g.k)}</h2><div class="jr-board">${g.p.map((p) => `<div class="jr-person">
         ${p.photo ? `<img src="${esc(media(p.photo))}" alt="${esc(p.title)}" loading="lazy">` : `<span class="jr-init" aria-hidden="true">${esc(init(p.title))}</span>`}
         <div><b>${esc(p.title)}</b>${p.qualifications ? `<small>${esc(p.qualifications)}</small>` : ""}${p.affiliation ? `<span>${esc(p.affiliation)}</span>` : ""}
         ${p.orcid || p.email ? `<span class="jr-plinks">${p.orcid ? `<a href="${esc(safeUrl(p.orcid))}" target="_blank" rel="noopener">ORCID ↗</a>` : ""}${p.email ? `<a href="mailto:${esc(p.email)}">Email</a>` : ""}</span>` : ""}</div>
@@ -320,6 +327,8 @@
   (async function boot() {
     const [J, B, A] = await Promise.all([get("journal"), get("journal-board"), get("journal-articles")]);
     const arts = prepArticles(items(A));
+    const eic = items(B).find((p) => /editor-in-chief/i.test(p.role || ""));
+    if (eic) J.editor_in_chief = eic.title;
     facts(J); cfp(J); fees(J);
     if (JPAGE === "home") latest(arts, J);
     if (JPAGE === "board") board(items(B));
