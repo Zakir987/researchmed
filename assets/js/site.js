@@ -960,14 +960,16 @@
       const pic = p.photo ? `<img src="${esc(media(p.photo))}" alt="${esc(p.title)}" loading="lazy" decoding="async">` : `<span class="cf-init" aria-hidden="true">${esc(initials(p.title))}</span>`;
       const link = p.link ? `<a class="cf-link" href="${esc(safeUrl(p.link))}" target="_blank" rel="noopener" aria-label="${esc(p.title)} profile">↗</a>` : "";
       return `<article class="cf-card" data-k="${k}" aria-roledescription="slide" aria-label="${k + 1} of ${n}: ${esc(p.title)}">
-        <div class="cf-ring" aria-hidden="true"></div>
+        <div class="cf-ring" aria-hidden="true"></div><span class="cf-halo" aria-hidden="true"></span>
         <div class="cf-inner"><div class="cf-photo">${pic}<span class="cf-num" aria-hidden="true">${String(k + 1).padStart(2, "0")}</span>${link}</div>
-          <div class="cf-info"><h3>${esc(p.title)}</h3>${desig ? `<p class="cf-desig">${esc(desig)}</p>` : ""}${dept ? `<p class="cf-dept">${esc(dept)}</p>` : ""}${p.institution ? `<p class="cf-inst">${esc(p.institution)}</p>` : ""}</div></div>
+          <div class="cf-info"><h3>${esc(p.title)}</h3>${desig ? `<p class="cf-desig">${esc(desig)}</p>` : ""}${dept ? `<p class="cf-dept">${esc(dept)}</p>` : ""}${p.institution ? `<p class="cf-inst">${esc(p.institution)}</p>` : ""}<svg class="cf-ecg" viewBox="0 0 160 24" aria-hidden="true"><path pathLength="1" d="M0 14 H44 Q50 8 56 14 H64 L67 16.5 L71 2 L75 22 L78 14 H92 Q102 5 112 14 H160"/></svg></div></div>
       </article>`;
     }).join("")}</div>
-      <div class="cf-ctrl"><button type="button" class="cf-btn cf-prev" aria-label="Previous contributor">‹</button><span class="cf-count" aria-live="polite"><b>01</b> / ${String(n).padStart(2, "0")}</span><button type="button" class="cf-btn cf-next" aria-label="Next contributor">›</button></div>`;
+      <div class="cf-ctrl"><button type="button" class="cf-btn cf-prev" aria-label="Previous contributor">‹</button><i class="cf-heart" aria-hidden="true">♥</i><span class="cf-count" aria-live="polite"><b>01</b> / ${String(n).padStart(2, "0")}</span><button type="button" class="cf-btn cf-next" aria-label="Next contributor">›</button></div>`;
     const cards = [...grid.querySelectorAll(".cf-card")], count = $(".cf-count b", grid), stage = $(".cf-stage", grid);
-    let cur = 0, timer = null, hold = false, userStop = reduce;
+    let cur = 0, timer = null, hold = false, userStop = reduce, resume = null;
+    const BEAT = 833; // 72 bpm — cards change on the 4th beat
+    const user = () => { if (reduce) return; userStop = true; clearTimeout(resume); resume = setTimeout(() => { userStop = false; schedule(); }, 9000); };
     const place = () => {
       const wide = grid.clientWidth, step = wide < 560 ? 0.62 : wide < 900 ? 0.6 : 0.56;
       cards.forEach((c, k) => {
@@ -983,22 +985,22 @@
       });
       count.textContent = String(cur + 1).padStart(2, "0");
     };
-    const schedule = () => { clearTimeout(timer); if (!userStop && !hold && !document.hidden && n > 1) timer = setTimeout(() => go(cur + 1), 4200); };
+    const schedule = () => { clearTimeout(timer); if (!userStop && !hold && !document.hidden && n > 1) timer = setTimeout(() => go(cur + 1), BEAT * 4); };
     const go = (k) => { cur = (k + n) % n; place(); schedule(); };
     cards.forEach((c, k) => {
-      c.addEventListener("click", (e) => { if (k !== cur) { e.preventDefault(); userStop = true; go(k); } });
-      c.addEventListener("keydown", (e) => { if (e.key === "Enter" && k !== cur) { userStop = true; go(k); } });
+      c.addEventListener("click", (e) => { if (k !== cur) { e.preventDefault(); user(); go(k); } });
+      c.addEventListener("keydown", (e) => { if (e.key === "Enter" && k !== cur) { user(); go(k); } });
     });
-    $(".cf-prev", grid).addEventListener("click", () => { userStop = true; go(cur - 1); });
-    $(".cf-next", grid).addEventListener("click", () => { userStop = true; go(cur + 1); });
-    grid.addEventListener("keydown", (e) => { if (e.key === "ArrowRight") { userStop = true; go(cur + 1); } if (e.key === "ArrowLeft") { userStop = true; go(cur - 1); } });
+    $(".cf-prev", grid).addEventListener("click", () => { user(); go(cur - 1); });
+    $(".cf-next", grid).addEventListener("click", () => { user(); go(cur + 1); });
+    grid.addEventListener("keydown", (e) => { if (e.key === "ArrowRight") { user(); go(cur + 1); } if (e.key === "ArrowLeft") { user(); go(cur - 1); } });
     stage.addEventListener("mouseenter", () => { hold = true; schedule(); });
     stage.addEventListener("mouseleave", () => { hold = false; schedule(); });
     let x0 = null;
     stage.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
-    stage.addEventListener("touchend", (e) => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) { userStop = true; go(cur + (dx < 0 ? 1 : -1)); } x0 = null; });
+    stage.addEventListener("touchend", (e) => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) { user(); go(cur + (dx < 0 ? 1 : -1)); } x0 = null; });
     document.addEventListener("visibilitychange", schedule);
-    if ("IntersectionObserver" in window) new IntersectionObserver((es) => es.forEach((e) => { hold = !e.isIntersecting; schedule(); }), { threshold: 0.3 }).observe(grid);
+    if ("IntersectionObserver" in window) new IntersectionObserver((es) => es.forEach((e) => { hold = !e.isIntersecting; schedule(); }), { threshold: 0.12 }).observe(grid);
     window.addEventListener("resize", place);
     if (n < 2) $(".cf-ctrl", grid).hidden = true;
     place(); schedule();
