@@ -891,6 +891,56 @@
     }
   }
 
+  // ---------- Core team (home + about): cards that open a full profile ----------
+  function team(all) {
+    const sec = $("#team-section"), box = $("#team");
+    if (!sec || !box) return;
+    const list = (all || []).slice().sort((a, b) => (Number(a.order) || 999) - (Number(b.order) || 999));
+    if (!list.length) { sec.hidden = true; return; }
+    const initials = (n) => String(n || "").replace(/^(dr|mr|ms|mrs|prof)\.?\s+/i, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
+    const quals = (q) => String(q || "").split(/,(?![^()]*\))/).map((t) => t.trim()).filter(Boolean);
+    const tags = (t) => (Array.isArray(t) ? t : String(t || "").split(",")).map((x) => String(x).trim()).filter(Boolean);
+    const pic = (p, cls) => p.photo ? `<img class="${cls}" src="${esc(media(p.photo))}" alt="${esc(p.title)}" loading="lazy" decoding="async">` : `<span class="${cls} tq-init" aria-hidden="true">${esc(initials(p.title))}</span>`;
+    const ic = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+    const LINKS = [["email", "Email", ic('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>')], ["linkedin", "LinkedIn", ic('<path d="M4 9h3v11H4zM5.5 4a1.6 1.6 0 1 1 0 3.2 1.6 1.6 0 0 1 0-3.2zM10 9h3v1.6c.6-1 1.8-1.8 3.4-1.8 3 0 3.6 2 3.6 4.6V20h-3v-5.8c0-1.3-.3-2.6-1.8-2.6s-2.2 1.1-2.2 2.6V20h-3z"/>')], ["scholar", "Google Scholar", ic('<path d="m2 9 10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/>')], ["orcid", "ORCID", ic('<circle cx="12" cy="12" r="9"/><path d="M9 8v8M12.5 8h1.5a4 4 0 0 1 0 8h-1.5z"/>')]];
+    const links = (p) => LINKS.map(([k, l, i]) => { const v = k === "orcid" && /^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/i.test(String(p.orcid || "").trim()) ? "https://orcid.org/" + String(p.orcid).trim() : p[k]; const u = k === "email" ? (p.email ? "mailto:" + String(p.email).trim() : "") : safeUrl(v); return u && u !== "#" ? `<a class="tq-link" href="${esc(u)}" ${k === "email" ? "" : 'target="_blank" rel="noopener"'}>${i}<span>${l}</span></a>` : ""; }).join("");
+    box.className = "tq-grid";
+    box.innerHTML = list.map((p, k) => `<article class="tq-card" style="--i:${k}">
+        <div class="tq-photo">${pic(p, "tq-img")}<span class="tq-glow" aria-hidden="true"></span></div>
+        <div class="tq-body">
+          <h3>${esc(p.title)}</h3>
+          ${p.designation ? `<p class="tq-role">${esc(p.designation)}</p>` : ""}
+          ${p.position ? `<p class="tq-pos">${esc(p.position)}</p>` : ""}
+          ${quals(p.qualifications).length ? `<ul class="tq-quals">${quals(p.qualifications).slice(0, 3).map((q) => `<li>${esc(q)}</li>`).join("")}</ul>` : ""}
+          <button type="button" class="tq-open" data-k="${k}" aria-haspopup="dialog">View profile <span aria-hidden="true">→</span></button>
+        </div>
+      </article>`).join("");
+    let dlg = $("#tq-dialog");
+    if (!dlg) { dlg = document.createElement("dialog"); dlg.id = "tq-dialog"; dlg.className = "tq-dialog"; document.body.appendChild(dlg); }
+    const open = (k, opener) => {
+      const p = list[k], paras = String(p.bio || "").split(/\n\s*\n/).map((t) => t.trim()).filter(Boolean);
+      dlg.setAttribute("aria-label", p.title + " profile");
+      dlg.innerHTML = `<button type="button" class="tq-x" aria-label="Close profile">×</button>
+        <div class="tq-d-head">${pic(p, "tq-d-img")}<div><p class="tq-d-kick">ResearchMed Connect · Core team</p><h2>${esc(p.title)}</h2>${p.designation ? `<p class="tq-role">${esc(p.designation)}</p>` : ""}${p.position ? `<p class="tq-pos">${esc(p.position)}</p>` : ""}</div></div>
+        ${quals(p.qualifications).length ? `<ul class="tq-quals">${quals(p.qualifications).map((q) => `<li>${esc(q)}</li>`).join("")}</ul>` : ""}
+        ${paras.length ? `<div class="tq-d-bio">${paras.map((t) => `<p>${esc(t)}</p>`).join("")}</div>` : ""}
+        ${tags(p.expertise).length ? `<p class="tq-d-label">Areas of expertise</p><ul class="tq-tags">${tags(p.expertise).map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}
+        ${links(p) ? `<div class="tq-links">${links(p)}</div>` : ""}`;
+      $(".tq-x", dlg).addEventListener("click", () => dlg.close());
+      dlg._opener = opener;
+      if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+      $(".tq-x", dlg).focus();
+    };
+    if (!dlg._wired) {
+      dlg._wired = true;
+      dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+      dlg.addEventListener("close", () => { if (dlg._opener) dlg._opener.focus(); });
+    }
+    box.querySelectorAll(".tq-open").forEach((b) => b.addEventListener("click", () => open(+b.dataset.k, b)));
+    box.querySelectorAll(".tq-card").forEach((c) => c.addEventListener("click", (e) => { if (!e.target.closest("a,button")) $(".tq-open", c).click(); }));
+    sec.hidden = false;
+  }
+
   // ---------- Contributors (home + about): cinematic 3D spotlight stage ----------
   function contributors(all) {
     const sec = $("#home-team-section"), grid = $("#home-team");
@@ -989,6 +1039,7 @@
     if (PAGE === "home" || PAGE === "about") load("founder").then(founder);
     if (PAGE === "home") { home(settings, data); noticeBoard(data.notices); testimonials(data.testimonials); heroTrust(data.testimonials); }
     if (PAGE === "about" || PAGE === "home") contributors(data.contributors);
+    if (PAGE === "about" || PAGE === "home") load("team").then(team);
     requestAnimationFrame(() => setTimeout(enhance, 60));
     if (PAGE === "videos") {
       if (settings.show_videos === true) listing({ items: data.videos, mount: "#list", card: videoCard, noun: "videos" });
