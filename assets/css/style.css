@@ -1546,3 +1546,49 @@ main .jh-cta{margin:44px auto 52px}
 .cf-card.on .cf-ecg path{animation:cfTrace .833s linear infinite}
 .cf-heart{display:inline-block;font-style:normal;color:#ff6b81;font-size:1.05rem;text-shadow:0 0 10px rgba(255,107,129,.7);animation:cfHeart .833s ease-out infinite}
 @media (prefers-reduced-motion:reduce){.cf-card.on .cf-inner,.cf-card.on .cf-ring,.cf-card.on .cf-halo,.cf-heart{animation:none}.cf-card.on .cf-ecg path{animation:none;stroke-dashoffset:0}}
+
+/* ---------- World Anaesthesia Day offer (hero) ---------- */
+@property --wad{syntax:"<angle>";inherits:false;initial-value:0deg}
+@keyframes wadSpin{to{--wad:360deg}}
+@keyframes wadIn{from{opacity:0;transform:translateY(-14px) scale(.98)}}
+@keyframes wadTick{0%{transform:translateY(-35%);opacity:.2}100%{transform:none;opacity:1}}
+@keyframes wadDot{0%,100%{box-shadow:0 0 0 0 rgba(255,107,129,.7)}50%{box-shadow:0 0 0 7px rgba(255,107,129,0)}}
+@keyframes wadSpark{0%{transform:translate(0,0) scale(.4);opacity:0}15%{opacity:1}100%{transform:translate(var(--x),var(--y)) scale(1);opacity:0}}
+@keyframes wadBeat{0%,40%,100%{transform:scale(1)}8%{transform:scale(1.12)}24%{transform:scale(1.06)}}
+.wad-wrap{position:relative;z-index:2;margin-bottom:34px}
+.wad{position:relative;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:22px 34px;align-items:center;padding:24px 28px;border-radius:26px;color:#eef6ff;isolation:isolate;overflow:hidden;
+  background:linear-gradient(135deg,rgba(255,255,255,.09),rgba(255,255,255,.03));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);animation:wadIn .8s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 30px 70px -30px rgba(0,0,0,.7)}
+.wad::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:conic-gradient(from var(--wad),#ff6b81,#ffd36e,#5ef0d6,#7cc4ff,#ff6b81);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:wadSpin 6s linear infinite;pointer-events:none}
+.wad-glow{position:absolute;z-index:-1;inset:-40% -10% auto auto;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(255,107,129,.28),transparent 65%);pointer-events:none}
+.wad-sparks{position:absolute;left:62%;top:38%;width:0;height:0;pointer-events:none}
+.wad-sparks i{position:absolute;font-style:normal;font-weight:800;color:#ffd36e;font-size:14px;opacity:0;animation:wadSpark 1.6s cubic-bezier(.2,.8,.2,1) var(--d) both}
+.wad-sparks i:nth-child(3n){color:#ff6b81}
+.wad-tag{display:inline-flex;align-items:center;gap:9px;margin:0 0 8px;padding:5px 12px;border-radius:999px;background:rgba(255,107,129,.16);border:1px solid rgba(255,107,129,.4);color:#ffd0d8;font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.wad-dot{width:8px;height:8px;border-radius:50%;background:#ff6b81;animation:wadDot 1.6s infinite}
+.wad-h{margin:0 0 8px;font-family:var(--font-display);font-size:clamp(1.35rem,1rem + 1.4vw,1.95rem);line-height:1.18;color:#fff;text-wrap:balance}
+.wad-h em{font-style:normal;background:linear-gradient(90deg,#ffd36e,#ff6b81);-webkit-background-clip:text;background-clip:text;color:transparent}
+.wad-sub{margin:0 0 14px;color:#bcd0e3;font-size:.95rem;line-height:1.55;max-width:60ch}
+.wad-offers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.wad-o{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:rgba(6,20,40,.45);border:1px solid rgba(255,255,255,.12)}
+.wad-x{flex:none;display:grid;place-items:center;width:48px;height:48px;border-radius:14px;font:800 1.25rem var(--font-display);color:#2a0b12;background:linear-gradient(135deg,#ffd36e,#ff6b81);box-shadow:0 8px 22px -8px rgba(255,107,129,.8);animation:wadBeat .833s ease-out infinite}
+.wad-o:nth-child(2) .wad-x{animation-delay:.42s}
+.wad-o b{display:block;color:#fff;font-size:.98rem}
+.wad-o span{color:#9fe8de;font-weight:700;font-size:.9rem}
+.wad-r{display:grid;justify-items:center;text-align:center;gap:10px}
+.wad-cd-l{margin:0;color:#bcd0e3;font-size:.78rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.wad-cd{display:flex;gap:8px}
+.wad-t{display:grid;justify-items:center;min-width:64px;padding:10px 6px 8px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.14);overflow:hidden}
+.wad-t b{display:block;font:700 1.9rem/1 var(--font-display);color:#fff;font-variant-numeric:tabular-nums}
+.wad-t b.tick{animation:wadTick .35s cubic-bezier(.2,.8,.2,1)}
+.wad-t small{margin-top:4px;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9fb6cc}
+.wad-cta{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 14px}
+.wad-btn{background:linear-gradient(90deg,#ffd36e,#ff6b81);color:#2a0b12!important;font-weight:800;border:0;box-shadow:0 12px 30px -10px rgba(255,107,129,.8)}
+.wad-btn:hover{transform:translateY(-2px);filter:brightness(1.05)}
+.wad-wa{color:#9fe8de!important;font-weight:700;font-size:.92rem}
+.wad-fine{margin:0;color:#8ea6bd;font-size:.76rem}
+.wad-out{opacity:0;transform:scale(.98);transition:opacity .5s,transform .5s}
+@media (max-width:900px){.wad{grid-template-columns:1fr;padding:22px 20px}.wad-sparks{left:50%;top:70%}}
+@media (max-width:520px){.wad-offers{grid-template-columns:1fr}.wad-t{min-width:56px}.wad-t b{font-size:1.55rem}.wad-wrap{margin-bottom:24px}}
+@media (prefers-reduced-motion:reduce){.wad,.wad::before,.wad-dot,.wad-x,.wad-t b.tick{animation:none}}
+.wad-o .wad-x{color:#2a0b12;font-size:1.25rem}
+@media (max-width:520px){.wad-sub{display:none}.wad-h{font-size:1.3rem}.wad{gap:16px}}
