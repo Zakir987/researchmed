@@ -1150,11 +1150,93 @@
       set("d", Math.floor(sec / 86400)); set("h", Math.floor((sec % 86400) / 3600)); set("m", Math.floor((sec % 3600) / 60)); set("s", sec % 60);
     };
     step(); timer = setInterval(step, 1000);
+    wadPopup(END, wa, waMsg, svc);
     // Sparks burst once when the card first appears
     const sp = $(".wad-sparks", box);
     if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
       for (let i = 0; i < 18; i++) { const e = document.createElement("i"); const a = (i / 18) * Math.PI * 2; e.style.setProperty("--x", Math.cos(a) * (60 + Math.random() * 70) + "px"); e.style.setProperty("--y", Math.sin(a) * (40 + Math.random() * 50) + "px"); e.style.setProperty("--d", Math.random() * 0.3 + "s"); e.textContent = i % 3 ? "+" : "♥"; sp.appendChild(e); }
     }
+  }
+
+  // ---------- World Anaesthesia Day pop-up: opens on arrival, confetti, live countdown ----------
+  function wadPopup(END, wa, waMsg, svc) {
+    if (Date.now() >= END || $("#wad-pop")) return;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let seen = false; try { seen = sessionStorage.getItem("wadPopSeen") === "1"; } catch (e) {}
+    const dlg = document.createElement("dialog");
+    dlg.id = "wad-pop"; dlg.className = "wp"; dlg.tabIndex = -1; dlg.setAttribute("aria-labelledby", "wp-title");
+    const tile = (k, l) => `<div class="wp-t"><b data-wk="${k}">00</b><small>${l}</small></div>`;
+    dlg.innerHTML = `<canvas class="wp-confetti" aria-hidden="true"></canvas>
+      <div class="wp-card">
+        <button type="button" class="wp-x" aria-label="Close offer">×</button>
+        <div class="wp-vis" aria-hidden="true">
+          <span class="wp-orbit o1"></span><span class="wp-orbit o2"></span><span class="wp-orbit o3"></span>
+          <div class="wp-two"><span>2</span><i>×</i></div>
+          <svg class="wp-ecg" viewBox="0 0 400 60" preserveAspectRatio="none"><path pathLength="1" d="M0 34 H120 Q130 26 140 34 H156 L162 38 L170 4 L178 56 L184 34 H214 Q228 20 242 34 H400"/></svg>
+          <div class="wp-date"><b>16</b><span>OCT</span></div>
+          <p class="wp-since">Ether Day · 1846 → 2026</p>
+        </div>
+        <div class="wp-body">
+          <p class="wp-tag"><span class="wp-dot"></span>World Anaesthesia Day special</p>
+          <h2 id="wp-title" class="wp-h">One collaboration.<br><em>Two papers.</em></h2>
+          <p class="wp-h2">One chapter collaboration. <em>Two chapters.</em></p>
+          <p class="wp-sub">180 years since the first public demonstration of ether anaesthesia — we’re celebrating by doubling what you get.</p>
+          <div class="wp-cd" role="timer" aria-label="Time left">${tile("d", "Days")}${tile("h", "Hrs")}${tile("m", "Min")}${tile("s", "Sec")}</div>
+          <div class="wp-cta">
+            <a class="wp-btn" href="contact.html?offer=wad&amp;service=${svc}"><span>Claim my 2× offer</span><i aria-hidden="true">→</i></a>
+            ${wa ? `<a class="wp-wa" href="https://wa.me/${wa}?text=${waMsg}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9s.7-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.8-1c.2-.3.4-.2.6-.1l2 .9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg>WhatsApp</a>` : ""}
+          </div>
+          <p class="wp-fine">Offer closes 16 October, 12:00 AM IST · Limited-period offer</p>
+        </div>
+      </div>`;
+    document.body.appendChild(dlg);
+    // Floating re-open pill
+    const pill = document.createElement("button");
+    pill.type = "button"; pill.className = "wp-pill"; pill.hidden = true;
+    pill.innerHTML = `<span class="wp-pill-x">2×</span><span>Anaesthesia Day offer</span><b data-wk="left"></b>`;
+    document.body.appendChild(pill);
+    const els = [...document.querySelectorAll("[data-wk]")];
+    const tick = () => {
+      const left = END - Date.now();
+      if (left <= 0) { clearInterval(t); try { dlg.close(); } catch (e) {} dlg.remove(); pill.remove(); return; }
+      const sec = Math.floor(left / 1000), v = { d: Math.floor(sec / 86400), h: Math.floor((sec % 86400) / 3600), m: Math.floor((sec % 3600) / 60), s: sec % 60 };
+      els.forEach((e) => {
+        const k = e.dataset.wk; const txt = k === "left" ? (v.d ? v.d + "d " + v.h + "h left" : v.h + "h " + v.m + "m left") : String(v[k]).padStart(2, "0");
+        if (e.textContent !== txt) { e.textContent = txt; if (k !== "left") { e.classList.remove("flip"); void e.offsetWidth; e.classList.add("flip"); } }
+      });
+    };
+    tick(); const t = setInterval(tick, 1000);
+    // Confetti
+    const cv = $(".wp-confetti", dlg), ctx = cv.getContext("2d");
+    const confetti = () => {
+      if (reduce) return;
+      const W = cv.width = innerWidth * (devicePixelRatio || 1), H = cv.height = innerHeight * (devicePixelRatio || 1), k = devicePixelRatio || 1;
+      const cols = ["#ff6b81", "#ffd36e", "#5ef0d6", "#7cc4ff", "#b9f5a6", "#ffffff"];
+      const P = Array.from({ length: 160 }, (_, i) => { const L = i % 2 === 0; return { x: L ? 0 : W, y: H, vx: (L ? 1 : -1) * (6 + Math.random() * 16) * k, vy: (-Math.random() * 16 - 18) * k, r: (4 + Math.random() * 6) * k, c: cols[i % cols.length], a: Math.random() * 6.28, va: (Math.random() - 0.5) * 0.3, s: i % 5 }; });
+      let f = 0;
+      const draw = () => {
+        ctx.clearRect(0, 0, W, H); f++;
+        P.forEach((p) => {
+          p.vy += 0.42 * k; p.vx *= 0.985; p.x += p.vx; p.y += p.vy; p.a += p.va;
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.globalAlpha = Math.max(0, Math.min(1, 1.6 - f / 110)); ctx.fillStyle = p.c;
+          if (p.s === 0) { ctx.font = `${p.r * 2.4}px sans-serif`; ctx.fillText("♥", -p.r, p.r); }
+          else if (p.s === 1) { ctx.fillRect(-p.r, -p.r / 3, p.r * 2, p.r / 1.5); ctx.fillRect(-p.r / 3, -p.r, p.r / 1.5, p.r * 2); }
+          else if (p.s === 2) { ctx.beginPath(); ctx.arc(0, 0, p.r / 1.6, 0, 6.28); ctx.fill(); }
+          else ctx.fillRect(-p.r, -p.r / 2.5, p.r * 2, p.r / 1.25);
+          ctx.restore();
+        });
+        if (f < 180 && dlg.open) requestAnimationFrame(draw); else ctx.clearRect(0, 0, W, H);
+      };
+      requestAnimationFrame(draw);
+    };
+    const open = () => { if (dlg.open) return; pill.hidden = true; if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", ""); dlg.classList.remove("closing"); setTimeout(confetti, 260); dlg.focus({ preventScroll: true }); };
+    const close = () => { if (!dlg.open) return; dlg.classList.add("closing"); setTimeout(() => { try { dlg.close(); } catch (e) { dlg.removeAttribute("open"); } dlg.classList.remove("closing"); }, reduce ? 0 : 280); };
+    dlg.addEventListener("close", () => { pill.hidden = false; try { sessionStorage.setItem("wadPopSeen", "1"); } catch (e) {} });
+    dlg.addEventListener("cancel", (e) => { e.preventDefault(); close(); });
+    dlg.addEventListener("click", (e) => { if (e.target === dlg || e.target === cv) close(); });
+    $(".wp-x", dlg).addEventListener("click", close);
+    pill.addEventListener("click", open);
+    if (seen) pill.hidden = false; else setTimeout(open, 1400);
   }
 
   // ---------- Bedside-monitor ECG: sweep-and-erase trace on every page ----------
