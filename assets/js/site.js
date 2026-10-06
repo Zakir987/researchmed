@@ -569,6 +569,7 @@
     const sel = $("#c-service", f), want = qs.get("service");
     if (sel && want && [...sel.options].some((o) => o.text === want)) sel.value = want;
     if (qs.get("book") && $("#c-msg", f)) $("#c-msg", f).value = `I would like to contribute a chapter to the book "${qs.get("book")}".\n\nPreferred chapter: \nMy qualification / designation: \nInstitution: `;
+    if (qs.get("offer") === "wad" && $("#c-msg", f)) $("#c-msg", f).value = `I would like to claim the World Anaesthesia Day offer (one collaboration, two papers / one chapter collaboration, two chapters).\n\nI am interested in: paper collaboration / chapter collaboration\nMy qualification / designation: \nInstitution: `;
     if (qs.get("paper") && $("#c-msg", f)) $("#c-msg", f).value = `I would like to collaborate on the study "${qs.get("paper")}".\n\nHow I can contribute (literature review / data collection / analysis / writing): \nMy qualification / designation: \nInstitution: `;
     // Enquiries are emailed straight to the ResearchMed inbox via FormSubmit (no Google Form).
     // FormSubmit also sends the visitor an automatic thank-you reply.
@@ -1038,6 +1039,7 @@
     renderLayout(settings, counts);
     if (PAGE === "home" || PAGE === "about") load("founder").then(founder);
     if (PAGE === "home") { home(settings, data); noticeBoard(data.notices); testimonials(data.testimonials); heroTrust(data.testimonials); }
+    if (PAGE === "home") wadOffer(settings);
     if (PAGE === "about" || PAGE === "home") contributors(data.contributors);
     if (PAGE === "about" || PAGE === "home") load("team").then(team);
     requestAnimationFrame(() => setTimeout(enhance, 60));
@@ -1104,6 +1106,55 @@
       $$(".reveal-kids").forEach((g) => [...g.children].forEach((c, i) => { if (!c.classList.contains("reveal")) { c.classList.add("reveal"); c.style.setProperty("--d", Math.min(i, 8) * 70 + "ms"); io.observe(c); } }));
       $$("[data-count]:not(.in)").forEach((el) => io.observe(el));
     }).observe(document.getElementById("main") || document.body, { childList: true, subtree: true });
+  }
+
+  // ---------- World Anaesthesia Day offer (home hero, auto-hides at the deadline) ----------
+  function wadOffer(s) {
+    const END = Date.parse("2026-10-16T00:00:00+05:30"); // 16 October, 12:00 AM IST
+    const hero = $(".hero-x"); if (!hero || Date.now() >= END || $(".wad", hero)) return;
+    const wa = String((s && s.whatsapp) || "").replace(/\D/g, "");
+    const waMsg = encodeURIComponent("Hello ResearchMed Connect, I would like to claim the World Anaesthesia Day offer (one collaboration, two papers / one chapter collaboration, two chapters).");
+    const svc = encodeURIComponent("Research collaboration");
+    const tile = (k, l) => `<div class="wad-t"><b data-k="${k}">00</b><small>${l}</small></div>`;
+    const box = document.createElement("div");
+    box.className = "wrap wad-wrap";
+    box.innerHTML = `<aside class="wad" aria-label="World Anaesthesia Day offer">
+      <span class="wad-glow" aria-hidden="true"></span><span class="wad-sparks" aria-hidden="true"></span>
+      <div class="wad-l">
+        <p class="wad-tag"><span class="wad-dot" aria-hidden="true"></span>World Anaesthesia Day · 16 October</p>
+        <h2 class="wad-h">Celebrate 180 years of anaesthesia with a <em>double</em> offer</h2>
+        <p class="wad-sub">On 16 October 1846 the first public demonstration of ether anaesthesia changed medicine forever. We are marking the day our way:</p>
+        <div class="wad-offers">
+          <div class="wad-o"><span class="wad-x" aria-hidden="true">2×</span><div><b>One collaboration</b><span>→ two research papers</span></div></div>
+          <div class="wad-o"><span class="wad-x" aria-hidden="true">2×</span><div><b>One chapter collaboration</b><span>→ two book chapters</span></div></div>
+        </div>
+      </div>
+      <div class="wad-r">
+        <p class="wad-cd-l">Offer ends in</p>
+        <div class="wad-cd" role="timer" aria-live="off">${tile("d", "Days")}${tile("h", "Hours")}${tile("m", "Mins")}${tile("s", "Secs")}</div>
+        <div class="wad-cta">
+          <a class="btn wad-btn" href="contact.html?offer=wad&amp;service=${svc}">Claim the offer <span aria-hidden="true">→</span></a>
+          ${wa ? `<a class="wad-wa" href="https://wa.me/${wa}?text=${waMsg}" target="_blank" rel="noopener">or WhatsApp us</a>` : ""}
+        </div>
+        <p class="wad-fine">Valid until 16 October, 12:00 AM (IST)</p>
+      </div>
+    </aside>`;
+    hero.insertBefore(box, $(".hero-grid", hero));
+    const els = {}; ["d", "h", "m", "s"].forEach((k) => (els[k] = $(`[data-k="${k}"]`, box)));
+    const set = (k, v) => { const t = String(v).padStart(2, "0"); if (els[k].textContent !== t) { els[k].textContent = t; els[k].classList.remove("tick"); void els[k].offsetWidth; els[k].classList.add("tick"); } };
+    let timer;
+    const step = () => {
+      const left = END - Date.now();
+      if (left <= 0) { clearInterval(timer); box.classList.add("wad-out"); setTimeout(() => box.remove(), 600); return; }
+      const sec = Math.floor(left / 1000);
+      set("d", Math.floor(sec / 86400)); set("h", Math.floor((sec % 86400) / 3600)); set("m", Math.floor((sec % 3600) / 60)); set("s", sec % 60);
+    };
+    step(); timer = setInterval(step, 1000);
+    // Sparks burst once when the card first appears
+    const sp = $(".wad-sparks", box);
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      for (let i = 0; i < 18; i++) { const e = document.createElement("i"); const a = (i / 18) * Math.PI * 2; e.style.setProperty("--x", Math.cos(a) * (60 + Math.random() * 70) + "px"); e.style.setProperty("--y", Math.sin(a) * (40 + Math.random() * 50) + "px"); e.style.setProperty("--d", Math.random() * 0.3 + "s"); e.textContent = i % 3 ? "+" : "♥"; sp.appendChild(e); }
+    }
   }
 
   // ---------- Bedside-monitor ECG: sweep-and-erase trace on every page ----------
