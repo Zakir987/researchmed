@@ -1658,3 +1658,15 @@ main .jh-cta{margin:44px auto 52px}
 .wp:focus{outline:none}
 @media (max-width:760px){.wp-vis{min-height:230px}.wp-ecg{bottom:30px}.wp-since{bottom:8px}}
 @media (max-width:460px){.wp-cta{display:grid;grid-template-columns:1fr}.wp-btn,.wp-wa{justify-content:center}.wp-btn{font-size:1rem;padding:13px 16px}}
+
+/* ---------- Theme consistency: journal heroes use the same night palette in light and dark ---------- */
+.jh-hero,.jd-hero,.jn-hero,.trk-hero{
+  --bg:#0b1520;--band:#0f1c2a;--surface:#13212f;--ink:#e5edf6;--muted:#9db0c4;--line:#22384d;
+  --primary:#6fa8e6;--primary-hover:#8dbbec;--on-primary:#08131e;--teal:#53c3ca;--teal-soft:#11303a;
+  --amber:#f0b45a;--amber-soft:#33260f;--violet:#b3a6ec;--violet-soft:#252040;--hero-a:#0f2433;--hero-b:#0b1520;
+  --grad-text:linear-gradient(100deg,#8fc2ff,#5fd6cf 60%,#7be3c0);--glow:0 10px 34px -10px rgba(95,214,207,.35);
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+  color:var(--ink);color-scheme:dark;border-bottom-color:transparent}
+/* Softer, cleaner call-for-papers tint in light mode */
+.jh-cfp-wrap .jr-cfp{background:linear-gradient(135deg,color-mix(in srgb,var(--primary) 8%,var(--surface)),color-mix(in srgb,var(--teal) 10%,var(--surface)))}
+body .jh-hero,body .jd-hero,body .jn-hero,body .trk-hero{background:radial-gradient(760px 420px at 8% -20%,var(--aurora-1),transparent 62%),radial-gradient(700px 420px at 100% 30%,var(--aurora-2),transparent 62%),linear-gradient(160deg,var(--night-a),var(--night-b) 60%,var(--night-c))}
