@@ -9,7 +9,8 @@
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const today = new Date().toISOString().slice(0, 10);
   let settings = {}, wa = "";
-  const getJson = (n) => fetch(`content/${n}.json`, { cache: "no-cache" }).then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+  const jsonCache = {};
+  const getJson = (n) => (jsonCache[n] = jsonCache[n] || fetch(`content/${n}.json`, { cache: "no-cache" }).then((r) => (r.ok ? r.json() : {})).catch(() => ({})));
   getJson("settings").then((s) => { settings = s || {}; wa = String(settings.whatsapp || "").replace(/\D/g, ""); });
   let journal = {}; getJson("journal").then((j) => { journal = j || {}; });
   const OFFER_END = Date.parse("2026-10-16T00:00:00+05:30");
@@ -42,7 +43,18 @@
   .rb-head b{display:block;font-size:1rem} .rb-head small{opacity:.85;font-size:.78rem}
   .rb-x{margin-left:auto;border:0;background:rgba(255,255,255,.15);color:inherit;width:34px;height:34px;border-radius:50%;font-size:1.2rem;cursor:pointer}
   .rb-log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--bg,#f6f9fc)}
-  .rb-m{max-width:86%;padding:10px 13px;border-radius:14px;font-size:.94rem;line-height:1.45;overflow-wrap:anywhere}
+  .rb-m{max-width:86%;padding:10px 13px;border-radius:14px;font-size:.94rem;line-height:1.45;overflow-wrap:anywhere;animation:rb-pop .32s cubic-bezier(.2,.9,.25,1) both;transform-origin:left bottom}
+  .rb-me{transform-origin:right bottom}
+  @keyframes rb-pop{from{opacity:0;transform:translateY(8px) scale(.97)}}
+  .rb-m.rb-txt{animation:rb-fade .25s ease-out both} @keyframes rb-fade{from{opacity:.25}}
+  .rb-chips .rb-chip{animation:rb-pop .3s cubic-bezier(.2,.9,.25,1) both}
+  .rb-log{scroll-behavior:smooth;overscroll-behavior:contain}
+  .rb-av{position:relative}
+  .rb-panel.rb-talk .rb-av::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid #2ee6c5;animation:rb-talk 1s ease-out infinite}
+  @keyframes rb-talk{from{opacity:.9;transform:scale(.92)}to{opacity:0;transform:scale(1.25)}}
+  .rb-sub{display:inline-flex;align-items:center;gap:6px}
+  .rb-sub .rb-wave{height:10px;display:none} .rb-panel.rb-talk .rb-sub .rb-wave{display:inline-flex}
+  @media (prefers-reduced-motion:reduce){.rb-m,.rb-chips .rb-chip{animation:none}.rb-panel.rb-talk .rb-av::after{animation:none;opacity:.8}}
   .rb-m a{color:var(--primary,#1b5896);font-weight:600}
   .rb-bot{background:var(--surface,#fff);border:1px solid var(--line,#d9e3ed);border-bottom-left-radius:4px;align-self:flex-start}
   .rb-me{background:var(--primary,#1b5896);color:var(--on-primary,#fff);border-bottom-right-radius:4px;align-self:flex-end}
@@ -118,7 +130,7 @@
 
   function open() {
     opened = true; document.querySelector(".rb-tease")?.remove(); fab.querySelector(".rb-dot")?.remove();
-    if (!panel) build();
+    if (!panel) { build(); ["founder", "team", "notes", "books", "papers", "journal"].forEach(getJson); if (canSpeak) pickVoice(); }
     panel.hidden = false; fab.hidden = true; setTimeout(() => input.focus(), 50);
   }
   function close() { panel.hidden = true; fab.hidden = false; fab.focus(); stopVoice(); }
@@ -126,7 +138,7 @@
   function build() {
     panel = document.createElement("section");
     panel.className = "rb-panel"; panel.setAttribute("role", "dialog"); panel.setAttribute("aria-label", "ResearchMed Assistant");
-    panel.innerHTML = `<div class="rb-head"><span class="rb-av">${FACE()}</span><div><b>ResearchMed Assistant</b><small>${SR ? "Type or talk · replies instantly" : "Usually replies instantly"}</small></div><div class="rb-hb">${canSpeak ? `<button class="rb-spk" type="button" aria-pressed="${speakOn}" aria-label="Read replies aloud" title="Read replies aloud"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg></button>` : ""}<button class="rb-x" type="button" aria-label="Close chat">×</button></div></div>
+    panel.innerHTML = `<div class="rb-head"><span class="rb-av">${FACE()}</span><div><b>ResearchMed Assistant</b><small class="rb-sub"><span class="rb-wave" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="rb-subt">${SR ? "Online · type or talk to me" : "Online · replies instantly"}</span></small></div><div class="rb-hb">${canSpeak ? `<button class="rb-spk" type="button" aria-pressed="${speakOn}" aria-label="Read replies aloud" title="Read replies aloud"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg></button>` : ""}<button class="rb-x" type="button" aria-label="Close chat">×</button></div></div>
       <div class="rb-log" aria-live="polite"></div>
       <div class="rb-cta" hidden><span>✨ Got your answers? Take the next step.</span><button type="button">Send free enquiry →</button></div>
       <div class="rb-listen" hidden><span class="rb-wave" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="rb-ltxt">Listening… speak now</span></div>
@@ -137,25 +149,30 @@
     panel.querySelector(".rb-x").addEventListener("click", close);
     panel.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
     panel.querySelector("form").addEventListener("submit", (e) => {
-      e.preventDefault(); const v = input.value.trim(); if (!v) return; input.value = ""; submitText(v);
+      e.preventDefault(); const v = input.value.trim(); if (!v) return; input.value = ""; if (!listening) handsFree = false; submitText(v);
     });
     const spk = panel.querySelector(".rb-spk");
     if (spk) spk.addEventListener("click", () => { setSpeak(!speakOn); if (speakOn) speak("Voice replies are on."); });
     panel.querySelector(".rb-cta button").addEventListener("click", () => { me("Send free enquiry"); startLead("", serviceFor(lastTopic)); });
     const mic = panel.querySelector(".rb-mic");
-    if (mic) mic.addEventListener("click", () => (listening ? stopListen() : listen()));
+    if (mic) mic.addEventListener("click", () => { if (listening) { handsFree = false; stopListen(); } else listen(); });
+    input.addEventListener("input", () => { if (!listening) handsFree = false; });
     bot(`Hello! 👋 I'm the <b>ResearchMed Assistant</b>.<br>I can help with research and publication guidance, a <b>free 15-minute call</b>, book chapters, collaborations and our journal <b>IJAOTT</b>.${SR ? " Type your question, or tap 🎙️ and just ask." : " What would you like to know?"}`);
     menu();
   }
 
   // ---------- Message helpers ----------
-  const scroll = () => { log.scrollTop = log.scrollHeight; };
+  const scroll = () => requestAnimationFrame(() => { log.scrollTop = log.scrollHeight; });
+  let pendingBots = 0;
   function me(t) { const d = document.createElement("div"); d.className = "rb-m rb-me"; d.textContent = t; log.append(d); scroll(); }
+  // Short, natural "typing" pause that grows a little with the length of the reply (never more than ~0.6 s)
   function bot(html, delay) {
+    pendingBots++;
     return new Promise((res) => {
       const ty = document.createElement("div"); ty.className = "rb-m rb-bot"; ty.innerHTML = '<span class="rb-typing"><i></i><i></i><i></i></span>';
       log.append(ty); scroll();
-      setTimeout(() => { ty.innerHTML = html; scroll(); speak(html); res(); }, delay == null ? 450 : delay);
+      const wait = delay == null ? Math.min(620, 220 + String(html).replace(/<[^>]+>/g, "").length * 1.4) : delay;
+      setTimeout(() => { ty.classList.add("rb-txt"); ty.innerHTML = html; scroll(); speak(html); pendingBots--; res(); }, wait);
     });
   }
   function chips(list) {
@@ -163,9 +180,11 @@
     list.forEach(([label, fn]) => {
       const b = document.createElement("button"); b.type = "button"; b.className = "rb-chip" + (/^🎉/.test(label) ? " rb-hot" : ""); b.textContent = label;
       b.addEventListener("click", () => { c.remove(); me(label); fn(); });
+      b.style.animationDelay = (c.children.length * 35) + "ms";
       c.append(b);
     });
-    setTimeout(() => { log.append(c); scroll(); }, 500);
+    const put = () => (pendingBots ? setTimeout(put, 60) : (log.append(c), scroll()));
+    setTimeout(put, 120);
   }
   // ---------- Voice: speech-to-text in, text-to-speech out ----------
   let rec = null, listening = false, heard = "";
@@ -175,31 +194,58 @@
     const b = panel && panel.querySelector(".rb-spk"); if (b) b.setAttribute("aria-pressed", String(speakOn));
     if (!speakOn && canSpeak) speechSynthesis.cancel();
   }
+  // Female voice, best first: natural/neural voices (Edge, Chrome, Apple), Indian English where available
   let voice = null;
-  const pickVoice = () => { const vs = speechSynthesis.getVoices(); voice = vs.find((v) => /en-IN/i.test(v.lang)) || vs.find((v) => /en-GB/i.test(v.lang)) || vs.find((v) => /^en/i.test(v.lang)) || null; };
+  const MALE = /\b(rishi|ravi|prabhat|hemant|david|mark|george|james|daniel|alex|fred|guy|ryan|thomas|oliver|arthur|aaron|male|man)\b/i;
+  const FEMALE = [/neerja/i, /swara/i, /(aria|jenny|sonia|libby|natasha|clara|emma|ava|michelle|sara).*(natural|online)/i, /veena/i, /heera/i, /google uk english female/i, /google us english/i, /samantha|karen|moira|tessa|serena|fiona|victoria|allison|ava|susan|zira|hazel|kalpana|female|woman/i];
+  const pickVoice = () => {
+    const vs = speechSynthesis.getVoices().filter((v) => /^en/i.test(v.lang) && !MALE.test(v.name));
+    voice = null;
+    for (const re of FEMALE) { voice = vs.find((v) => re.test(v.name)); if (voice) break; }
+    voice = voice || vs.find((v) => /en-IN/i.test(v.lang)) || vs.find((v) => /en-GB/i.test(v.lang)) || vs[0] || null;
+  };
   if (canSpeak) { pickVoice(); speechSynthesis.addEventListener && speechSynthesis.addEventListener("voiceschanged", pickVoice); }
   function speak(html) {
     if (!speakOn || !canSpeak || !html || /rb-typing|^Sending/.test(html)) return;
     html = String(html).replace(/<span class="rb-step">.*?<\/span>(<br>)?/, "");
     const d = document.createElement("div"); d.innerHTML = String(html).replace(/<br\s*\/?>(\s*)/gi, ". ").replace(/<li>/gi, ". ");
-    let t = (d.textContent || "").replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}→←]/gu, "").replace(/(\d)\s*[–-]\s*(\d)/g, "$1 to $2").replace(/ResearchMed/g, "Research Med").replace(/IJAOTT/g, "I J A O T T").replace(/\bPh\.D\./g, "PhD").replace(/\s+/g, " ").replace(/(\.\s*){2,}/g, ". ").trim();
+    let t = (d.textContent || "").replace(/\u{1F399}\uFE0F?/gu, " the mic ").replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}→←]/gu, "").replace(/(\d)\s*[–-]\s*(\d)/g, "$1 to $2").replace(/ResearchMed/g, "Research Med").replace(/IJAOTT/g, "I J A O T T").replace(/\bPh\.D\./g, "PhD").replace(/\s+/g, " ").replace(/(\.\s*){2,}/g, ". ").trim();
     if (!t) return;
-    const u = new SpeechSynthesisUtterance(t.slice(0, 600)); if (voice) u.voice = voice; u.lang = (voice && voice.lang) || "en-IN"; u.rate = 1; u.pitch = 1.02;
-    speechSynthesis.speak(u);
+    if (!voice) pickVoice();
+    // Speak sentence by sentence: starts sooner, sounds more natural and avoids Chrome cutting off long speech
+    const raw = (t.slice(0, 700).match(/[^.!?]+[.!?]*/g) || [t]).map((x) => x.trim()).filter(Boolean), parts = [];
+    raw.forEach((x) => { if (parts.length && parts[parts.length - 1].length < 40) parts[parts.length - 1] += " " + x; else parts.push(x); });
+    parts.forEach((x) => {
+      const u = new SpeechSynthesisUtterance(x); if (voice) u.voice = voice; u.lang = (voice && voice.lang) || "en-IN";
+      u.rate = voice && /natural|online|neerja/i.test(voice.name) ? 1.02 : 0.98; u.pitch = 1.12; u.volume = 1;
+      u.onstart = () => talking(true); u.onend = u.onerror = () => setTimeout(afterSpeech, 60);
+      speechSynthesis.speak(u);
+    });
   }
-  function stopVoice() { if (canSpeak) speechSynthesis.cancel(); stopListen(); }
-  function listen() {
-    if (!SR) return;
+  let handsFree = false, autoT = 0;
+  function talking(on) { if (panel) panel.classList.toggle("rb-talk", on); const st = panel && panel.querySelector(".rb-subt"); if (st) st.textContent = on ? "Speaking…" : SR ? "Online · type or talk to me" : "Online · replies instantly"; }
+  // When the visitor is talking by voice, listen again automatically once the reply has finished, like a real conversation
+  function afterSpeech() {
+    if (speechSynthesis.speaking || speechSynthesis.pending) return;
+    talking(false); clearTimeout(autoT);
+    autoT = setTimeout(() => { if (handsFree && !listening && !pendingBots && panel && !panel.hidden && !speechSynthesis.speaking && !sendingNow) listen(true); }, 450);
+  }
+  let sendingNow = false;
+  function stopVoice() { handsFree = false; clearTimeout(autoT); if (canSpeak) speechSynthesis.cancel(); talking(false); stopListen(); }
+  function listen(auto) {
+    if (!SR || listening) return;
+    handsFree = true;
     if (canSpeak) speechSynthesis.cancel();
     if (!speakOn) setSpeak(true); // talking to the bot turns on spoken replies
     rec = new SR(); rec.lang = "en-IN"; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
     heard = ""; listening = true;
     const mic = panel.querySelector(".rb-mic"), bar = panel.querySelector(".rb-listen"), lt = panel.querySelector(".rb-ltxt");
-    mic.classList.add("on"); mic.setAttribute("aria-label", "Stop listening"); bar.hidden = false; lt.textContent = "Listening… speak now";
+    mic.classList.add("on"); mic.setAttribute("aria-label", "Stop listening"); bar.hidden = false; lt.textContent = auto ? "I'm listening… (tap 🎙️ to stop)" : "Listening… speak now";
     rec.onresult = (e) => { let fin = "", tmp = ""; for (let i = e.resultIndex; i < e.results.length; i++) { const r = e.results[i]; (r.isFinal ? (fin += r[0].transcript) : (tmp += r[0].transcript)); } if (fin) heard += fin; input.value = (heard + " " + tmp).trim(); };
     rec.onerror = (e) => {
       if (e.error === "not-allowed" || e.error === "service-not-allowed") bot("I can't hear you because microphone access is blocked. Please allow the microphone for this site in your browser settings, or just type your question.");
-      else if (e.error === "no-speech") bot("I didn't catch anything. Tap 🎙️ and try again, or type your question.");
+      else if (e.error === "no-speech") { if (!auto) bot("I didn't catch anything. Tap 🎙️ and try again, or type your question."); handsFree = false; }
+      else handsFree = false;
     };
     rec.onend = () => {
       listening = false; mic.classList.remove("on"); mic.setAttribute("aria-label", "Speak your question"); bar.hidden = true;
@@ -207,7 +253,7 @@
     };
     try { rec.start(); } catch (e) { rec.onend(); }
   }
-  function stopListen() { if (rec && listening) { try { rec.stop(); } catch (e) {} } }
+  function stopListen() { if (rec && listening) { try { rec.abort ? rec.abort() : rec.stop(); } catch (e) {} } }
   // Typed or spoken text: first try to match one of the buttons on screen, then the knowledge base
   function submitText(v) {
     if (canSpeak) speechSynthesis.cancel();
@@ -478,6 +524,7 @@
       _template: "table", _captcha: "false",
       _autoresponse: `Dear ${first},\n\nThank you for contacting ResearchMed Connect. ${d.call_date ? `We have received your request for a free 15-minute call (reference ${ref}).\n\nPreferred slot: ${d.call_date}, ${d.call_time} IST, by ${d.call_mode}.\n\nWe will confirm the exact time with you before the call.` : `We have received your enquiry about "${d.service}" (reference ${ref}).\n\nOur team will get back to you within one to two working days.`}${wa ? ` For anything urgent, you can WhatsApp us at ${settings.whatsapp}.` : ""}\n\nWarm regards,\nResearchMed Connect\nResearch. Learn. Publish. Grow.\nhttps://researchmed.in`,
     };
+    sendingNow = true; setTimeout(() => { sendingNow = false; }, 4000);
     await bot("Sending…", 200);
     try {
       const r = await fetch(ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(payload) });
