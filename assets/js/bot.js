@@ -70,7 +70,14 @@
   .rb-wave{display:inline-flex;gap:3px;align-items:center;height:14px} .rb-wave i{width:3px;height:100%;background:currentColor;border-radius:2px;animation:rb-w .9s ease-in-out infinite} .rb-wave i:nth-child(2){animation-delay:.15s}.rb-wave i:nth-child(3){animation-delay:.3s}.rb-wave i:nth-child(4){animation-delay:.45s}
   @keyframes rb-w{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
   .rb-hot{border-color:#f0a52a;color:#a35a00;background:color-mix(in srgb,#f0a52a 12%,var(--surface,#fff))}
-  .rb-hot:hover{background:#f0a52a;color:#2a1600}`;
+  .rb-hot:hover{background:#f0a52a;color:#2a1600}
+  .rb-nudge{background:linear-gradient(135deg,color-mix(in srgb,#2ee6c5 16%,var(--surface,#fff)),color-mix(in srgb,var(--primary,#1b5896) 10%,var(--surface,#fff)));border:1px solid color-mix(in srgb,#2ee6c5 45%,transparent)}
+  .rb-go{background:var(--primary,#1b5896);color:var(--on-primary,#fff);border-color:transparent}
+  .rb-go:hover{filter:brightness(1.1)}
+  .rb-step{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--teal,#0a6970);margin-bottom:2px}
+  .rb-cta{display:flex;align-items:center;gap:8px;justify-content:space-between;padding:8px 12px;border-top:1px solid var(--line,#d9e3ed);background:color-mix(in srgb,#2ee6c5 10%,var(--surface,#fff));font-size:.85rem;font-weight:600}
+  .rb-cta[hidden]{display:none}
+  .rb-cta button{border:0;border-radius:999px;padding:7px 14px;font:inherit;font-size:.84rem;font-weight:700;cursor:pointer;color:#fff;background:linear-gradient(120deg,var(--primary,#1b5896),var(--teal,#0a6970));white-space:nowrap}`;
   const st = document.createElement("style"); st.textContent = css; document.head.append(st);
 
   // Friendly robot face (original artwork) — blinking eyes, glowing antenna, medical-cross tip
@@ -121,6 +128,7 @@
     panel.className = "rb-panel"; panel.setAttribute("role", "dialog"); panel.setAttribute("aria-label", "ResearchMed Assistant");
     panel.innerHTML = `<div class="rb-head"><span class="rb-av">${FACE()}</span><div><b>ResearchMed Assistant</b><small>${SR ? "Type or talk · replies instantly" : "Usually replies instantly"}</small></div><div class="rb-hb">${canSpeak ? `<button class="rb-spk" type="button" aria-pressed="${speakOn}" aria-label="Read replies aloud" title="Read replies aloud"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg></button>` : ""}<button class="rb-x" type="button" aria-label="Close chat">×</button></div></div>
       <div class="rb-log" aria-live="polite"></div>
+      <div class="rb-cta" hidden><span>✨ Got your answers? Take the next step.</span><button type="button">Send free enquiry →</button></div>
       <div class="rb-listen" hidden><span class="rb-wave" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="rb-ltxt">Listening… speak now</span></div>
       <form class="rb-foot"><input type="text" placeholder="${SR ? "Type or tap 🎙️ to speak…" : "Type your question…"}" aria-label="Your message" autocomplete="off">${SR ? `<button class="rb-mic" type="button" aria-label="Speak your question" title="Speak your question"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></svg></button>` : ""}<button type="submit">Send</button></form>
       <div class="rb-note">Automated assistant · Your details go only to ResearchMed Connect · <a href="privacy.html" style="color:inherit">Privacy</a></div>`;
@@ -133,6 +141,7 @@
     });
     const spk = panel.querySelector(".rb-spk");
     if (spk) spk.addEventListener("click", () => { setSpeak(!speakOn); if (speakOn) speak("Voice replies are on."); });
+    panel.querySelector(".rb-cta button").addEventListener("click", () => { me("Send free enquiry"); startLead("", serviceFor(lastTopic)); });
     const mic = panel.querySelector(".rb-mic");
     if (mic) mic.addEventListener("click", () => (listening ? stopListen() : listen()));
     bot(`Hello! 👋 I'm the <b>ResearchMed Assistant</b>.<br>I can help with research and publication guidance, a <b>free 15-minute call</b>, book chapters, collaborations and our journal <b>IJAOTT</b>.${SR ? " Type your question, or tap 🎙️ and just ask." : " What would you like to know?"}`);
@@ -171,6 +180,7 @@
   if (canSpeak) { pickVoice(); speechSynthesis.addEventListener && speechSynthesis.addEventListener("voiceschanged", pickVoice); }
   function speak(html) {
     if (!speakOn || !canSpeak || !html || /rb-typing|^Sending/.test(html)) return;
+    html = String(html).replace(/<span class="rb-step">.*?<\/span>(<br>)?/, "");
     const d = document.createElement("div"); d.innerHTML = String(html).replace(/<br\s*\/?>(\s*)/gi, ". ").replace(/<li>/gi, ". ");
     let t = (d.textContent || "").replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}→←]/gu, "").replace(/(\d)\s*[–-]\s*(\d)/g, "$1 to $2").replace(/ResearchMed/g, "Research Med").replace(/IJAOTT/g, "I J A O T T").replace(/\bPh\.D\./g, "PhD").replace(/\s+/g, " ").replace(/(\.\s*){2,}/g, ". ").trim();
     if (!t) return;
@@ -210,7 +220,36 @@
   }
 
   const waLink = (text) => wa ? `https://wa.me/${wa}?text=${encodeURIComponent(text || "Hello ResearchMed Connect, I would like guidance.")}` : "contact.html";
-  const more = () => chips([["📝 Send an enquiry", startLead], ["💬 WhatsApp us", whatsapp], ["🏠 Main menu", () => { bot("What else can I help you with?").then(menu); }]]);
+  // ---------- Encouragement: answer first, then gently invite an enquiry ----------
+  let answered = 0, lastTopic = "", sent = false;
+  const SERVICE = { research: "Research guidance", publication: "Publication guidance", student: "Student research support", video: "Video lecture / session", books: "Book chapter authorship", papers: "Research collaboration", thesis: "Student research support", stats: "Research guidance", plagiarism: "Publication guidance", types: "Publication guidance", predatory: "Publication guidance", fees: "", mentors: "", beginner: "" };
+  const serviceFor = (k) => SERVICE[k] || "";
+  const NUDGE = {
+    research: "💡 Every published researcher started with just one question. Share your topic with us, and a Ph.D. mentor from your field will help you shape it.",
+    publication: "💡 A well-prepared manuscript and the right journal make a real difference. Send us your draft details and we'll guide you step by step.",
+    student: "💡 Your dissertation can become your first publication. Tell us where you are, and we'll help you plan the next steps.",
+    fees: "💡 The quickest way to know your exact fee is a free, no-obligation quote. It takes about 2 minutes to ask.",
+    mentors: "💡 We'll match you with a mentor from your own field. Tell us a little about your work to get started.",
+    video: "💡 Tell us the topic and group size, and we'll plan a session around your needs.",
+  };
+  const GENERIC = [
+    "💡 Have a project in mind? Our mentors would love to hear about it. Sending an enquiry is free and there's no obligation.",
+    "🌱 Big research journeys start with small steps. Tell us what you're working on, and we'll suggest the best way forward.",
+    "🎯 You're asking all the right questions! Let a Ph.D. mentor look at your specific case. It's free to ask.",
+  ];
+  function showCta(on) { const c = panel && panel.querySelector(".rb-cta"); if (c) c.hidden = !on || sent || !!flow; }
+  const nudgeChips = () => chips([["📝 Send a free enquiry", () => startLead("", serviceFor(lastTopic))], ["📞 Free 15-min call", startCall], ["❓ Ask another question", () => bot("Of course! Ask me anything, or pick a topic:").then(menu)], ["💬 WhatsApp", whatsapp]]);
+  const more = () => {
+    answered++;
+    if (sent) return chips([["❓ Ask another question", () => bot("Of course! What would you like to know?").then(menu)], ["💬 WhatsApp", whatsapp]]);
+    showCta(true);
+    // A warm line after the 1st answer, a stronger one after the 3rd, then only every 3rd answer, so it never feels pushy
+    if (answered !== 1 && answered % 3 !== 0) return nudgeChips();
+    const line = answered === 3 ? "🌟 You've explored a lot already, which tells us you're serious about your research! The next step is simple: send us a free enquiry and a mentor will reply within one to two working days."
+      : NUDGE[lastTopic] || GENERIC[Math.floor(answered / 3) % GENERIC.length];
+    bot(line, 650).then(() => { log.lastElementChild.classList.add("rb-nudge"); nudgeChips(); });
+  };
+  const moreQuiet = () => chips([["📝 Send a free enquiry", () => startLead("", serviceFor(lastTopic))], ["❓ Ask another question", () => bot("Of course! What would you like to know?").then(menu)]]);
 
   function menu() {
     chips([
@@ -245,6 +284,17 @@
     video: `Yes, video lectures and live online sessions are available <b>on request</b>. Tell us the topic and we'll arrange a recorded or live session for you or your group.`,
     record: () => `Our team has <b>${esc(settings.papers_submitted || 35)} papers submitted and ${esc(settings.papers_published || 28)} published</b>, including in Scopus-indexed and Elsevier journals. See them on the <a href="highlights.html">Publications</a> page.`,
     time: `We usually reply within <b>one to two working days</b>. For anything urgent, WhatsApp is fastest.`,
+    how: `Getting started is simple:<ul><li><b>1.</b> Send a free enquiry (or book a free 15-minute call)</li><li><b>2.</b> We match you with a Ph.D. mentor from your field</li><li><b>3.</b> You get a clear plan and quote, with no obligation</li><li><b>4.</b> One-to-one guidance, step by step, until submission</li></ul>`,
+    online: `Yes, all our guidance is <b>online</b>, by WhatsApp, phone, email and video call (Google Meet). You can join from anywhere in India or abroad.`,
+    who: `ResearchMed Connect is for <b>UG and PG students, Ph.D. scholars, faculty and working healthcare professionals</b>, at any stage, even if you have never written a paper before.`,
+    beginner: `Absolutely, beginners are very welcome! 😊 Many of the people we guide are writing their <b>first paper</b>. We start from the basics and go at your pace.`,
+    thesis: `Yes, we guide <b>synopsis, thesis and dissertation</b> work: topic, objectives, methodology, data analysis, writing the chapters and referencing. You do the work; we guide you so it is strong and original.`,
+    stats: `Yes, we guide you on <b>statistics and data analysis</b>: choosing the right tests, sample size, using tools such as SPSS or Excel, and presenting and interpreting your results.`,
+    plagiarism: `We help you write originally and cite properly: paraphrasing, referencing (Vancouver, APA) and understanding similarity reports, so your work meets journal standards ethically.`,
+    types: `We guide all common article types: <b>original research, review articles, systematic reviews, case reports, short communications and letters</b>. We'll help you choose the best type for your work.`,
+    predatory: `Predatory journals charge fees without real peer review and can harm your career. Warning signs: guaranteed or very fast acceptance, fake indexing claims and spam invitations. We help you choose <b>genuine indexed journals</b> instead.`,
+    timeline: `It depends on your stage and the journal. Writing with guidance often takes a few weeks, and journal peer review can take from several weeks to a few months. We'll give you a realistic timeline once we know your work.`,
+    start: `All you need to begin is your <b>idea or draft</b>, even a rough one. Tell us your topic, your stage (idea, data collected, draft ready) and your deadline, if any.`,
     faq: `Many common questions are answered on our <a href="faqs.html">FAQs page</a>. You can also ask me directly, for example about fees, mentors, timelines or journals.`,
     feedback: `We'd love to hear from you! Share your experience on the <a href="feedback.html">feedback page</a>, or read what others say on the home page.`,
     gallery: `See photos from our sessions and events in the <a href="gallery.html">gallery</a>, and the latest news on the <a href="updates.html">updates page</a>.`,
@@ -256,9 +306,21 @@
     [/ijaott|our journal|your journal|operation theatre technology journal|journal of anaes|editorial board|editor.in.chief|reviewer|peer review|submit (my |a )?(manuscript|paper|article) to|track (my )?(manuscript|submission|paper)|call for papers|inaugural issue|issn|\bapc\b/i, "journal"],
     [/\bteam\b|founder|director|who (are|runs|owns|started)|zakir|harshitha|about (you|us|the company)/i, "team"],
     [/\bnotes?\b|resources?|study material|free material|reading|learn|tutorial|blog/i, "notes"],
-    [/\bfaqs?\b|questions/i, "faq"],
+    [/\bfaqs?\b|common questions|frequently asked/i, "faq"],
     [/feedback|testimonial|review(s)? (of|about) you/i, "feedback"],
     [/gallery|photos?|pictures?|events?|news|updates?/i, "gallery"],
+    [/when.*(reply|respond|hear)|response time|reply time|how (long|soon).*(reply|respond|hear back|get back)/i, "time"],
+    [/how (does it|do you|it) work|process|procedure|steps|how to (start|begin|join)|get started/i, "how"],
+    [/online|offline|location|where are you|city|visit|remote|abroad|outside india/i, "online"],
+    [/beginner|first (paper|time|article)|never (written|published)|new to research|fresher|no experience/i, "beginner"],
+    [/who can|eligib|for whom|can (a|an|i) (student|nurse|doctor|technician|faculty)/i, "who"],
+    [/thesis|dissertation|synopsis/i, "thesis"],
+    [/statistic|spss|data analysis|analy[sz]e (my )?data|sample size|p.?value|\btests?\b/i, "stats"],
+    [/plagiar|similarity|turnitin|paraphras|referenc|citation|vancouver|\bapa\b/i, "plagiarism"],
+    [/case report|review article|systematic review|meta.?analysis|types? of (article|paper)|short communication|letter to/i, "types"],
+    [/predatory|fake journal|scam|fraud|genuine journal/i, "predatory"],
+    [/how long|how much time|timeline|duration|how fast|how quickly|weeks|months/i, "timeline"],
+    [/what do i need|requirement|documents|prepare before|what should i (send|share|bring)/i, "start"],
     [/\bfees?\b|cost|price|charges?\b|\brates?\b|\bpay|amount|kitna|paisa|rupee|₹|budget|afford/i, "fees"],
     [/book|chapter|isbn/i, "books"],
     [/co-?author|join.*paper|paper.*join|collaborat|authorship/i, "papers"],
@@ -291,14 +353,14 @@
     if (k === "team") return team();
     if (k === "notes") return notes();
     if (k === "hi") return bot("Hello! How can I help you today?").then(menu);
-    if (k === "thanks") return bot("You're welcome! 😊 Anything else I can help with?").then(more);
+    if (k === "thanks") return bot(sent ? "You're welcome! 😊 We'll be in touch soon. All the best with your research!" : "You're welcome! 😊 Whenever you're ready, our mentors would be glad to help with your project.").then(sent ? moreQuiet : nudgeChips);
     if (k) return answer(k);
-    bot(`I'm not sure I understood that. I can answer questions about our services, fees, mentors and authorship opportunities, or pass your question straight to our team.`).then(() =>
-      chips([["📝 Send my question to the team", () => startLead(text)], ["💬 WhatsApp us", whatsapp], ["🏠 Main menu", () => { bot("Here's what I can help with:").then(menu); }]]));
+    bot(`That's a great question, and our mentors can answer it personally. 😊 Shall I send it to them? It only takes a minute and there's no obligation.<br><br>Or pick a topic I can answer right away.`).then(() =>
+      chips([["📝 Yes, send my question", () => startLead(text)], ["📞 Ask on a free call", startCall], ["🏠 Show topics", () => { bot("Here's what I can help with:").then(menu); }]]));
   }
-  function answer(k) { const v = A[k]; bot(typeof v === "function" ? v() : v).then(more); }
+  function answer(k) { if (SERVICE[k] !== undefined || NUDGE[k]) lastTopic = k; const v = A[k]; bot(typeof v === "function" ? v() : v).then(more); }
   function whatsapp() {
-    bot(wa ? `Tap below to chat with us on WhatsApp:<br><br><a href="${waLink()}" target="_blank" rel="noopener">💬 Open WhatsApp (${esc(settings.whatsapp)})</a>` : A.contact()).then(more);
+    bot(wa ? `Tap below to chat with us on WhatsApp:<br><br><a href="${waLink()}" target="_blank" rel="noopener">💬 Open WhatsApp (${esc(settings.whatsapp)})</a>` : A.contact()).then(moreQuiet);
   }
 
   // ---------- Live opportunities from the site's own content ----------
@@ -309,13 +371,13 @@
   async function openBooks() {
     const b = await list("books");
     const lines = b.slice(0, 4).map((x) => `<li><b>${esc(x.title)}</b>${x.deadline ? ` (apply by ${esc(x.deadline)})` : ""}</li>`).join("");
-    await bot(`We invite chapter authors for upcoming edited books.${lines ? `<br>Currently open:<ul>${lines}</ul>` : "<br>There's no open call right now, but we can add you to our list for the next book."} <a href="books.html">See all books →</a>`);
+    await bot(`We invite chapter authors for upcoming edited books.${lines ? `<br>Currently open:<ul>${lines}</ul>` : "<br>There's no open call right now, but we can add you to our list for the next book."} <a href="books.html">See all books →</a><br><br>✍️ Becoming a published book author is a proud milestone, and we guide you through every step.`); lastTopic = "books"; showCta(true);
     chips([["✍️ Apply as chapter author", () => startLead("", "Book chapter authorship")], ["💬 WhatsApp us", whatsapp], ["🏠 Main menu", () => { bot("What else can I help you with?").then(menu); }]]);
   }
   async function openPapers() {
     const p = (await list("papers")).filter((x) => x.open !== false && (!x.deadline || new Date(x.deadline + "T23:59:59") >= new Date()));
     const lines = p.slice(0, 4).map((x) => `<li><b>${esc(x.title)}</b>${x.status ? ` (${esc(x.status)})` : ""}${x.deadline ? `, apply by ${esc(x.deadline)}` : ""}</li>`).join("");
-    await bot(`You can collaborate on our studies from the planning stage. Authorship is earned through real contribution (ICMJE criteria).${lines ? `<br>Currently open:<ul>${lines}</ul>` : "<br>No study is open right now, but we can notify you about the next one."} <a href="papers.html">See details →</a>`);
+    await bot(`You can collaborate on our studies from the planning stage. Authorship is earned through real contribution (ICMJE criteria).${lines ? `<br>Currently open:<ul>${lines}</ul>` : "<br>No study is open right now, but we can notify you about the next one."} <a href="papers.html">See details →</a><br><br>🤝 Collaborating is a great way to build your publication record while learning from experienced researchers.`); lastTopic = "papers"; showCta(true);
     chips([["🤝 Register interest", () => startLead("", "Research collaboration")], ["💬 WhatsApp us", whatsapp], ["🏠 Main menu", () => { bot("What else can I help you with?").then(menu); }]]);
   }
 
@@ -363,7 +425,7 @@
       ["message", "Lastly, what would you like to <b>discuss</b>? (topic, manuscript, book chapter…)", (v) => v.length >= 3 || "Please add a few words."],
     ];
     let i = 0;
-    const ask = () => { const s = steps[i]; bot(s[1]).then(() => { if (s[3]) chips(s[3].map((o) => [o, () => take(o)])); }); };
+    const ask = () => { const s = steps[i]; bot(`<span class="rb-step">Step ${i + 1} of ${steps.length}</span><br>${s[1]}`).then(() => { if (s[3]) chips(s[3].map((o) => [o, () => take(o)])); }); };
     const take = (v) => {
       const s = steps[i]; let val = v.trim();
       if (s[0] === "email") val = val.replace(/\s+at\s+/i, "@").replace(/\s+dot\s+/gi, ".").replace(/\s/g, "").toLowerCase();
@@ -371,24 +433,24 @@
       d[s[0] === "intro" ? "name" : s[0]] = val; i++;
       if (i < steps.length) ask(); else { flow = null; confirm(d); }
     };
-    flow = take; ask();
+    flow = take; showCta(false); ask();
   }
 
   // ---------- Enquiry (lead) flow ----------
   function startLead(question, presetNeed) {
     const d = { message: question || "" , service: presetNeed || "" };
     const steps = [
-      ["name", "Great, let's send your enquiry. What's your <b>full name</b>?", (v) => v.length >= 2 || "Please enter your name."],
+      ["name", "🎉 Wonderful! This is how every publication journey begins. It takes about <b>2 minutes</b>, and it's completely free.<br><br>What's your <b>full name</b>?", (v) => v.length >= 2 || "Please enter your name."],
       ["email", "Thanks! What's your <b>email address</b>? We'll send a confirmation there.", (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) || "That doesn't look like a valid email. Please check and type it again."],
       ["phone", "Your <b>phone / WhatsApp number</b>? (type <i>skip</i> if you'd rather not)", (v) => /^skip$/i.test(v) || /^[+\d][\d\s-]{7,}$/.test(v) || "Please enter a valid number, or type skip."],
       ["qualification", "Your <b>qualification / designation and institution</b>? (e.g. MSc Nursing, ABC College, Pune)", () => true],
     ];
     if (!d.service) steps.push(["service", "What do you need help with?", () => true, ["Research guidance", "Publication guidance", "Free 15-minute call", "Book chapter authorship", "Research collaboration", "Student research support", "Video lecture / session", "Something else"]]);
-    if (!d.message) steps.push(["message", "Briefly describe your project or question.", (v) => v.length >= 3 || "Please add a few words about what you need."]);
+    if (!d.message) steps.push(["message", "Almost done! 🙌 Briefly describe your project or question. A rough idea is perfectly fine.", (v) => v.length >= 3 || "Please add a few words about what you need."]);
     let i = 0;
     const ask = () => {
       const s = steps[i];
-      bot(s[1]).then(() => { if (s[3]) chips(s[3].map((o) => [o, () => take(o)])); });
+      bot(`<span class="rb-step">Step ${i + 1} of ${steps.length}</span><br>${s[1]}`).then(() => { if (s[3]) chips(s[3].map((o) => [o, () => take(o)])); });
     };
     const take = (v) => {
       const s = steps[i]; const raw = s[0] === "email" ? v.trim().replace(/\s+at\s+/i, "@").replace(/\s+dot\s+/gi, ".").replace(/\s/g, "") : v.trim(); const ok = s[2](raw);
@@ -397,7 +459,7 @@
       d[s[0]] = /^skip$/i.test(val) ? "-" : val; i++;
       if (i < steps.length) ask(); else { flow = null; confirm(d); }
     };
-    flow = take;
+    flow = take; showCta(false);
     ask();
   }
   function confirm(d) {
@@ -421,8 +483,9 @@
       const r = await fetch(ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(payload) });
       const j = await r.json().catch(() => ({}));
       if (!r.ok || String(j.success) !== "true") throw new Error(j.message || "failed");
+      sent = true; showCta(false);
       if (d.call_date) await bot(`✅ <b>Thank you, ${esc(first)}!</b> Your call request is in (reference <b>${ref}</b>) for <b>${esc(d.call_date)}, ${esc(d.call_time)} IST</b> by ${esc(d.call_mode)}. We'll confirm the exact time before the call, and a confirmation email is on its way to ${esc(d.email)}.`);
-      else await bot(`✅ <b>Thank you, ${esc(first)}!</b> Your enquiry has reached our team (reference <b>${ref}</b>). A confirmation email is on its way to ${esc(d.email)}; please check spam if you don't see it. We'll reply within one to two working days.`);
+      else await bot(`✅ <b>Thank you, ${esc(first)}!</b> Your enquiry has reached our team (reference <b>${ref}</b>). A confirmation email is on its way to ${esc(d.email)}; please check spam if you don't see it. We'll reply within one to two working days.<br><br>🌟 You've taken the most important step. We're excited to be part of your research journey!`);
       chips([["💬 Need it faster? WhatsApp", whatsapp], ["🏠 Main menu", () => { bot("Anything else I can help with?").then(menu); }]]);
     } catch (e) {
       const txt = `Hello ResearchMed Connect,\n\nName: ${d.name}\nEmail: ${d.email}\nPhone: ${d.phone}\nAbout me: ${d.qualification}\nNeed help with: ${d.service}${d.call_date ? `\nPreferred call: ${d.call_date}, ${d.call_time} IST, ${d.call_mode}` : ""}\n\n${d.message}`;
