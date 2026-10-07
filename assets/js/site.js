@@ -512,6 +512,14 @@
     const back = { videos: ["videos.html", "All videos"], notes: ["notes.html", "All notes"], highlights: ["highlights.html", "All publications"] }[c];
     if (!it) { $("#item-hero").innerHTML = "<h1>Not found</h1>"; root.innerHTML = `<a class="back" href="${back[0]}">← ${back[1]}</a><div class="empty" style="margin-top:20px"><strong>This item is no longer available</strong>It may have been renamed or removed.</div>`; return; }
     document.title = `${it.title} | ResearchMed Connect`;
+    if (c === "highlights" || c === "notes") { // structured data so search engines recognise the page
+      try {
+        const ld = c === "highlights"
+          ? { "@context": "https://schema.org", "@type": "ScholarlyArticle", headline: String(it.title).slice(0, 110), name: it.title, datePublished: it.date || undefined, articleSection: it.study_type || undefined, url: location.href, sameAs: it.url ? safeUrl(it.url) : undefined, isPartOf: it.journal ? { "@type": "Periodical", name: it.journal, alternateName: it.journal_short || undefined } : undefined, publisher: it.journal ? { "@type": "Organization", name: it.journal } : undefined, about: "Anaesthesia and allied health research" }
+          : { "@context": "https://schema.org", "@type": "LearningResource", name: it.title, description: it.description || it.summary || undefined, datePublished: it.date || undefined, url: location.href, provider: { "@type": "EducationalOrganization", name: "ResearchMed Connect", url: "https://researchmed.in/" }, educationalLevel: "Undergraduate, postgraduate and faculty", inLanguage: "en" };
+        const sc = document.createElement("script"); sc.type = "application/ld+json"; sc.textContent = JSON.stringify(ld); document.head.appendChild(sc);
+      } catch (e) {}
+    }
     const meta = [];
     let main = "";
     if (c === "videos") {
