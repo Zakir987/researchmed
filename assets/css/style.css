@@ -1935,3 +1935,45 @@ p, li { text-wrap: pretty; }
 main > .section:has(> .wrap > .cta:only-child) { display: none; }
 .wp{overflow-x:hidden}
 .wp-card{width:min(920px,calc(100% - 32px));box-sizing:border-box}
+
+
+/* =====================================================================
+   2026-10-07 polish: calmer UI — one accent system, steady borders,
+   clean glows, compact offer strip, less motion
+   ===================================================================== */
+/* 1. Day theme: keep saffron for buttons only — the saffron glow on navy bands turned muddy olive */
+:root{--aurora-2:rgba(89,183,232,.22);--blob-b:#59b7e8}
+
+/* 2. Steady gradient borders instead of spinning rainbows */
+.hj::before{animation:none!important;background:linear-gradient(120deg,#7cc4ff,#5ef0d6 60%,#7cc4ff)}
+.cf-ring::before{animation:none!important;background:linear-gradient(140deg,#7cc4ff,#5ef0d6 55%,#2f7fe0)}
+.wp-card::before{animation:none!important;background:linear-gradient(120deg,#ffd36e,#ff6b81 45%,#5ef0d6)}
+
+/* 3. Less motion: no flowing headline gradient, no bobbing chatbot */
+.hero-x h1 .gt{animation:none!important;background-position:0 50%}
+.rb-fab{animation:rb-ring 4.8s ease-out infinite!important}
+
+/* 4. WhatsApp button: compact circle, label slides out on hover */
+.wa-fab{padding:13px;gap:0}
+.wa-fab span{max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .3s ease,margin .3s ease}
+.wa-fab:hover span,.wa-fab:focus-visible span{max-width:140px;margin-left:8px}
+
+/* 5. Offer as a slim strip above the hero (the pop-up carries the full story) */
+.wad-wrap{margin-bottom:26px}
+.wad{display:flex!important;align-items:center;gap:14px 18px;padding:12px 14px 12px 12px!important;border-radius:18px!important;grid-template-columns:none!important;animation:wadIn .6s cubic-bezier(.2,.8,.2,1) both!important}
+.wad::before{animation:none!important;background:linear-gradient(120deg,rgba(255,211,110,.9),rgba(255,107,129,.9) 45%,rgba(94,240,214,.8))!important;padding:1px!important}
+.wad .wad-x{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:14px;font:800 1.2rem var(--font-display);color:#2a0b12;background:linear-gradient(135deg,#ffd36e,#ff6b81);box-shadow:0 8px 20px -8px rgba(255,107,129,.8);animation:none!important}
+.wad .wad-l{flex:1;min-width:0}
+.wad .wad-tag{margin:0 0 3px!important;padding:0!important;background:none!important;border:0!important;font-size:.7rem!important;color:#ffc2cc!important}
+.wad .wad-h{margin:0!important;font-family:var(--font-body)!important;font-size:.98rem!important;font-weight:700;line-height:1.35!important;color:#eef6ff}
+.wad .wad-h em{font-style:normal;background:linear-gradient(90deg,#ffd36e,#ff8a9a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.wad .wad-sep{margin:0 10px;color:#6f86a0}
+.wad .wad-cd{display:flex;gap:4px;flex:none}
+.wad .wad-t{min-width:0!important;padding:6px 7px!important;border-radius:9px!important;display:flex!important;align-items:baseline;gap:1px}
+.wad .wad-t b{font-size:1.05rem!important}
+.wad .wad-t small{margin:0!important;font-size:.68rem!important;letter-spacing:0!important;text-transform:none!important}
+.wad .wad-btn{flex:none;padding:10px 16px;font-size:.92rem}
+@media (max-width:900px){.wad{flex-wrap:wrap}.wad .wad-l{flex-basis:calc(100% - 64px)}.wad .wad-cd{margin-left:60px}.wad .wad-btn{margin-left:auto}}
+@media (max-width:520px){.wad .wad-sep{display:block;height:0;overflow:hidden;margin:0}.wad .wad-h{font-size:.92rem!important}.wad .wad-cd{margin-left:0}.wad .wad-btn{flex:1;justify-content:center}}
+/* 6. Readable "Enquire now": dark text on saffron (day) and on green (night) */
+.nav a.nav-cta,.nav a.nav-cta[aria-current="page"],.nav a.nav-cta:hover{color:var(--btn-ink)!important}
