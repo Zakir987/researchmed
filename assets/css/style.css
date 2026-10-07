@@ -1933,3 +1933,5 @@ p, li { text-wrap: pretty; }
 .proof-logos { justify-content: center; }
 /* One call to action per page: the footer band already carries it, so the in-page duplicate is hidden */
 main > .section:has(> .wrap > .cta:only-child) { display: none; }
+.wp{overflow-x:hidden}
+.wp-card{width:min(920px,calc(100% - 32px));box-sizing:border-box}
