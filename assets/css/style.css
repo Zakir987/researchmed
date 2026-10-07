@@ -1672,3 +1672,24 @@ main .jh-cta{margin:44px auto 52px}
 body .jh-hero,body .jd-hero,body .jn-hero,body .trk-hero{background:radial-gradient(760px 420px at 8% -20%,var(--aurora-1),transparent 62%),radial-gradient(700px 420px at 100% 30%,var(--aurora-2),transparent 62%),linear-gradient(160deg,var(--night-a),var(--night-b) 60%,var(--night-c))}
 .wp{overflow-x:hidden}
 .wp-card{width:min(920px,calc(100% - 32px));box-sizing:border-box}
+
+/* ===== Free 15-minute call ===== */
+.hp-call{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:9px 12px;border-radius:12px;border:1px dashed color-mix(in srgb,var(--teal) 45%,transparent);color:var(--teal);font-weight:600;font-size:.93rem;text-decoration:none;text-align:center;transition:background .2s,border-color .2s}
+.hp-call:hover{background:color-mix(in srgb,var(--teal) 9%,transparent);border-style:solid}
+.hp-call b{font-weight:700}
+.hp-call{color:#7ff3df;border-color:rgba(127,243,223,.45)}
+.hp-call:hover{background:rgba(127,243,223,.1);color:#fff}
+.call-cta{display:grid;grid-template-columns:auto 1fr;gap:10px 14px;align-items:center;margin-top:18px;padding:16px;border-radius:16px;background:linear-gradient(135deg,color-mix(in srgb,var(--teal) 10%,transparent),color-mix(in srgb,var(--primary) 8%,transparent));border:1px solid color-mix(in srgb,var(--teal) 28%,transparent)}
+.call-ic{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--teal);color:#fff;animation:callRing 2.6s ease-in-out infinite}
+.call-cta b{display:block;font-size:1.02rem}
+.call-cta span:not(.call-ic){display:block;font-size:.9rem;opacity:.85;line-height:1.45}
+.call-cta .btn{grid-column:1/-1;justify-self:start;padding:10px 20px;text-decoration:none;color:#fff;margin-left:56px}
+@media (max-width:400px){.call-cta .btn{margin-left:0}}
+@keyframes callRing{0%,70%,100%{transform:none}75%{transform:rotate(-14deg)}80%{transform:rotate(12deg)}85%{transform:rotate(-8deg)}90%{transform:rotate(5deg)}}
+@media (prefers-reduced-motion:reduce){.call-ic{animation:none}}
+.call-fields{margin:4px 0 14px;padding:14px;border-radius:14px;border:1px solid color-mix(in srgb,var(--teal) 30%,transparent);background:color-mix(in srgb,var(--teal) 6%,transparent)}
+.call-fields[hidden]{display:none}
+.call-note{margin:0 0 10px;font-size:.9rem}
+.call-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.call-grid label{margin:0}
+@media (max-width:640px){.call-grid{grid-template-columns:1fr}}
