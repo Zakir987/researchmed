@@ -135,7 +135,6 @@
           ${NAV.filter(([, , k]) => k !== "updates" || PAGE === "updates").map(([h, t, k]) => `<a href="${h}" ${k === PAGE ? 'aria-current="page"' : ""}>${t}</a>`).join("")}
           <a class="nav-cta" href="contact.html" ${PAGE === "contact" ? 'aria-current="page"' : ""}>Enquire now</a>
         </nav>
-        ${PAGE === "home" ? `<button class="theme-toggle snd-toggle" type="button" aria-label="Welcome sound" aria-pressed="true"></button>` : ""}
         <button class="theme-toggle" type="button" aria-label="Toggle dark mode">${ICON.moon}</button>
         <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">${ICON.menu}</button>
       </div>`;
@@ -155,78 +154,8 @@
     const nav = $("#site-nav"), mt = $(".menu-toggle");
     mt.addEventListener("click", () => { const o = nav.classList.toggle("open"); mt.setAttribute("aria-expanded", o); });
 
-    // Welcome sound (home page): soft monitor chime + spoken welcome on the visitor's first tap/click/key.
-    // Browsers block sound until the visitor interacts, so it starts on that first gesture, once per visit.
-    const sb = $(".snd-toggle");
-    if (sb) {
-      const SPK = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
-      const MUTE = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="m22 9-6 6M16 9l6 6"/></svg>';
-      let on = true; try { on = localStorage.getItem("rmc-sound") !== "off"; } catch (e) {}
-      let played = false; try { played = sessionStorage.getItem("rmcWelcomed") === "1"; } catch (e) {}
-      const paintS = () => { sb.innerHTML = on ? SPK : MUTE; sb.setAttribute("aria-pressed", String(on)); sb.title = on ? "Welcome sound on (click to mute)" : "Welcome sound off (click to turn on)"; };
-      paintS();
-      let ac = null;
-      const chime = () => {
-        try {
-          ac = ac || new (window.AudioContext || window.webkitAudioContext)();
-          if (ac.state === "suspended") ac.resume();
-          const t0 = ac.currentTime + 0.02, out = ac.createGain(); out.gain.value = 0.9; out.connect(ac.destination);
-          const tone = (f, t, d, v, type) => { const o = ac.createOscillator(), g = ac.createGain(); o.type = type || "sine"; o.frequency.value = f; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t + d); o.connect(g); g.connect(out); o.start(t); o.stop(t + d + 0.05); };
-          tone(880, t0, 0.11, 0.09, "triangle"); tone(880, t0 + 0.2, 0.11, 0.09, "triangle"); // pulse-oximeter "beep-beep"
-          [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, t0 + 0.45 + i * 0.07, 1.6, 0.05)); // warm major chord
-        } catch (e) {}
-      };
-      const speak = (onBlocked) => {
-        if (!("speechSynthesis" in window)) return;
-        try {
-          speechSynthesis.cancel();
-          const u = new SpeechSynthesisUtterance("Welcome to Research Med Connect.");
-          const vs = speechSynthesis.getVoices();
-          u.voice = vs.find((v) => /en-IN/i.test(v.lang)) || vs.find((v) => /en-GB/i.test(v.lang) && /female|libby|sonia|serena|kate/i.test(v.name)) || vs.find((v) => /^en/i.test(v.lang)) || null;
-          u.lang = (u.voice && u.voice.lang) || "en-IN"; u.rate = 0.95; u.pitch = 1.02; u.volume = 0.9;
-          u.onerror = (ev) => { if (onBlocked && ev && /not-allowed/i.test(ev.error || "")) onBlocked(); };
-          speechSynthesis.speak(u);
-        } catch (e) {}
-      };
-      const welcome = () => { chime(); setTimeout(speak, 900); };
-      const markPlayed = () => { played = true; try { sessionStorage.setItem("rmcWelcomed", "1"); } catch (e) {} };
-      const first = (e) => {
-        if (e && e.target && e.target.closest && e.target.closest(".snd-toggle")) return;
-        ["pointerdown", "keydown", "touchend", "click"].forEach((ev) => document.removeEventListener(ev, first, true));
-        if (!on || played) return;
-        markPlayed();
-        welcome();
-      };
-      const EVS = ["pointerdown", "keydown", "touchend", "click"];
-      // 1) Try to start straight away when the page opens (allowed in some browsers, e.g. for frequent visitors).
-      // 2) If the browser blocks sound until a gesture, it starts on the visitor's first tap / click / key instead.
-      if (!played && on) {
-        try {
-          ac = new (window.AudioContext || window.webkitAudioContext)();
-          const tryAuto = () => {
-            if (played || !on) return;
-            if (ac.state === "running") {
-              chime(); markPlayed();
-              setTimeout(() => speak(() => { const once = () => { EVS.forEach((ev) => document.removeEventListener(ev, once, true)); speak(); }; EVS.forEach((ev) => document.addEventListener(ev, once, true)); }), 900);
-              EVS.forEach((ev) => document.removeEventListener(ev, first, true));
-            }
-          };
-          if (ac.state === "suspended") ac.resume().then(tryAuto).catch(() => {});
-          setTimeout(tryAuto, 600);
-        } catch (e) {}
-      }
-      if (!played) EVS.forEach((ev) => document.addEventListener(ev, first, true));
-      if ("speechSynthesis" in window) speechSynthesis.getVoices();
-      sb.addEventListener("click", () => {
-        on = !on; try { localStorage.setItem("rmc-sound", on ? "on" : "off"); } catch (e) {}
-        paintS();
-        if (on) { welcome(); played = true; try { sessionStorage.setItem("rmcWelcomed", "1"); } catch (e) {} }
-        else if ("speechSynthesis" in window) speechSynthesis.cancel();
-      });
-    }
-
     // Theme
-    const tt = $(".theme-toggle:not(.snd-toggle)");
+    const tt = $(".theme-toggle");
     const isDark = () => document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
     const paint = () => { tt.innerHTML = isDark() ? ICON.sun : ICON.moon; };
     try { const saved = localStorage.getItem("rmc-theme"); if (saved) document.documentElement.dataset.theme = saved; } catch (e) {}
