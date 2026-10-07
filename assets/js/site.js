@@ -576,6 +576,22 @@
     const qs = new URLSearchParams(location.search);
     const sel = $("#c-service", f), want = qs.get("service");
     if (sel && want && [...sel.options].some((o) => o.text === want)) sel.value = want;
+    // Free 15-minute call: extra date / time / mode fields, phone + date required
+    const CALL = "Free 15-minute call", callBox = $("#c-call", f), phone = $("#c-phone", f), cdate = $("#c-date", f);
+    const phoneLab = phone && phone.closest("label"), phoneTxt = phoneLab && phoneLab.firstChild;
+    if (cdate) { const t = new Date(Date.now() + 864e5); cdate.min = t.toISOString().slice(0, 10); }
+    const syncCall = () => {
+      const on = sel && sel.value === CALL;
+      if (callBox) callBox.hidden = !on;
+      if (cdate) cdate.required = !!on;
+      if (phone) phone.required = !!on;
+      if (phoneTxt && phoneTxt.nodeType === 3) phoneTxt.textContent = on ? "Phone / WhatsApp (for the call)" : "Phone / WhatsApp (optional)";
+      const btnEl = $("button[type=submit]", f); if (btnEl && !btnEl.disabled) btnEl.textContent = on ? "Request my free call" : "Send enquiry";
+    };
+    if (sel) sel.addEventListener("change", syncCall);
+    const startCall = () => { if (!sel) return; sel.value = CALL; const m = $("#c-msg", f); if (m && !m.value) m.value = "I would like a free 15-minute call to discuss: "; syncCall(); f.scrollIntoView({ behavior: "smooth", block: "start" }); setTimeout(() => $("#c-name", f) && $("#c-name", f).focus({ preventScroll: true }), 500); };
+    document.querySelectorAll("[data-book-call]").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); startCall(); }));
+    if (qs.get("call")) startCall(); else syncCall();
     if (qs.get("book") && $("#c-msg", f)) $("#c-msg", f).value = `I would like to contribute a chapter to the book "${qs.get("book")}".\n\nPreferred chapter: \nMy qualification / designation: \nInstitution: `;
     if (qs.get("offer") === "wad" && $("#c-msg", f)) $("#c-msg", f).value = `I would like to claim the World Anaesthesia Day offer (one collaboration, two papers / one chapter collaboration, two chapters).\n\nI am interested in: paper collaboration / chapter collaboration\nMy qualification / designation: \nInstitution: `;
     if (qs.get("paper") && $("#c-msg", f)) $("#c-msg", f).value = `I would like to collaborate on the study "${qs.get("paper")}".\n\nHow I can contribute (literature review / data collection / analysis / writing): \nMy qualification / designation: \nInstitution: `;
@@ -584,7 +600,7 @@
     const INBOX = "info@researchmed.in";
     const ENDPOINT = "https://formsubmit.co/ajax/" + INBOX;
     const wa = (settings.whatsapp || "").replace(/\D/g, "");
-    const waLink = (d) => `https://wa.me/${wa}?text=${encodeURIComponent(`Hello ResearchMed Connect,\n\nName: ${d.name}\nEmail: ${d.email}\nPhone: ${d.phone || "-"}\nNeed help with: ${d.service}\n\n${d.message}`)}`;
+    const waLink = (d) => `https://wa.me/${wa}?text=${encodeURIComponent(`Hello ResearchMed Connect,\n\nName: ${d.name}\nEmail: ${d.email}\nPhone: ${d.phone || "-"}\nNeed help with: ${d.service}${d.service === "Free 15-minute call" ? `\nPreferred call: ${d.call_date || "-"}, ${d.call_time || "-"} IST, ${d.call_mode || "-"}` : ""}\n\n${d.message}`)}`;
     f.addEventListener("submit", async (e) => {
       e.preventDefault();
       const d = Object.fromEntries(new FormData(f));
@@ -598,11 +614,12 @@
         "Name": d.name, "Phone / WhatsApp": d.phone || "-",
         "Qualification / designation": d.qualification || "-", "Institution": d.institution || "-",
         "Needs help with": d.service, "Preferred reply via": d.reply_via || "Email",
+        ...(d.service === CALL ? { "Preferred call": `${d.call_date || "-"} · ${d.call_time || "-"} IST · ${d.call_mode || "-"}` } : {}),
         "Message": d.message, "Sent from page": location.href,
         email: d.email,
-        _subject: `New enquiry ${ref}: ${d.service} from ${d.name}`,
+        _subject: d.service === CALL ? `Call request ${ref}: ${d.name}, ${d.call_date || ""} ${d.call_time || ""} IST (${d.call_mode || ""})` : `New enquiry ${ref}: ${d.service} from ${d.name}`,
         _template: "table", _captcha: "false",
-        _autoresponse: `Dear ${first},\n\nThank you for contacting ResearchMed Connect. We have received your enquiry about "${d.service}" (reference ${ref}).\n\nOur team will get back to you within one to two working days.${wa ? ` For anything urgent, you can WhatsApp us at ${settings.whatsapp}.` : ""}\n\nWarm regards,\nResearchMed Connect\nResearch. Learn. Publish. Grow.\nhttps://researchmed.in`
+        _autoresponse: `Dear ${first},\n\nThank you for contacting ResearchMed Connect. ${d.service === CALL ? `We have received your request for a free 15-minute call (reference ${ref}).\n\nPreferred slot: ${d.call_date || "-"}, ${d.call_time || "-"} IST, by ${d.call_mode || "-"}.\n\nWe will confirm the exact time with you before the call.` : `We have received your enquiry about "${d.service}" (reference ${ref}).\n\nOur team will get back to you within one to two working days.`}${wa ? ` For anything urgent, you can WhatsApp us at ${settings.whatsapp}.` : ""}\n\nWarm regards,\nResearchMed Connect\nResearch. Learn. Publish. Grow.\nhttps://researchmed.in`
       };
       try {
         const r = await fetch(ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(payload) });
@@ -610,13 +627,13 @@
         if (!r.ok || String(j.success) !== "true") throw new Error(j.message || "send failed");
         f.hidden = true;
         status.className = "form-status ok";
-        status.innerHTML = `<strong>Thank you, ${esc(first)}!</strong> Your enquiry has reached us (reference <b>${ref}</b>). A confirmation has been sent to ${esc(d.email)} — please check your spam folder if you don't see it. We usually reply within one to two working days.${wa ? `<div class="btn-row" style="margin-top:12px"><a class="btn btn-ghost btn-sm" href="${waLink(d)}" target="_blank" rel="noopener">Need it faster? WhatsApp us</a></div>` : ""}`;
+        status.innerHTML = `<strong>Thank you, ${esc(first)}!</strong> ${d.service === CALL ? `Your call request has reached us (reference <b>${ref}</b>). We'll confirm your slot on ${esc(d.call_mode || "WhatsApp")} before ${esc(d.call_date || "the call")}.` : `Your enquiry has reached us (reference <b>${ref}</b>).`} A confirmation has been sent to ${esc(d.email)} — please check your spam folder if you don't see it. We usually reply within one to two working days.${wa ? `<div class="btn-row" style="margin-top:12px"><a class="btn btn-ghost btn-sm" href="${waLink(d)}" target="_blank" rel="noopener">Need it faster? WhatsApp us</a></div>` : ""}`;
         status.hidden = false;
       } catch (err) {
         status.className = "form-status err";
         status.innerHTML = `<strong>We couldn't send this just now.</strong> Please send the same message on WhatsApp or email instead. It only takes one tap.<div class="btn-row" style="margin-top:12px">${wa ? `<a class="btn btn-primary" href="${waLink(d)}" target="_blank" rel="noopener">Send on WhatsApp</a>` : ""}<a class="btn btn-ghost" href="mailto:${INBOX}?subject=${encodeURIComponent("Enquiry: " + d.service)}&body=${encodeURIComponent(d.message || "")}">Send by email</a></div>`;
         status.hidden = false;
-        btn.disabled = false; btn.textContent = "Send enquiry";
+        btn.disabled = false; syncCall();
       }
     });
   }
