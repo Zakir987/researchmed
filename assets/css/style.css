@@ -1672,3 +1672,7 @@ main .jh-cta{margin:44px auto 52px}
 body .jh-hero,body .jd-hero,body .jn-hero,body .trk-hero{background:radial-gradient(760px 420px at 8% -20%,var(--aurora-1),transparent 62%),radial-gradient(700px 420px at 100% 30%,var(--aurora-2),transparent 62%),linear-gradient(160deg,var(--night-a),var(--night-b) 60%,var(--night-c))}
 .wp{overflow-x:hidden}
 .wp-card{width:min(920px,calc(100% - 32px));box-sizing:border-box}
+.snd-toggle{margin-right:6px}
+.snd-toggle:hover{transform:scale(1.08)!important}
+.snd-toggle[aria-pressed="true"]{color:var(--teal)}
+@media (max-width:420px){.snd-toggle{width:36px!important;height:36px!important;margin-right:0}}
