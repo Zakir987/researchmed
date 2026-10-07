@@ -11,6 +11,12 @@
   let settings = {}, wa = "";
   const getJson = (n) => fetch(`content/${n}.json`, { cache: "no-cache" }).then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
   getJson("settings").then((s) => { settings = s || {}; wa = String(settings.whatsapp || "").replace(/\D/g, ""); });
+  let journal = {}; getJson("journal").then((j) => { journal = j || {}; });
+  const OFFER_END = Date.parse("2026-10-16T00:00:00+05:30");
+  const offerOn = () => Date.now() < OFFER_END;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const canSpeak = "speechSynthesis" in window;
+  let speakOn = false; try { speakOn = localStorage.getItem("rb-voice") === "1"; } catch (e) {}
 
   // ---------- Styles (use the site's colour tokens, so light/dark both work) ----------
   const css = `
@@ -51,7 +57,20 @@
   .rb-foot button{border:0;border-radius:10px;padding:0 14px;background:var(--primary,#1b5896);color:var(--on-primary,#fff);font-weight:700;cursor:pointer}
   .rb-note{font-size:.72rem;color:var(--muted,#52657b);text-align:center;padding:0 10px 8px;background:var(--surface,#fff)}
   @media (max-width:520px){.rb-fab{bottom:calc(80px + env(safe-area-inset-bottom,0px))}.rb-panel{right:12px;bottom:12px;height:calc(100vh - 24px)}.rb-tease{right:90px}}
-  @media print{.rb-fab,.rb-panel,.rb-tease{display:none}}`;
+  @media print{.rb-fab,.rb-panel,.rb-tease{display:none}}
+  .rb-hb{margin-left:auto;display:flex;gap:6px} .rb-hb .rb-x{margin-left:0}
+  .rb-spk{border:0;background:rgba(255,255,255,.15);color:inherit;width:34px;height:34px;border-radius:50%;cursor:pointer;display:grid;place-items:center}
+  .rb-spk[aria-pressed="true"]{background:#2ee6c5;color:#062a26}
+  .rb-mic{border:0;border-radius:10px;width:44px;flex:none;background:color-mix(in srgb,var(--primary,#1b5896) 12%,transparent);color:var(--primary,#1b5896);cursor:pointer;display:grid;place-items:center;position:relative}
+  .rb-mic.on{background:#e5484d;color:#fff;animation:rb-mic 1.2s ease-out infinite}
+  @keyframes rb-mic{0%{box-shadow:0 0 0 0 rgba(229,72,77,.55)}100%{box-shadow:0 0 0 12px rgba(229,72,77,0)}}
+  .rb-foot .rb-mic{padding:0}
+  .rb-listen{display:flex;align-items:center;gap:8px;font-size:.85rem;color:#e5484d;font-weight:600;padding:6px 12px 0;background:var(--surface,#fff)}
+  .rb-listen[hidden]{display:none}
+  .rb-wave{display:inline-flex;gap:3px;align-items:center;height:14px} .rb-wave i{width:3px;height:100%;background:currentColor;border-radius:2px;animation:rb-w .9s ease-in-out infinite} .rb-wave i:nth-child(2){animation-delay:.15s}.rb-wave i:nth-child(3){animation-delay:.3s}.rb-wave i:nth-child(4){animation-delay:.45s}
+  @keyframes rb-w{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
+  .rb-hot{border-color:#f0a52a;color:#a35a00;background:color-mix(in srgb,#f0a52a 12%,var(--surface,#fff))}
+  .rb-hot:hover{background:#f0a52a;color:#2a1600}`;
   const st = document.createElement("style"); st.textContent = css; document.head.append(st);
 
   // Friendly robot face (original artwork) — blinking eyes, glowing antenna, medical-cross tip
@@ -82,7 +101,7 @@
   if (!seen) setTimeout(() => {
     if (opened) return;
     const t = document.createElement("div"); t.className = "rb-tease"; t.setAttribute("role", "status");
-    t.innerHTML = 'Hi! 👋 Need help with research, publication or a book chapter? <button type="button" aria-label="Dismiss">×</button>';
+    t.innerHTML = 'Hi! 👋 Need help with research, publication or a book chapter? You can even <b>talk to me</b> 🎙️ <button type="button" aria-label="Dismiss">×</button>';
     t.addEventListener("click", (e) => { t.remove(); if (e.target.tagName !== "BUTTON") open(); });
     document.body.append(t); try { sessionStorage.setItem("rb-seen", "1"); } catch (e) {}
     setTimeout(() => t.remove(), 14000);
@@ -95,23 +114,28 @@
     if (!panel) build();
     panel.hidden = false; fab.hidden = true; setTimeout(() => input.focus(), 50);
   }
-  function close() { panel.hidden = true; fab.hidden = false; fab.focus(); }
+  function close() { panel.hidden = true; fab.hidden = false; fab.focus(); stopVoice(); }
 
   function build() {
     panel = document.createElement("section");
     panel.className = "rb-panel"; panel.setAttribute("role", "dialog"); panel.setAttribute("aria-label", "ResearchMed Assistant");
-    panel.innerHTML = `<div class="rb-head"><span class="rb-av">${FACE()}</span><div><b>ResearchMed Assistant</b><small>Usually replies instantly</small></div><button class="rb-x" type="button" aria-label="Close chat">×</button></div>
+    panel.innerHTML = `<div class="rb-head"><span class="rb-av">${FACE()}</span><div><b>ResearchMed Assistant</b><small>${SR ? "Type or talk · replies instantly" : "Usually replies instantly"}</small></div><div class="rb-hb">${canSpeak ? `<button class="rb-spk" type="button" aria-pressed="${speakOn}" aria-label="Read replies aloud" title="Read replies aloud"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg></button>` : ""}<button class="rb-x" type="button" aria-label="Close chat">×</button></div></div>
       <div class="rb-log" aria-live="polite"></div>
-      <form class="rb-foot"><input type="text" placeholder="Type your question…" aria-label="Your message" autocomplete="off"><button type="submit">Send</button></form>
+      <div class="rb-listen" hidden><span class="rb-wave" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="rb-ltxt">Listening… speak now</span></div>
+      <form class="rb-foot"><input type="text" placeholder="${SR ? "Type or tap 🎙️ to speak…" : "Type your question…"}" aria-label="Your message" autocomplete="off">${SR ? `<button class="rb-mic" type="button" aria-label="Speak your question" title="Speak your question"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></svg></button>` : ""}<button type="submit">Send</button></form>
       <div class="rb-note">Automated assistant · Your details go only to ResearchMed Connect · <a href="privacy.html" style="color:inherit">Privacy</a></div>`;
     document.body.append(panel);
     log = panel.querySelector(".rb-log"); input = panel.querySelector("input");
     panel.querySelector(".rb-x").addEventListener("click", close);
     panel.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
     panel.querySelector("form").addEventListener("submit", (e) => {
-      e.preventDefault(); const v = input.value.trim(); if (!v) return; input.value = ""; me(v); handle(v);
+      e.preventDefault(); const v = input.value.trim(); if (!v) return; input.value = ""; submitText(v);
     });
-    bot(`Hello! 👋 I'm the <b>ResearchMed Assistant</b>.<br>I can help you with research and publication guidance, book chapter authorship and research collaborations. What would you like to know?`);
+    const spk = panel.querySelector(".rb-spk");
+    if (spk) spk.addEventListener("click", () => { setSpeak(!speakOn); if (speakOn) speak("Voice replies are on."); });
+    const mic = panel.querySelector(".rb-mic");
+    if (mic) mic.addEventListener("click", () => (listening ? stopListen() : listen()));
+    bot(`Hello! 👋 I'm the <b>ResearchMed Assistant</b>.<br>I can help with research and publication guidance, a <b>free 15-minute call</b>, book chapters, collaborations and our journal <b>IJAOTT</b>.${SR ? " Type your question, or tap 🎙️ and just ask." : " What would you like to know?"}`);
     menu();
   }
 
@@ -122,29 +146,85 @@
     return new Promise((res) => {
       const ty = document.createElement("div"); ty.className = "rb-m rb-bot"; ty.innerHTML = '<span class="rb-typing"><i></i><i></i><i></i></span>';
       log.append(ty); scroll();
-      setTimeout(() => { ty.innerHTML = html; scroll(); res(); }, delay == null ? 450 : delay);
+      setTimeout(() => { ty.innerHTML = html; scroll(); speak(html); res(); }, delay == null ? 450 : delay);
     });
   }
   function chips(list) {
     const c = document.createElement("div"); c.className = "rb-chips";
     list.forEach(([label, fn]) => {
-      const b = document.createElement("button"); b.type = "button"; b.className = "rb-chip"; b.textContent = label;
+      const b = document.createElement("button"); b.type = "button"; b.className = "rb-chip" + (/^🎉/.test(label) ? " rb-hot" : ""); b.textContent = label;
       b.addEventListener("click", () => { c.remove(); me(label); fn(); });
       c.append(b);
     });
     setTimeout(() => { log.append(c); scroll(); }, 500);
   }
+  // ---------- Voice: speech-to-text in, text-to-speech out ----------
+  let rec = null, listening = false, heard = "";
+  const norm = (t) => String(t).toLowerCase().replace(/[^a-z0-9₹ ]+/g, " ").replace(/\b(to|till|until|and|the|a|please)\b/g, " ").replace(/\b(\d+)\s*(am|pm)\s+(\d+)/g, "$1 $3").replace(/\s+/g, " ").trim();
+  function setSpeak(on) {
+    speakOn = !!on; try { localStorage.setItem("rb-voice", speakOn ? "1" : "0"); } catch (e) {}
+    const b = panel && panel.querySelector(".rb-spk"); if (b) b.setAttribute("aria-pressed", String(speakOn));
+    if (!speakOn && canSpeak) speechSynthesis.cancel();
+  }
+  let voice = null;
+  const pickVoice = () => { const vs = speechSynthesis.getVoices(); voice = vs.find((v) => /en-IN/i.test(v.lang)) || vs.find((v) => /en-GB/i.test(v.lang)) || vs.find((v) => /^en/i.test(v.lang)) || null; };
+  if (canSpeak) { pickVoice(); speechSynthesis.addEventListener && speechSynthesis.addEventListener("voiceschanged", pickVoice); }
+  function speak(html) {
+    if (!speakOn || !canSpeak || !html || /rb-typing|^Sending/.test(html)) return;
+    const d = document.createElement("div"); d.innerHTML = String(html).replace(/<br\s*\/?>(\s*)/gi, ". ").replace(/<li>/gi, ". ");
+    let t = (d.textContent || "").replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}→←]/gu, "").replace(/(\d)\s*[–-]\s*(\d)/g, "$1 to $2").replace(/ResearchMed/g, "Research Med").replace(/IJAOTT/g, "I J A O T T").replace(/\bPh\.D\./g, "PhD").replace(/\s+/g, " ").replace(/(\.\s*){2,}/g, ". ").trim();
+    if (!t) return;
+    const u = new SpeechSynthesisUtterance(t.slice(0, 600)); if (voice) u.voice = voice; u.lang = (voice && voice.lang) || "en-IN"; u.rate = 1; u.pitch = 1.02;
+    speechSynthesis.speak(u);
+  }
+  function stopVoice() { if (canSpeak) speechSynthesis.cancel(); stopListen(); }
+  function listen() {
+    if (!SR) return;
+    if (canSpeak) speechSynthesis.cancel();
+    if (!speakOn) setSpeak(true); // talking to the bot turns on spoken replies
+    rec = new SR(); rec.lang = "en-IN"; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
+    heard = ""; listening = true;
+    const mic = panel.querySelector(".rb-mic"), bar = panel.querySelector(".rb-listen"), lt = panel.querySelector(".rb-ltxt");
+    mic.classList.add("on"); mic.setAttribute("aria-label", "Stop listening"); bar.hidden = false; lt.textContent = "Listening… speak now";
+    rec.onresult = (e) => { let fin = "", tmp = ""; for (let i = e.resultIndex; i < e.results.length; i++) { const r = e.results[i]; (r.isFinal ? (fin += r[0].transcript) : (tmp += r[0].transcript)); } if (fin) heard += fin; input.value = (heard + " " + tmp).trim(); };
+    rec.onerror = (e) => {
+      if (e.error === "not-allowed" || e.error === "service-not-allowed") bot("I can't hear you because microphone access is blocked. Please allow the microphone for this site in your browser settings, or just type your question.");
+      else if (e.error === "no-speech") bot("I didn't catch anything. Tap 🎙️ and try again, or type your question.");
+    };
+    rec.onend = () => {
+      listening = false; mic.classList.remove("on"); mic.setAttribute("aria-label", "Speak your question"); bar.hidden = true;
+      const v = (heard || input.value).trim(); input.value = ""; if (v) submitText(v);
+    };
+    try { rec.start(); } catch (e) { rec.onend(); }
+  }
+  function stopListen() { if (rec && listening) { try { rec.stop(); } catch (e) {} } }
+  // Typed or spoken text: first try to match one of the buttons on screen, then the knowledge base
+  function submitText(v) {
+    if (canSpeak) speechSynthesis.cancel();
+    const n = norm(v), lastEl = log.lastElementChild, last = lastEl && lastEl.classList.contains("rb-chips") ? lastEl : null;
+    if (last && n.length >= 3) {
+      const btn = [...last.querySelectorAll(".rb-chip")].find((b) => { const l = norm(b.textContent); return l === n || (n.length >= 4 && (l.includes(n) || (n.includes(l) && l.length >= 4))); });
+      if (btn) return btn.click();
+    }
+    me(v); handle(v);
+  }
+
   const waLink = (text) => wa ? `https://wa.me/${wa}?text=${encodeURIComponent(text || "Hello ResearchMed Connect, I would like guidance.")}` : "contact.html";
   const more = () => chips([["📝 Send an enquiry", startLead], ["💬 WhatsApp us", whatsapp], ["🏠 Main menu", () => { bot("What else can I help you with?").then(menu); }]]);
 
   function menu() {
     chips([
+      ...(offerOn() ? [["🎉 Anaesthesia Day offer", offer]] : []),
+      ["📞 Free 15-min call", startCall],
       ["🔬 Research guidance", () => answer("research")],
       ["📄 Publication help", () => answer("publication")],
       ["📚 Become a book author", openBooks],
       ["🤝 Research collaboration", openPapers],
       ["💰 Fees", () => answer("fees")],
       ["👩‍🏫 Mentors", () => answer("mentors")],
+      ["📖 Our journal IJAOTT", journalInfo],
+      ["👥 Our team", team],
+      ["📚 Free notes", notes],
       ["📝 Send an enquiry", startLead],
       ["💬 WhatsApp", whatsapp],
     ]);
@@ -165,9 +245,20 @@
     video: `Yes, video lectures and live online sessions are available <b>on request</b>. Tell us the topic and we'll arrange a recorded or live session for you or your group.`,
     record: () => `Our team has <b>${esc(settings.papers_submitted || 35)} papers submitted and ${esc(settings.papers_published || 28)} published</b>, including in Scopus-indexed and Elsevier journals. See them on the <a href="highlights.html">Publications</a> page.`,
     time: `We usually reply within <b>one to two working days</b>. For anything urgent, WhatsApp is fastest.`,
+    faq: `Many common questions are answered on our <a href="faqs.html">FAQs page</a>. You can also ask me directly, for example about fees, mentors, timelines or journals.`,
+    feedback: `We'd love to hear from you! Share your experience on the <a href="feedback.html">feedback page</a>, or read what others say on the home page.`,
+    gallery: `See photos from our sessions and events in the <a href="gallery.html">gallery</a>, and the latest news on the <a href="updates.html">updates page</a>.`,
     contact: () => `You can reach us at <a href="mailto:${INBOX}">${INBOX}</a>${wa ? ` or on <a href="${waLink()}" target="_blank" rel="noopener">WhatsApp (${esc(settings.whatsapp)})</a>` : ""}, or send an enquiry right here.`,
   };
   const RULES = [
+    [/anaesthesia day|anesthesia day|ether day|\boffer|discount|\b2x\b|two papers|two chapters|\bdeal\b|special/i, "offer"],
+    [/15.?min|free call|free consult|book (a )?call|schedule (a )?call|call ?back|talk to (a )?(mentor|expert|someone)|speak to (a )?(mentor|expert|someone)|appointment|\bmeeting\b|google meet|video call/i, "call"],
+    [/ijaott|our journal|your journal|operation theatre technology journal|journal of anaes|editorial board|editor.in.chief|reviewer|peer review|submit (my |a )?(manuscript|paper|article) to|track (my )?(manuscript|submission|paper)|call for papers|inaugural issue|issn|\bapc\b/i, "journal"],
+    [/\bteam\b|founder|director|who (are|runs|owns|started)|zakir|harshitha|about (you|us|the company)/i, "team"],
+    [/\bnotes?\b|resources?|study material|free material|reading|learn|tutorial|blog/i, "notes"],
+    [/\bfaqs?\b|questions/i, "faq"],
+    [/feedback|testimonial|review(s)? (of|about) you/i, "feedback"],
+    [/gallery|photos?|pictures?|events?|news|updates?/i, "gallery"],
     [/\bfees?\b|cost|price|charges?\b|\brates?\b|\bpay|amount|kitna|paisa|rupee|₹|budget|afford/i, "fees"],
     [/book|chapter|isbn/i, "books"],
     [/co-?author|join.*paper|paper.*join|collaborat|authorship/i, "papers"],
@@ -194,6 +285,11 @@
     if (k === "books") return openBooks();
     if (k === "papers") return openPapers();
     if (k === "lead") return startLead();
+    if (k === "offer") return offerOn() ? offer() : bot("Our World Anaesthesia Day offer has ended, but our regular guidance is always affordable. Want a quote?").then(more);
+    if (k === "call") return startCall();
+    if (k === "journal") return journalInfo(text);
+    if (k === "team") return team();
+    if (k === "notes") return notes();
     if (k === "hi") return bot("Hello! How can I help you today?").then(menu);
     if (k === "thanks") return bot("You're welcome! 😊 Anything else I can help with?").then(more);
     if (k) return answer(k);
@@ -223,6 +319,61 @@
     chips([["🤝 Register interest", () => startLead("", "Research collaboration")], ["💬 WhatsApp us", whatsapp], ["🏠 Main menu", () => { bot("What else can I help you with?").then(menu); }]]);
   }
 
+  const home = () => bot("What else can I help you with?").then(menu);
+  // ---------- World Anaesthesia Day offer ----------
+  function offer() {
+    const ms = OFFER_END - Date.now(), d = Math.floor(ms / 864e5), h = Math.floor((ms % 864e5) / 36e5);
+    bot(`🎉 <b>World Anaesthesia Day special (16 October)</b><ul><li><b>One research collaboration, two papers</b></li><li><b>One chapter collaboration, two chapters</b></li></ul>Ends in <b>${d} day${d === 1 ? "" : "s"} ${h} hr</b> (midnight, 16 October IST). Authorship still follows real contribution (ICMJE).`).then(() =>
+      chips([["🤝 Claim for papers", () => startLead("I would like to claim the World Anaesthesia Day offer: one collaboration, two papers.", "Research collaboration")], ["📚 Claim for chapters", () => startLead("I would like to claim the World Anaesthesia Day offer: one chapter collaboration, two chapters.", "Book chapter authorship")], ["💬 Claim on WhatsApp", () => bot(`Tap to claim on WhatsApp:<br><br><a href="${waLink("Hello ResearchMed Connect, I would like to claim the World Anaesthesia Day offer (one collaboration, two papers / one chapter collaboration, two chapters).")}" target="_blank" rel="noopener">💬 Open WhatsApp</a>`).then(more)], ["🏠 Main menu", home]]));
+  }
+  // ---------- IJAOTT journal ----------
+  function journalInfo(text) {
+    const J = journal || {}, t = String(text || "");
+    if (/track/i.test(t)) return bot(`You can check the status of your IJAOTT submission with your manuscript ID on the <a href="journal/track.html">tracking page</a>.`).then(jChips);
+    if (/reviewer|join|editorial board member|become/i.test(t)) return bot(`We welcome reviewers and editorial board members with a background in anaesthesia, OT technology or allied health. Apply on the <a href="journal/join.html">join page</a>.`).then(jChips);
+    const acc = String(J.accepting) !== "false";
+    bot(`📖 <b>${esc(J.title || "Indian Journal of Anaesthesia & Operation Theatre Technology")} (${esc(J.short || "IJAOTT")})</b> is our peer-reviewed, open-access journal, published by ResearchMed Connect.<ul>${J.frequency ? `<li><b>Frequency:</b> ${esc(J.frequency)}</li>` : ""}${J.review_type ? `<li><b>Review:</b> ${esc(J.review_type)}</li>` : ""}${J.licence ? `<li><b>Licence:</b> ${esc(J.licence)}</li>` : ""}${J.editor_in_chief ? `<li><b>Editor-in-Chief:</b> ${esc(J.editor_in_chief)}</li>` : ""}</ul>${acc ? `✅ <b>Now accepting submissions</b>${J.cfp_title ? `: ${esc(J.cfp_title)}` : ""}.` : ""} ${J.email ? `Journal email: <a href="mailto:${esc(J.email)}">${esc(J.email)}</a>` : ""}`).then(jChips);
+  }
+  const jChips = () => chips([["📤 Submit a manuscript", () => bot(`Read the <a href="journal/authors.html">author guidelines</a>, download the template, then submit on the <a href="journal/submit.html">submission page</a>.`).then(jChips)], ["🔎 Track my manuscript", () => journalInfo("track")], ["🧑‍⚖️ Become a reviewer", () => journalInfo("join")], ["👥 Editorial board", () => bot(`Meet our editors on the <a href="journal/board.html">editorial board page</a>.`).then(jChips)], ["🏠 Main menu", home]]);
+  // ---------- Team ----------
+  async function team() {
+    const f = await getJson("founder"), t = await getJson("team");
+    const people = ((t && t.items) || []).filter((x) => x && x.title && x.draft !== true).slice(0, 5);
+    await bot(`${f && f.name ? `ResearchMed Connect is led by <b>${esc(f.name)}</b>${f.designation ? `, ${esc(f.designation)}` : ""}${f.qualifications ? ` (${esc(f.qualifications)})` : ""}.` : "We are a team of Ph.D. mentors from allied health."}${people.length ? `<br>Our core team:<ul>${people.map((p) => `<li><b>${esc(p.title)}</b>${p.designation ? `, ${esc(p.designation)}` : ""}</li>`).join("")}</ul>` : ""} <a href="about.html#team-section">Meet the team →</a>`);
+    more();
+  }
+  // ---------- Free notes ----------
+  async function notes() {
+    const n = await getJson("notes"), items = ((n && n.items) || []).filter((x) => x && x.title && x.draft !== true).slice(0, 5);
+    await bot(`📚 Free notes and guides for researchers:${items.length ? `<ul>${items.map((x) => `<li>${esc(x.title)}</li>`).join("")}</ul>` : " "}<a href="notes.html">Read all notes →</a>`);
+    more();
+  }
+  // ---------- Free 15-minute call booking ----------
+  function startCall() {
+    const days = []; const fmt = new Intl.DateTimeFormat("en-IN", { weekday: "short", day: "numeric", month: "short", timeZone: "Asia/Kolkata" });
+    for (let i = 1; days.length < 5 && i < 10; i++) { const dt = new Date(Date.now() + i * 864e5); if (dt.getDay() !== 0) days.push(fmt.format(dt)); }
+    const d = { service: "Free 15-minute call", message: "" };
+    const steps = [
+      ["intro", "📞 <b>Free 15-minute call</b> with a Ph.D. mentor: no cost, no obligation. Let's book it. What's your <b>full name</b>?", (v) => v.length >= 2 || "Please tell me your name."],
+      ["email", "Thanks! Your <b>email address</b>? We'll send the confirmation there.", (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.replace(/\s+at\s+/i, "@").replace(/\s+dot\s+/gi, ".").replace(/\s/g, "")) || "That doesn't look like a valid email. Please type it again."],
+      ["phone", "Your <b>phone / WhatsApp number</b> for the call?", (v) => /^[+\d][\d\s-]{7,}$/.test(v) || "Please enter a valid phone number."],
+      ["call_date", "Which <b>day</b> suits you? Pick one, or type a date.", (v) => v.length >= 3 || "Please choose a day.", days],
+      ["call_time", "Preferred <b>time (IST)</b>?", () => true, ["10–11 AM", "11 AM–12 PM", "12–1 PM", "2–3 PM", "3–4 PM", "4–5 PM", "5–6 PM", "6–7 PM", "7–8 PM"]],
+      ["call_mode", "How should we <b>call you</b>?", () => true, ["WhatsApp call", "Google Meet", "Phone call"]],
+      ["message", "Lastly, what would you like to <b>discuss</b>? (topic, manuscript, book chapter…)", (v) => v.length >= 3 || "Please add a few words."],
+    ];
+    let i = 0;
+    const ask = () => { const s = steps[i]; bot(s[1]).then(() => { if (s[3]) chips(s[3].map((o) => [o, () => take(o)])); }); };
+    const take = (v) => {
+      const s = steps[i]; let val = v.trim();
+      if (s[0] === "email") val = val.replace(/\s+at\s+/i, "@").replace(/\s+dot\s+/gi, ".").replace(/\s/g, "").toLowerCase();
+      const ok = s[2](val); if (ok !== true) return bot(ok);
+      d[s[0] === "intro" ? "name" : s[0]] = val; i++;
+      if (i < steps.length) ask(); else { flow = null; confirm(d); }
+    };
+    flow = take; ask();
+  }
+
   // ---------- Enquiry (lead) flow ----------
   function startLead(question, presetNeed) {
     const d = { message: question || "" , service: presetNeed || "" };
@@ -232,7 +383,7 @@
       ["phone", "Your <b>phone / WhatsApp number</b>? (type <i>skip</i> if you'd rather not)", (v) => /^skip$/i.test(v) || /^[+\d][\d\s-]{7,}$/.test(v) || "Please enter a valid number, or type skip."],
       ["qualification", "Your <b>qualification / designation and institution</b>? (e.g. MSc Nursing, ABC College, Pune)", () => true],
     ];
-    if (!d.service) steps.push(["service", "What do you need help with?", () => true, ["Research guidance", "Publication guidance", "Book chapter authorship", "Research collaboration", "Student research support", "Video lecture / session", "Something else"]]);
+    if (!d.service) steps.push(["service", "What do you need help with?", () => true, ["Research guidance", "Publication guidance", "Free 15-minute call", "Book chapter authorship", "Research collaboration", "Student research support", "Video lecture / session", "Something else"]]);
     if (!d.message) steps.push(["message", "Briefly describe your project or question.", (v) => v.length >= 3 || "Please add a few words about what you need."]);
     let i = 0;
     const ask = () => {
@@ -240,38 +391,41 @@
       bot(s[1]).then(() => { if (s[3]) chips(s[3].map((o) => [o, () => take(o)])); });
     };
     const take = (v) => {
-      const s = steps[i]; const ok = s[2](v.trim());
+      const s = steps[i]; const raw = s[0] === "email" ? v.trim().replace(/\s+at\s+/i, "@").replace(/\s+dot\s+/gi, ".").replace(/\s/g, "") : v.trim(); const ok = s[2](raw);
       if (ok !== true) return bot(ok);
-      d[s[0]] = /^skip$/i.test(v.trim()) ? "-" : v.trim(); i++;
+      let val = v.trim(); if (s[0] === "email") val = val.replace(/\s+at\s+/i, "@").replace(/\s+dot\s+/gi, ".").replace(/\s/g, "").toLowerCase();
+      d[s[0]] = /^skip$/i.test(val) ? "-" : val; i++;
       if (i < steps.length) ask(); else { flow = null; confirm(d); }
     };
     flow = take;
     ask();
   }
   function confirm(d) {
-    bot(`Please check your details:<ul><li><b>Name:</b> ${esc(d.name)}</li><li><b>Email:</b> ${esc(d.email)}</li><li><b>Phone:</b> ${esc(d.phone)}</li><li><b>About you:</b> ${esc(d.qualification)}</li><li><b>Need:</b> ${esc(d.service)}</li><li><b>Message:</b> ${esc(d.message)}</li></ul>`).then(() =>
-      chips([["✅ Send enquiry", () => send(d)], ["✏️ Start again", () => startLead("", "")], ["Cancel", () => { bot("No problem, nothing was sent. Anything else?").then(menu); }]]));
+    bot(`Please check your details:<ul><li><b>Name:</b> ${esc(d.name)}</li><li><b>Email:</b> ${esc(d.email)}</li><li><b>Phone:</b> ${esc(d.phone)}</li>${d.qualification ? `<li><b>About you:</b> ${esc(d.qualification)}</li>` : ""}<li><b>Need:</b> ${esc(d.service)}</li>${d.call_date ? `<li><b>Call:</b> ${esc(d.call_date)}, ${esc(d.call_time)} IST, ${esc(d.call_mode)}</li>` : ""}<li><b>Message:</b> ${esc(d.message)}</li></ul>`).then(() =>
+      chips([[d.call_date ? "✅ Book my call" : "✅ Send enquiry", () => send(d)], ["✏️ Start again", () => (d.call_date ? startCall() : startLead("", ""))], ["Cancel", () => { bot("No problem, nothing was sent. Anything else?").then(menu); }]]));
   }
   async function send(d) {
     const ref = "RMC-" + today.slice(2).replace(/-/g, "") + "-" + Math.random().toString(36).slice(2, 6).toUpperCase();
     const first = d.name.split(/\s+/)[0];
     const payload = {
-      "Reference": ref, "Name": d.name, "Phone / WhatsApp": d.phone, "Qualification / institution": d.qualification,
+      "Reference": ref, "Name": d.name, "Phone / WhatsApp": d.phone, "Qualification / institution": d.qualification || "-",
+      ...(d.call_date ? { "Preferred call": `${d.call_date} · ${d.call_time} IST · ${d.call_mode}` } : {}),
       "Needs help with": d.service, "Message": d.message, "Source": "Website chat assistant (" + location.pathname + ")",
       email: d.email,
-      _subject: `New chat enquiry ${ref}: ${d.service} from ${d.name}`,
+      _subject: d.call_date ? `Call request ${ref}: ${d.name}, ${d.call_date} ${d.call_time} IST (${d.call_mode})` : `New chat enquiry ${ref}: ${d.service} from ${d.name}`,
       _template: "table", _captcha: "false",
-      _autoresponse: `Dear ${first},\n\nThank you for contacting ResearchMed Connect. We have received your enquiry about "${d.service}" (reference ${ref}).\n\nOur team will get back to you within one to two working days.${wa ? ` For anything urgent, you can WhatsApp us at ${settings.whatsapp}.` : ""}\n\nWarm regards,\nResearchMed Connect\nResearch. Learn. Publish. Grow.\nhttps://researchmed.in`,
+      _autoresponse: `Dear ${first},\n\nThank you for contacting ResearchMed Connect. ${d.call_date ? `We have received your request for a free 15-minute call (reference ${ref}).\n\nPreferred slot: ${d.call_date}, ${d.call_time} IST, by ${d.call_mode}.\n\nWe will confirm the exact time with you before the call.` : `We have received your enquiry about "${d.service}" (reference ${ref}).\n\nOur team will get back to you within one to two working days.`}${wa ? ` For anything urgent, you can WhatsApp us at ${settings.whatsapp}.` : ""}\n\nWarm regards,\nResearchMed Connect\nResearch. Learn. Publish. Grow.\nhttps://researchmed.in`,
     };
     await bot("Sending…", 200);
     try {
       const r = await fetch(ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(payload) });
       const j = await r.json().catch(() => ({}));
       if (!r.ok || String(j.success) !== "true") throw new Error(j.message || "failed");
-      await bot(`✅ <b>Thank you, ${esc(first)}!</b> Your enquiry has reached our team (reference <b>${ref}</b>). A confirmation email is on its way to ${esc(d.email)}; please check spam if you don't see it. We'll reply within one to two working days.`);
+      if (d.call_date) await bot(`✅ <b>Thank you, ${esc(first)}!</b> Your call request is in (reference <b>${ref}</b>) for <b>${esc(d.call_date)}, ${esc(d.call_time)} IST</b> by ${esc(d.call_mode)}. We'll confirm the exact time before the call, and a confirmation email is on its way to ${esc(d.email)}.`);
+      else await bot(`✅ <b>Thank you, ${esc(first)}!</b> Your enquiry has reached our team (reference <b>${ref}</b>). A confirmation email is on its way to ${esc(d.email)}; please check spam if you don't see it. We'll reply within one to two working days.`);
       chips([["💬 Need it faster? WhatsApp", whatsapp], ["🏠 Main menu", () => { bot("Anything else I can help with?").then(menu); }]]);
     } catch (e) {
-      const txt = `Hello ResearchMed Connect,\n\nName: ${d.name}\nEmail: ${d.email}\nPhone: ${d.phone}\nAbout me: ${d.qualification}\nNeed help with: ${d.service}\n\n${d.message}`;
+      const txt = `Hello ResearchMed Connect,\n\nName: ${d.name}\nEmail: ${d.email}\nPhone: ${d.phone}\nAbout me: ${d.qualification}\nNeed help with: ${d.service}${d.call_date ? `\nPreferred call: ${d.call_date}, ${d.call_time} IST, ${d.call_mode}` : ""}\n\n${d.message}`;
       await bot(`Sorry, I couldn't send that just now. Please send the same message with one tap:<br><br>${wa ? `<a href="${waLink(txt)}" target="_blank" rel="noopener">💬 Send on WhatsApp</a><br>` : ""}<a href="mailto:${INBOX}?subject=${encodeURIComponent("Enquiry: " + d.service)}&body=${encodeURIComponent(txt)}">✉️ Send by email</a>`);
     }
   }

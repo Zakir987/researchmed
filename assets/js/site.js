@@ -1346,7 +1346,7 @@
   // ---------- Chat assistant (every public page) ----------
   if (PAGE !== "admin") {
     const sc = document.createElement("script");
-    sc.src = "assets/js/bot.js?v=20261003b"; sc.defer = true;
+    sc.src = "assets/js/bot.js?v=20261007v"; sc.defer = true;
     document.body.append(sc);
   }
 })();
