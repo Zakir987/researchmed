@@ -53,6 +53,20 @@
   .rb-panel.rb-talk .rb-av::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid #2ee6c5;animation:rb-talk 1s ease-out infinite}
   @keyframes rb-talk{from{opacity:.9;transform:scale(.92)}to{opacity:0;transform:scale(1.25)}}
   .rb-sub{display:inline-flex;align-items:center;gap:6px}
+  .rb-fab .rb-avatar{width:58px;height:58px;filter:none} .rb-av .rb-avatar{width:40px;height:40px}
+  .rb-fab{background:#fff;border-color:#fff}
+  .rb-on{position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;background:#2ecc71;border:2px solid var(--primary,#1b5896)}
+  .rb-ai{display:inline-block;font-size:.62rem;font-weight:800;letter-spacing:.06em;padding:1px 6px;border-radius:999px;background:rgba(255,255,255,.2);vertical-align:2px;margin-left:4px}
+  .rb-mouth{transform-box:fill-box;transform-origin:center}
+  .rb-panel.rb-talk .rb-mouth{animation:rb-say .22s ease-in-out infinite alternate}
+  @keyframes rb-say{from{transform:scaleY(.6)}to{transform:scaleY(1.9)}}
+  .rb-w{opacity:0;animation:rb-wi .32s ease-out forwards}
+  @keyframes rb-wi{from{opacity:0;filter:blur(2px)}to{opacity:1;filter:none}}
+  .rb-src{display:block;margin-top:8px;font-size:.78rem;color:var(--muted,#52657b)}
+  .rb-src a{font-weight:600}
+  .rb-refs{margin:6px 0 0;padding-left:18px;font-size:.86rem} .rb-refs li{margin:4px 0}
+  .rb-think{display:inline-flex;align-items:center;gap:8px;color:var(--muted,#52657b);font-size:.86rem}
+  @media (prefers-reduced-motion:reduce){.rb-w{animation:none;opacity:1}.rb-panel.rb-talk .rb-mouth{animation:none}}
   .rb-sub .rb-wave{height:10px;display:none} .rb-panel.rb-talk .rb-sub .rb-wave{display:inline-flex}
   @media (prefers-reduced-motion:reduce){.rb-m,.rb-chips .rb-chip{animation:none}.rb-panel.rb-talk .rb-av::after{animation:none;opacity:.8}}
   .rb-m a{color:var(--primary,#1b5896);font-weight:600}
@@ -108,9 +122,29 @@
     <path d="M27.5 38.2q4.5 2.8 9 0" stroke="#5ef2ff" stroke-width="1.8" fill="none" stroke-linecap="round"/>
     <circle cx="17.5" cy="46.5" r="3" fill="#ff8fab" opacity=".55"/><circle cx="46.5" cy="46.5" r="3" fill="#ff8fab" opacity=".55"/>
     <rect x="27" y="45" width="10" height="3" rx="1.5" fill="#b9cde2"/></svg>`; };
+  // Friendly illustrated assistant (original artwork): blinking eyes, mouth moves while she speaks
+  const AVATAR = () => { const n = ++rbN; return `<svg class="rb-face rb-avatar" viewBox="0 0 64 64" aria-hidden="true">
+    <defs><linearGradient id="avb${n}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a8be0"/><stop offset="1" stop-color="#0a8a93"/></linearGradient><clipPath id="avc${n}"><circle cx="32" cy="32" r="32"/></clipPath></defs>
+    <circle cx="32" cy="32" r="32" fill="url(#avb${n})"/>
+    <g clip-path="url(#avc${n})">
+      <path d="M15 31c0-12.5 7.6-20.5 17-20.5S49 18.5 49 31v15c0 4-2.6 6.5-6 6.5H21c-3.4 0-6-2.5-6-6.5z" fill="#2b1b16"/>
+      <path d="M9 66c1.5-10.5 10-16.5 23-16.5S53.5 55.5 55 66z" fill="#f4fbfb"/>
+      <path d="M26.5 49.6 32 56l5.5-6.4z" fill="#0a8a93"/>
+      <path d="M22 52.5c2 5 4 8 6 10M42 52.5c-2 5-4 8-6 10" stroke="#5b6b7a" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+      <rect x="28" y="40.5" width="8" height="10" rx="3.5" fill="#e3ad87"/>
+      <ellipse cx="32" cy="31.5" rx="11.3" ry="12.8" fill="#f2c6a2"/>
+      <ellipse cx="20.6" cy="33" rx="1.8" ry="2.6" fill="#eab894"/><ellipse cx="43.4" cy="33" rx="1.8" ry="2.6" fill="#eab894"/>
+      <path d="M20.6 30c.6-9.4 5.6-14 11.6-14 6.6 0 11.2 4.6 11.4 12.6-2.6-4.6-7.4-7.6-13.6-7.2-4.4.3-7.4 3.4-9.4 8.6z" fill="#2b1b16"/>
+      <circle cx="43.6" cy="37.6" r="1.1" fill="#ffd36b"/>
+      <path d="M25.2 28.4q2.4-1.3 4.8 0M34 28.4q2.4-1.3 4.8 0" stroke="#2b1b16" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+      <g class="rb-eye"><ellipse cx="27.6" cy="32" rx="1.45" ry="1.85" fill="#2b1b16"/><ellipse cx="36.4" cy="32" rx="1.45" ry="1.85" fill="#2b1b16"/></g>
+      <circle cx="25" cy="36.4" r="2" fill="#f08f8f" opacity=".35"/><circle cx="39" cy="36.4" r="2" fill="#f08f8f" opacity=".35"/>
+      <path class="rb-mouth" d="M28.6 37.6q3.4 2.8 6.8 0q-3.4 1.2-6.8 0z" fill="#b8564e" stroke="#b8564e" stroke-width="1" stroke-linejoin="round"/>
+    </g></svg>`; };
+  const NAME = "Riya";
   const fab = document.createElement("button");
-  fab.className = "rb-fab"; fab.type = "button"; fab.setAttribute("aria-label", "Chat with ResearchMed Assistant");
-  fab.innerHTML = FACE() + '<span class="rb-dot" aria-hidden="true"></span>';
+  fab.className = "rb-fab"; fab.type = "button"; fab.setAttribute("aria-label", "Chat with Riya, the ResearchMed AI assistant");
+  fab.innerHTML = AVATAR() + '<span class="rb-dot" aria-hidden="true"></span>';
   const fabWrap = document.createElement("aside"); fabWrap.setAttribute("aria-label", "Chat assistant"); fabWrap.append(fab); document.body.append(fabWrap);
 
   let panel, log, input, flow = null, opened = false;
@@ -120,7 +154,7 @@
   if (!seen) setTimeout(() => {
     if (opened) return;
     const t = document.createElement("div"); t.className = "rb-tease"; t.setAttribute("role", "status");
-    t.innerHTML = 'Hi! 👋 Need help with research, publication or a book chapter? You can even <b>talk to me</b> 🎙️ <button type="button" aria-label="Dismiss">×</button>';
+    t.innerHTML = 'Hi, I’m Riya 👋 Ask me anything about research or publishing. You can even <b>talk to me</b> 🎙️ <button type="button" aria-label="Dismiss">×</button>';
     t.addEventListener("click", (e) => { t.remove(); if (e.target.tagName !== "BUTTON") open(); });
     document.body.append(t); try { sessionStorage.setItem("rb-seen", "1"); } catch (e) {}
     setTimeout(() => t.remove(), 14000);
@@ -130,7 +164,7 @@
 
   function open() {
     opened = true; document.querySelector(".rb-tease")?.remove(); fab.querySelector(".rb-dot")?.remove();
-    if (!panel) { build(); ["founder", "team", "notes", "books", "papers", "journal"].forEach(getJson); if (canSpeak) pickVoice(); }
+    if (!panel) { build(); ["founder", "team", "notes", "books", "papers", "journal"].forEach(getJson); if (canSpeak) pickVoice(); setTimeout(buildKB, 1200); }
     panel.hidden = false; fab.hidden = true; setTimeout(() => input.focus(), 50);
   }
   function close() { panel.hidden = true; fab.hidden = false; fab.focus(); stopVoice(); }
@@ -138,12 +172,12 @@
   function build() {
     panel = document.createElement("section");
     panel.className = "rb-panel"; panel.setAttribute("role", "dialog"); panel.setAttribute("aria-label", "ResearchMed Assistant");
-    panel.innerHTML = `<div class="rb-head"><span class="rb-av">${FACE()}</span><div><b>ResearchMed Assistant</b><small class="rb-sub"><span class="rb-wave" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="rb-subt">${SR ? "Online · type or talk to me" : "Online · replies instantly"}</span></small></div><div class="rb-hb">${canSpeak ? `<button class="rb-spk" type="button" aria-pressed="${speakOn}" aria-label="Read replies aloud" title="Read replies aloud"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg></button>` : ""}<button class="rb-x" type="button" aria-label="Close chat">×</button></div></div>
+    panel.innerHTML = `<div class="rb-head"><span class="rb-av">${AVATAR()}<i class="rb-on" aria-hidden="true"></i></span><div><b>${NAME} <span class="rb-ai">AI</span></b><small class="rb-sub"><span class="rb-wave" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="rb-subt">ResearchMed assistant · Online</span></small></div><div class="rb-hb">${canSpeak ? `<button class="rb-spk" type="button" aria-pressed="${speakOn}" aria-label="Read replies aloud" title="Read replies aloud"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg></button>` : ""}<button class="rb-x" type="button" aria-label="Close chat">×</button></div></div>
       <div class="rb-log" aria-live="polite"></div>
       <div class="rb-cta" hidden><span>✨ Got your answers? Take the next step.</span><button type="button">Send free enquiry →</button></div>
       <div class="rb-listen" hidden><span class="rb-wave" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="rb-ltxt">Listening… speak now</span></div>
       <form class="rb-foot"><input type="text" placeholder="${SR ? "Type or tap 🎙️ to speak…" : "Type your question…"}" aria-label="Your message" autocomplete="off">${SR ? `<button class="rb-mic" type="button" aria-label="Speak your question" title="Speak your question"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></svg></button>` : ""}<button type="submit">Send</button></form>
-      <div class="rb-note">Automated assistant · Your details go only to ResearchMed Connect · <a href="privacy.html" style="color:inherit">Privacy</a></div>`;
+      <div class="rb-note">AI assistant · answers use our website, Wikipedia and Europe PMC · our mentors confirm details · <a href="privacy.html" style="color:inherit">Privacy</a></div>`;
     document.body.append(panel);
     log = panel.querySelector(".rb-log"); input = panel.querySelector("input");
     panel.querySelector(".rb-x").addEventListener("click", close);
@@ -157,7 +191,9 @@
     const mic = panel.querySelector(".rb-mic");
     if (mic) mic.addEventListener("click", () => { if (listening) { handsFree = false; stopListen(); } else listen(); });
     input.addEventListener("input", () => { if (!listening) handsFree = false; });
-    bot(`Hello! 👋 I'm the <b>ResearchMed Assistant</b>.<br>I can help with research and publication guidance, a <b>free 15-minute call</b>, book chapters, collaborations and our journal <b>IJAOTT</b>.${SR ? " Type your question, or tap 🎙️ and just ask." : " What would you like to know?"}`);
+    const hr = Number(new Intl.DateTimeFormat("en-IN", { hour: "numeric", hourCycle: "h23", timeZone: "Asia/Kolkata" }).format(new Date()));
+    const hello = hr < 12 ? "Good morning" : hr < 17 ? "Good afternoon" : "Good evening";
+    bot(`${hello}! 👋 I'm <b>Riya</b>, ResearchMed's AI assistant.<br>Ask me anything about research, writing or publishing. I'll answer from our website and trusted sources, and help you take the next step towards your publication.${SR ? " You can type, or tap 🎙️ and just talk to me." : ""}`, 900);
     menu();
   }
 
@@ -166,13 +202,51 @@
   let pendingBots = 0;
   function me(t) { const d = document.createElement("div"); d.className = "rb-m rb-me"; d.textContent = t; log.append(d); scroll(); }
   // Short, natural "typing" pause that grows a little with the length of the reply (never more than ~0.6 s)
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Wrap each word in a span that fades in after the previous one, so replies "stream" like a person typing
+  function reveal(el) {
+    if (reduceMotion) return 0;
+    const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), nodes = [];
+    while (w.nextNode()) if (w.currentNode.textContent.trim()) nodes.push(w.currentNode);
+    const total = nodes.reduce((n, x) => n + x.textContent.split(/\s+/).filter(Boolean).length, 0);
+    const step = Math.max(9, Math.min(34, 1500 / Math.max(1, total)));
+    let i = 0;
+    nodes.forEach((node) => {
+      const f = document.createDocumentFragment();
+      node.textContent.split(/(\s+)/).forEach((part) => {
+        if (!part) return;
+        if (/^\s+$/.test(part)) return f.append(part);
+        const sp = document.createElement("span"); sp.className = "rb-w"; sp.style.animationDelay = Math.round(i++ * step) + "ms"; sp.textContent = part; f.append(sp);
+      });
+      node.replaceWith(f);
+    });
+    return Math.round(i * step);
+  }
   function bot(html, delay) {
     pendingBots++;
     return new Promise((res) => {
       const ty = document.createElement("div"); ty.className = "rb-m rb-bot"; ty.innerHTML = '<span class="rb-typing"><i></i><i></i><i></i></span>';
       log.append(ty); scroll();
-      const wait = delay == null ? Math.min(620, 220 + String(html).replace(/<[^>]+>/g, "").length * 1.4) : delay;
-      setTimeout(() => { ty.classList.add("rb-txt"); ty.innerHTML = html; scroll(); speak(html); pendingBots--; res(); }, wait);
+      const len = String(html).replace(/<[^>]+>/g, "").length;
+      const wait = delay == null ? Math.min(950, 420 + len * 1.1) : delay;
+      setTimeout(() => {
+        ty.classList.add("rb-txt"); ty.innerHTML = html; speak(html);
+        const dur = reveal(ty); scroll();
+        const iv = dur ? setInterval(scroll, 220) : 0;
+        setTimeout(() => { clearInterval(iv); scroll(); pendingBots--; res(); }, Math.min(dur, 1700) + 60);
+      }, wait);
+    });
+  }
+  // A "thinking" bubble for answers that need a lookup; returns a function that turns it into the real reply
+  function thinking(label) {
+    pendingBots++;
+    const ty = document.createElement("div"); ty.className = "rb-m rb-bot";
+    ty.innerHTML = `<span class="rb-think"><span class="rb-typing"><i></i><i></i><i></i></span>${esc(label || "Let me check that for you…")}</span>`;
+    log.append(ty); scroll();
+    return (html) => new Promise((res) => {
+      ty.classList.add("rb-txt"); ty.innerHTML = html; speak(html);
+      const dur = reveal(ty); scroll(); const iv = dur ? setInterval(scroll, 220) : 0;
+      setTimeout(() => { clearInterval(iv); scroll(); pendingBots--; res(); }, Math.min(dur, 1700) + 60);
     });
   }
   function chips(list) {
@@ -201,7 +275,7 @@
   const pickVoice = () => {
     const vs = speechSynthesis.getVoices().filter((v) => /^en/i.test(v.lang) && !MALE.test(v.name));
     voice = null;
-    for (const re of FEMALE) { voice = vs.find((v) => re.test(v.name)); if (voice) break; }
+    for (const re of FEMALE) { const m = vs.filter((v) => re.test(v.name)); voice = m.find((v) => /natural|online|premium|enhanced/i.test(v.name)) || m[0]; if (voice) break; }
     voice = voice || vs.find((v) => /en-IN/i.test(v.lang)) || vs.find((v) => /en-GB/i.test(v.lang)) || vs[0] || null;
   };
   if (canSpeak) { pickVoice(); speechSynthesis.addEventListener && speechSynthesis.addEventListener("voiceschanged", pickVoice); }
@@ -209,26 +283,33 @@
     if (!speakOn || !canSpeak || !html || /rb-typing|^Sending/.test(html)) return;
     html = String(html).replace(/<span class="rb-step">.*?<\/span>(<br>)?/, "");
     const d = document.createElement("div"); d.innerHTML = String(html).replace(/<br\s*\/?>(\s*)/gi, ". ").replace(/<li>/gi, ". ");
-    let t = (d.textContent || "").replace(/\u{1F399}\uFE0F?/gu, " the mic ").replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}→←]/gu, "").replace(/(\d)\s*[–-]\s*(\d)/g, "$1 to $2").replace(/ResearchMed/g, "Research Med").replace(/IJAOTT/g, "I J A O T T").replace(/\bPh\.D\./g, "PhD").replace(/\s+/g, " ").replace(/(\.\s*){2,}/g, ". ").trim();
+    let t = (d.textContent || "").replace(/\(?\s*reference\s+RMC-[A-Z0-9-]+\s*\)?/gi, "").replace(/\u{1F399}\uFE0F?/gu, " the mic ").replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}→←]/gu, "").replace(/(\d)\s*[–-]\s*(\d)/g, "$1 to $2").replace(/ResearchMed/g, "Research Med").replace(/IJAOTT/g, "I J A O T T").replace(/\bPh\.D\./g, "PhD").replace(/\s+/g, " ").replace(/(\.\s*){2,}/g, ". ").trim();
     if (!t) return;
     if (!voice) pickVoice();
-    // Speak sentence by sentence: starts sooner, sounds more natural and avoids Chrome cutting off long speech
-    const raw = (t.slice(0, 700).match(/[^.!?]+[.!?]*/g) || [t]).map((x) => x.trim()).filter(Boolean), parts = [];
-    raw.forEach((x) => { if (parts.length && parts[parts.length - 1].length < 40) parts[parts.length - 1] += " " + x; else parts.push(x); });
-    parts.forEach((x) => {
-      const u = new SpeechSynthesisUtterance(x); if (voice) u.voice = voice; u.lang = (voice && voice.lang) || "en-IN";
-      u.rate = voice && /natural|online|neerja/i.test(voice.name) ? 1.02 : 0.98; u.pitch = 1.12; u.volume = 1;
-      u.onstart = () => talking(true); u.onend = u.onerror = () => setTimeout(afterSpeech, 60);
-      speechSynthesis.speak(u);
-    });
+    t = t.replace(/\s*[·|]\s*/g, ", ").replace(/\(([^)]{0,40})\)/g, ", $1,").replace(/,\s*,/g, ",").replace(/\s+([,.!?])/g, "$1");
+    if (t.length > 900) t = t.slice(0, 900).replace(/[^.!?]*$/, "");
+    // One utterance per reply, so the voice flows without gaps between sentences
+    const u = new SpeechSynthesisUtterance(t); if (voice) u.voice = voice; u.lang = (voice && voice.lang) || "en-IN";
+    const natural = voice && /natural|online|neerja|premium|enhanced|siri/i.test(voice.name);
+    u.rate = natural ? 1 : 0.96; u.pitch = natural ? 1 : 1.06; u.volume = 1;
+    u.onstart = () => { talking(true); keepAlive(true); }; u.onend = u.onerror = () => { keepAlive(false); setTimeout(afterSpeech, 40); };
+    speechSynthesis.speak(u);
   }
+  // Desktop Chrome stops long speech after ~15 s; a quick pause/resume keeps it going smoothly
+  let ka = 0;
+  function keepAlive(on) { clearInterval(ka); if (on && !/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)) ka = setInterval(() => { if (speechSynthesis.speaking && !speechSynthesis.paused) { speechSynthesis.pause(); speechSynthesis.resume(); } }, 10000); }
   let handsFree = false, autoT = 0;
-  function talking(on) { if (panel) panel.classList.toggle("rb-talk", on); const st = panel && panel.querySelector(".rb-subt"); if (st) st.textContent = on ? "Speaking…" : SR ? "Online · type or talk to me" : "Online · replies instantly"; }
+  function talking(on) { if (panel) panel.classList.toggle("rb-talk", on); const st = panel && panel.querySelector(".rb-subt"); if (st) st.textContent = on ? "Speaking…" : "ResearchMed assistant · Online"; }
   // When the visitor is talking by voice, listen again automatically once the reply has finished, like a real conversation
   function afterSpeech() {
     if (speechSynthesis.speaking || speechSynthesis.pending) return;
     talking(false); clearTimeout(autoT);
-    autoT = setTimeout(() => { if (handsFree && !listening && !pendingBots && panel && !panel.hidden && !speechSynthesis.speaking && !sendingNow) listen(true); }, 450);
+    const tryListen = (n) => {
+      if (!handsFree || listening || !panel || panel.hidden) return;
+      if (pendingBots || speechSynthesis.speaking || speechSynthesis.pending || sendingNow) { if (n < 40) autoT = setTimeout(() => tryListen(n + 1), 250); return; }
+      listen(true);
+    };
+    autoT = setTimeout(() => tryListen(0), 450);
   }
   let sendingNow = false;
   function stopVoice() { handsFree = false; clearTimeout(autoT); if (canSpeak) speechSynthesis.cancel(); talking(false); stopListen(); }
@@ -386,10 +467,14 @@
     [/^(hi|hello|hey|hii+|namaste|salam|good (morning|afternoon|evening))\b/i, "hi"],
     [/thank|thanks|thx|great|ok(ay)?$/i, "thanks"],
   ];
+  const BROAD = new Set(["subjects", "research", "publication", "student", "notes", "gallery", "record", "types", "stats", "plagiarism", "predatory", "thesis", "faq", "feedback"]);
+  const ASKS = /^(what|whats|what's|who|whom|which|why|how (is|are|does|do|to|can|many|much)|explain|define|describe|meaning|tell me about|difference|is it true|can you explain)\b|\?$/i;
   function handle(text) {
     if (flow) return flow(text);
     const hit = RULES.find(([re]) => re.test(text));
     const k = hit ? hit[1] : null;
+    // Knowledge-style questions ("what is a p value?", "explain hypoxia") get a real answer, not just our service blurb
+    if (!k || (BROAD.has(k) && ASKS.test(text.trim()) && toks(text).length >= 1 && !/\b(you|your|ResearchMed|us)\b/i.test(text))) return smartAnswer(text, k);
     if (k === "books") return openBooks();
     if (k === "papers") return openPapers();
     if (k === "lead") return startLead();
@@ -400,13 +485,141 @@
     if (k === "notes") return notes();
     if (k === "hi") return bot("Hello! How can I help you today?").then(menu);
     if (k === "thanks") return bot(sent ? "You're welcome! 😊 We'll be in touch soon. All the best with your research!" : "You're welcome! 😊 Whenever you're ready, our mentors would be glad to help with your project.").then(sent ? moreQuiet : nudgeChips);
-    if (k) return answer(k);
-    bot(`That's a great question, and our mentors can answer it personally. 😊 Shall I send it to them? It only takes a minute and there's no obligation.<br><br>Or pick a topic I can answer right away.`).then(() =>
-      chips([["📝 Yes, send my question", () => startLead(text)], ["📞 Ask on a free call", startCall], ["🏠 Show topics", () => { bot("Here's what I can help with:").then(menu); }]]));
+    return answer(k);
   }
   function answer(k) { if (SERVICE[k] !== undefined || NUDGE[k]) lastTopic = k; const v = A[k]; bot(typeof v === "function" ? v() : v).then(more); }
   function whatsapp() {
     bot(wa ? `Tap below to chat with us on WhatsApp:<br><br><a href="${waLink()}" target="_blank" rel="noopener">💬 Open WhatsApp (${esc(settings.whatsapp)})</a>` : A.contact()).then(moreQuiet);
+  }
+
+  // ---------- Knowledge from the website itself ----------
+  const STOP = new Set("a an the is are was were be been am i me my we our you your it its of to in on at for from by with and or not no do does did can could would should will shall may might must what which who whom whose when where why how this that these those there here about into than then so if as but just also any some please tell explain define meaning mean know want need help get give show like".split(" "));
+  const stem = (w) => w.replace(/(ies)$/, "y").replace(/(ing|ed|es|s)$/, "").replace(/(.)\1$/, "$1");
+  const toks = (t) => String(t).toLowerCase().normalize("NFKD").replace(/[^a-z0-9 ]+/g, " ").split(/\s+/).filter((w) => w.length > 1 && !STOP.has(w)).map(stem);
+  const clean = (t) => String(t || "").replace(/[#*_>`]+/g, " ").replace(/\s+/g, " ").trim();
+  let KB = null;
+  function buildKB() {
+    if (KB) return KB;
+    const docs = [];
+    // Keep line breaks (bullets) so answers can be shown as tidy lists
+    const add = (title, text, url, rec) => {
+      const raw = String(text || "").replace(/\r/g, "").replace(/^\s*[*+]\s+/gm, "- ").replace(/[#*_>`]+/g, " ").replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim();
+      if (raw.length < 40) return;
+      const lines = raw.split("\n"); let chunk = "";
+      lines.forEach((ln) => { if ((chunk + ln).length > 700 && chunk) { docs.push({ title: clean(title), text: clean(chunk), raw: chunk, url, rec }); chunk = ""; } chunk += ln + "\n"; });
+      if (chunk.trim()) docs.push({ title: clean(title), text: clean(chunk), raw: chunk, url, rec });
+    };
+    const page = (url) => fetch(url, { cache: "no-cache" }).then((r) => (r.ok ? r.text() : "")).catch(() => "").then((h) => {
+      if (!h) return; const doc = new DOMParser().parseFromString(h, "text/html"), d = doc.querySelector("main") || doc.body; if (!d) return;
+      d.querySelectorAll("script,style,nav,header,footer,form,button,svg,noscript,.rb-panel").forEach((x) => x.remove());
+      const ttl = (doc.title || url).split("|")[0];
+      d.querySelectorAll("details").forEach((x) => { const q = x.querySelector("summary"); const qt = q ? q.textContent.trim() : ttl; if (q) q.remove(); add(qt, x.textContent.replace(/\s+/g, " "), url); x.remove(); });
+      let head = ttl, buf = "";
+      d.querySelectorAll("h1,h2,h3,p,li").forEach((el) => { if (/^H/.test(el.tagName)) { add(head, buf, url); head = el.textContent; buf = ""; } else buf += "\n" + (el.tagName === "LI" ? "- " : "") + el.textContent.replace(/\s+/g, " ").trim(); });
+      add(head, buf, url);
+    });
+    const items = (j) => (Array.isArray(j) ? j : (j && j.items) || []).filter((x) => x && x.title && x.draft !== true);
+    KB = Promise.all([
+      ...["services.html", "about.html", "faqs.html", "journal/index.html", "journal/authors.html", "journal/policies.html", "journal/submit.html", "journal/join.html"].map(page),
+      getJson("notes").then((j) => items(j).forEach((n) => String(n.body || "").split(/\n(?=##\s)/).forEach((sec, i) => { const h = (sec.match(/^##\s*(.+)/) || [])[1]; add(n.title + (h ? " – " + h : ""), (i ? "" : (n.summary || "") + "\n") + sec.replace(/^##[^\n]*\n?/, ""), "notes.html"); }))),
+      getJson("highlights").then((j) => items(j).forEach((x) => add(x.title, `${x.title}. Published in ${x.journal || ""} ${x.year || ""}. ${x.study_type || ""}. ${x.summary || ""}`, "highlights.html", true))),
+      getJson("books").then((j) => items(j).forEach((x) => add(x.title, `${x.title}. ${x.subtitle || ""}. ${x.description || ""} Chapters: ${[].concat(x.chapters || []).join(", ")}. ${x.deadline ? "Apply by " + x.deadline + "." : ""}`, "books.html", true))),
+      getJson("papers").then((j) => items(j).forEach((x) => add(x.title, `${x.title}. ${x.field || ""} ${x.study_type || ""}. ${x.description || ""} Roles: ${[].concat(x.roles || []).join(", ")}. Target journal: ${x.target_journal || ""}. ${x.deadline ? "Apply by " + x.deadline + "." : ""}`, "papers.html", true))),
+      getJson("notices").then((j) => items(j).forEach((x) => add(x.title, `${x.title}. ${x.details || ""}`, x.link || "updates.html"))),
+      getJson("updates").then((j) => items(j).forEach((x) => add(x.title, `${x.title}. ${x.body || ""}`, x.link || "updates.html"))),
+    ]).then(() => {
+      const df = {}; docs.forEach((d) => { d.t = toks(d.title + " " + d.title + " " + d.text); d.set = new Set(d.t); d.set.forEach((w) => (df[w] = (df[w] || 0) + 1)); });
+      const N = docs.length || 1, avg = docs.reduce((n, d) => n + d.t.length, 0) / N;
+      return { docs, idf: (w) => Math.log(1 + (N - (df[w] || 0) + 0.5) / ((df[w] || 0) + 0.5)), avg };
+    });
+    return KB;
+  }
+  async function kbSearch(q, only) {
+    const kb = await buildKB(), qt = [...new Set(toks(q))]; if (!qt.length) return null;
+    const recsOk = /publish|paper|article|book|chapter|collab|study|you|your|our/i.test(q) && !DEFN.test(q);
+    let best = null;
+    kb.docs.forEach((d) => {
+      if (d.rec && !recsOk) return;
+      if (only && !only(d)) return;
+      let sc = 0, hit = 0;
+      qt.forEach((w) => { const tf = d.t.filter((x) => x === w).length; if (tf) { hit++; sc += kb.idf(w) * (tf * 2.2) / (tf + 1.2 * (0.25 + 0.75 * d.t.length / kb.avg)); } });
+      const cover = hit / qt.length; sc *= 0.5 + cover;
+      if (!best || sc > best.sc) best = { d, sc, cover };
+    });
+    return best && best.cover >= (qt.length <= 2 ? 1 : 0.6) && best.sc > 2.2 ? best : null;
+  }
+  const DEFN = /^(what|whats|what's|who) (is|are|was|were)\b|^(define|definition|meaning|what does)\b/i;
+  // Pick the lines of a passage that best match the question, in their original order
+  function excerpt(d, q) {
+    const qt = new Set(toks(q));
+    const units = String(d.raw || d.text).split(/\n+|(?<=[.!?])\s+(?=[A-Z])/).map((x) => x.trim()).filter((x) => x.replace(/^- /, "").length > 12);
+    const scored = units.map((u, i) => ({ u, i, s: toks(u).filter((w) => qt.has(w)).length }));
+    const bul = scored.filter((x) => /^- /.test(x.u));
+    if (bul.length >= 2) {
+      const lead = scored.find((x) => !/^- /.test(x.u) && x.i < bul[0].i && x.u.length < 260);
+      return `${lead ? esc(lead.u) : ""}<ul>${bul.slice(0, 5).map((x) => `<li>${esc(x.u.replace(/^- /, ""))}</li>`).join("")}</ul>`;
+    }
+    let pick = scored.filter((x) => x.s).sort((a, b) => b.s - a.s).slice(0, 3).sort((a, b) => a.i - b.i);
+    if (!pick.length) pick = scored.slice(0, 2);
+    const isList = pick.length > 1 && pick.every((x) => /^- /.test(x.u));
+    const body = isList ? `<ul>${pick.map((x) => `<li>${esc(x.u.replace(/^- /, ""))}</li>`).join("")}</ul>` : esc(pick.map((x) => x.u.replace(/^- /, "")).join(" ")).slice(0, 460);
+    return body;
+  }
+  const sentences = (t, max) => { const ss = String(t).match(/[^.!?]+[.!?]+/g) || [t]; let o = ""; for (const x of ss) { if ((o + x).length > max && o) break; o += x; } return o.trim(); };
+  const pageName = (u) => ({ "services.html": "Services", "about.html": "About us", "faqs.html": "FAQs", "notes.html": "Free notes", "highlights.html": "Publications", "books.html": "Books", "papers.html": "Collaborate", "updates.html": "Updates" }[u] || (/^journal\//.test(u) ? "IJAOTT journal" : "our website"));
+
+  // ---------- Trusted web sources (no key needed): Wikipedia + Europe PMC; Google if configured in Admin ----------
+  const withTimeout = (p, ms) => Promise.race([p, new Promise((r) => setTimeout(() => r(null), ms))]);
+  const topicOf = (q) => String(q).replace(/[?!.]+$/g, "").replace(/^(hi|hello|hey)[,! ]+/i, "").replace(/^(please\s+)?(can|could) you (please )?(tell me|explain|define|describe)( about)?\s*/i, "").replace(/^(what|who) (is|are|was|were)( an?| the)?\s+/i, "").replace(/^(define|explain|describe|meaning of|what does|tell me about|what do you mean by)\s+/i, "").replace(/\s+(mean|means|stand for)$/i, "").trim();
+  async function wiki(q) {
+    const t = topicOf(q); if (t.length < 2) return null;
+    const s = await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(t)}&srlimit=3&format=json&origin=*`).then((r) => r.json()).catch(() => null);
+    const hits = (s && s.query && s.query.search) || []; if (!hits.length) return null;
+    for (const h of hits) {
+      const j = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(h.title.replace(/ /g, "_"))}`).then((r) => r.json()).catch(() => null);
+      if (j && j.type !== "disambiguation" && j.extract && j.extract.length > 60) return { title: j.title, text: sentences(j.extract, 420), url: (j.content_urls && j.content_urls.desktop && j.content_urls.desktop.page) || `https://en.wikipedia.org/wiki/${encodeURIComponent(j.title)}` };
+    }
+    return null;
+  }
+  async function epmc(q) {
+    const t = topicOf(q); if (t.length < 3) return [];
+    const j = await fetch(`https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=${encodeURIComponent(t)}&format=json&pageSize=3&resultType=lite&sort=CITED%20desc`).then((r) => r.json()).catch(() => null);
+    return ((j && j.resultList && j.resultList.result) || []).filter((x) => x.title).slice(0, 3).map((x) => ({ title: x.title.replace(/<[^>]+>/g, ""), meta: [x.journalTitle, x.pubYear].filter(Boolean).join(", "), url: x.pmid ? `https://pubmed.ncbi.nlm.nih.gov/${x.pmid}/` : x.doi ? `https://doi.org/${x.doi}` : `https://europepmc.org/article/${x.source}/${x.id}` }));
+  }
+  async function google(q) {
+    const key = String(settings.google_cse_key || "").trim(), cx = String(settings.google_cse_cx || "").trim(); if (!key || !cx) return null;
+    const j = await fetch(`https://www.googleapis.com/customsearch/v1?key=${encodeURIComponent(key)}&cx=${encodeURIComponent(cx)}&num=3&q=${encodeURIComponent(q)}`).then((r) => r.json()).catch(() => null);
+    const it = (j && j.items) || []; return it.length ? it.slice(0, 3).map((x) => ({ title: x.title, text: x.snippet || "", url: x.link })) : null;
+  }
+  const safeHref = (u) => (/^https:\/\//.test(String(u)) ? esc(u) : "#");
+  const RESEARCHY = /study|studies|research|evidence|trial|effect|outcome|risk|management|treatment|therapy|anaesth|anesth|surg|patient|clinical|disease|syndrome|ventilat|oxygen|drug|dose|infection|operating|theatre|theater|nurs|physio|radiolog|cardiac|dialysis|smoke|airway|sedat|analges|pain|icu|monitor/i;
+  async function smartAnswer(text, k) {
+    const done = thinking(/what|who|define|explain|meaning/i.test(text) ? "Looking that up for you…" : "Let me check that for you…");
+    const defn = DEFN.test(text.trim());
+    const wikiP = defn ? withTimeout(wiki(text), 4500) : null;
+    // For definitions, only use our own page when its heading is about exactly that topic
+    const tt = toks(topicOf(text));
+    const site = await withTimeout(kbSearch(text, defn ? (d) => { const st = new Set(toks(d.title)); return tt.length > 0 && tt.every((w) => st.has(w)); } : null), 3500);
+    if (site) {
+      lastTopic = k || lastTopic || "research";
+      await done(`${/^(how|what|which|why)\b/i.test(text) && site.d.title ? `<b>${esc(site.d.title)}</b><br>` : ""}${excerpt(site.d, text)}<span class="rb-src">📌 From our website: <a href="${esc(site.d.url)}">${esc(site.d.title || pageName(site.d.url))}</a></span>`);
+      return more();
+    }
+    const [g, w, refs] = await Promise.all([withTimeout(google(text), 4500), wikiP || withTimeout(wiki(text), 4500), RESEARCHY.test(text) ? withTimeout(epmc(text), 4500) : Promise.resolve([])]);
+    const topic = esc(((w && w.title) || topicOf(text)).replace(/\s*\([^)]*\)\s*$/, ""));
+    if (g || w || (refs && refs.length)) {
+      let h = "";
+      if (g) h += `${g.map((x) => `<b>${esc(x.title)}</b>: ${esc(x.text)}`).slice(0, 2).join("<br>")}<span class="rb-src">🔎 From Google: ${g.slice(0, 2).map((x) => `<a href="${safeHref(x.url)}" target="_blank" rel="noopener">${esc(new URL(x.url).hostname.replace(/^www\./, ""))}</a>`).join(" · ")}</span>`;
+      else if (w) h += `${esc(w.text)}<span class="rb-src">🌐 Source: <a href="${safeHref(w.url)}" target="_blank" rel="noopener">Wikipedia – ${esc(w.title)}</a></span>`;
+      if (refs && refs.length) h += `${h ? "<br>" : ""}📚 <b>Research to read:</b><ul class="rb-refs">${refs.map((r) => `<li><a href="${safeHref(r.url)}" target="_blank" rel="noopener">${esc(r.title)}</a>${r.meta ? ` <small>(${esc(r.meta)})</small>` : ""}</li>`).join("")}</ul>`;
+      lastTopic = k || "research";
+      await done(h);
+      // Turn curiosity into a research idea: the encouraging bridge to our services
+      return bot(`✨ <b>${topic}</b> is a great area to explore. Many of our authors turned a question like yours into a published review or study, and our Ph.D. mentors can help you do the same, from topic to submission.`, 500).then(() => { log.lastElementChild.classList.add("rb-nudge"); answered++; showCta(true); nudgeChips(); });
+    }
+    if (k) { await done(typeof A[k] === "function" ? A[k]() : A[k] || "Here's what I can share:"); lastTopic = k; return more(); }
+    await done(`That's a thoughtful question! 😊 I couldn't find a reliable answer right now, but our Ph.D. mentors can answer it personally. Shall I send it to them? It's free and there's no obligation.`);
+    chips([["📝 Yes, send my question", () => startLead(text)], ["📞 Ask on a free call", startCall], ["🏠 Show topics", () => { bot("Here's what I can help with:").then(menu); }]]);
   }
 
   // ---------- Live opportunities from the site's own content ----------

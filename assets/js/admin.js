@@ -358,6 +358,8 @@
         { k: "linkedin", l: "LinkedIn link", t: "text" },
         { k: "goatcounter", l: "Visitor counter code (your GoatCounter code, e.g. researchmed)", t: "text", ph: "researchmed" },
         { k: "show_visitors", l: "Show the visitor count in the website footer", t: "check", def: () => true },
+        { k: "google_cse_key", l: "Chat assistant: Google search API key (optional, restrict it to researchmed.in)", t: "text", ph: "AIza…" },
+        { k: "google_cse_cx", l: "Chat assistant: Google Programmable Search engine ID (optional)", t: "text", ph: "e.g. 0123456789abcdef" },
       ],
     },
   };
