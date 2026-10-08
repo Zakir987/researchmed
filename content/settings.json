@@ -9,7 +9,7 @@
   "announcement_link": "",
   "show_videos": false,
   "papers_submitted": 40,
-  "papers_published": 36,
+  "papers_published": 40,
   "also_published_in": [
     {
       "name": "Scopus",
@@ -30,5 +30,8 @@
   "footer_about": "Educational and academic guidance for healthcare professionals, students, researchers, and aspiring authors.",
   "logo": "/media/brand/researchmed-logo.webp",
   "goatcounter": "researchmed",
-  "show_visitors": true
+  "show_visitors": true,
+  "whatsapp_group": "",
+  "google_cse_key": "",
+  "google_cse_cx": ""
 }
