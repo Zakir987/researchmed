@@ -1693,3 +1693,15 @@ body .jh-hero,body .jd-hero,body .jn-hero,body .trk-hero{background:radial-gradi
 .call-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .call-grid label{margin:0}
 @media (max-width:640px){.call-grid{grid-template-columns:1fr}}
+
+/* ===== WhatsApp community group ===== */
+.contact-card a.grp-cta,.grp-cta{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;margin-top:4px;padding:14px 16px;border-radius:16px;text-decoration:none;color:inherit;background:color-mix(in srgb,#25d366 10%,var(--surface,#fff));border:1px solid color-mix(in srgb,#25d366 40%,transparent);transition:transform .2s,box-shadow .2s}
+.grp-cta:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(20,122,62,.16)}
+.grp-ic{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#147a3e;color:#fff}
+.grp-cta b{display:block;font-size:1rem}
+.grp-cta small{display:block;font-size:.88rem;opacity:.85;line-height:1.4}
+.grp-go{font-weight:700;color:#147a3e;white-space:nowrap}
+:root[data-theme="dark"] .grp-go{color:#5ee08f}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .grp-go{color:#5ee08f}}
+@media (max-width:420px){.contact-card a.grp-cta,.grp-cta{grid-template-columns:auto 1fr}.grp-go{display:none}}
+.grp-after{margin:12px 0 0;font-size:.95rem}
