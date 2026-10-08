@@ -340,12 +340,23 @@
     if (canSpeak) speechSynthesis.cancel();
     const n = norm(v), lastEl = log.lastElementChild, last = lastEl && lastEl.classList.contains("rb-chips") ? lastEl : null;
     if (last && n.length >= 3) {
-      const btn = [...last.querySelectorAll(".rb-chip")].find((b) => { const l = norm(b.textContent); return l === n || (n.length >= 4 && (l.includes(n) || (n.includes(l) && l.length >= 4))); });
+      // Most specific button wins: the label whose words are all in what was said, with the most words
+      const said = new Set(n.split(" "));
+      let btn = null, bestN = 0;
+      [...last.querySelectorAll(".rb-chip")].forEach((b) => {
+        const l = norm(b.textContent), ws = l.split(" ").filter(Boolean);
+        const ok = l === n || (n.length >= 4 && l.includes(n)) || (ws.length && ws.every((w) => said.has(w)) && l.length >= 4);
+        if (ok && ws.length > bestN) { btn = b; bestN = ws.length; }
+      });
       if (btn) return btn.click();
     }
     me(v); handle(v);
   }
 
+  const groupUrl = () => (/^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+$/.test(String(settings.whatsapp_group || "").trim()) ? String(settings.whatsapp_group).trim() : "https://chat.whatsapp.com/JacGKiNxqda5ZrIUpyTFft");
+  function group() {
+    bot(`👥 Join the <b>ResearchMed Connect WhatsApp group</b> to get calls for papers, book chapter invitations, collaboration openings and free research tips before anyone else.<br><br><a href="${esc(groupUrl())}" target="_blank" rel="noopener">👉 Join our WhatsApp group</a>`).then(moreQuiet);
+  }
   const waLink = (text) => wa ? `https://wa.me/${wa}?text=${encodeURIComponent(text || "Hello ResearchMed Connect, I would like guidance.")}` : "contact.html";
   // ---------- Encouragement: answer first, then gently invite an enquiry ----------
   let answered = 0, lastTopic = "", sent = false;
@@ -393,6 +404,7 @@
       ["📚 Free notes", notes],
       ["📝 Send an enquiry", startLead],
       ["💬 WhatsApp", whatsapp],
+      ["👥 Join WhatsApp group", group],
     ]);
   }
 
@@ -448,6 +460,7 @@
     [/predatory|fake journal|scam|fraud|genuine journal/i, "predatory"],
     [/how long|how much time|timeline|duration|how fast|how quickly|weeks|months/i, "timeline"],
     [/what do i need|requirement|documents|prepare before|what should i (send|share|bring)/i, "start"],
+    [/\bgroup\b|community|join (the |your )?whatsapp|whatsapp (group|community|channel)|telegram/i, "group"],
     [/\bfees?\b|cost|price|charges?\b|\brates?\b|\bpay|amount|kitna|paisa|rupee|₹|budget|afford/i, "fees"],
     [/book|chapter|isbn/i, "books"],
     [/co-?author|join.*paper|paper.*join|collaborat|authorship/i, "papers"],
@@ -480,6 +493,7 @@
     if (k === "lead") return startLead();
     if (k === "offer") return offerOn() ? offer() : bot("Our World Anaesthesia Day offer has ended, but our regular guidance is always affordable. Want a quote?").then(more);
     if (k === "call") return startCall();
+    if (k === "group") return group();
     if (k === "journal") return journalInfo(text);
     if (k === "team") return team();
     if (k === "notes") return notes();
@@ -746,7 +760,7 @@
       sent = true; showCta(false);
       if (d.call_date) await bot(`✅ <b>Thank you, ${esc(first)}!</b> Your call request is in (reference <b>${ref}</b>) for <b>${esc(d.call_date)}, ${esc(d.call_time)} IST</b> by ${esc(d.call_mode)}. We'll confirm the exact time before the call, and a confirmation email is on its way to ${esc(d.email)}.`);
       else await bot(`✅ <b>Thank you, ${esc(first)}!</b> Your enquiry has reached our team (reference <b>${ref}</b>). A confirmation email is on its way to ${esc(d.email)}; please check spam if you don't see it. We'll reply within one to two working days.<br><br>🌟 You've taken the most important step. We're excited to be part of your research journey!`);
-      chips([["💬 Need it faster? WhatsApp", whatsapp], ["🏠 Main menu", () => { bot("Anything else I can help with?").then(menu); }]]);
+      chips([["👥 Join our WhatsApp group", group], ["💬 Need it faster? WhatsApp", whatsapp], ["🏠 Main menu", () => { bot("Anything else I can help with?").then(menu); }]]);
     } catch (e) {
       const txt = `Hello ResearchMed Connect,\n\nName: ${d.name}\nEmail: ${d.email}\nPhone: ${d.phone}\nAbout me: ${d.qualification}\nNeed help with: ${d.service}${d.call_date ? `\nPreferred call: ${d.call_date}, ${d.call_time} IST, ${d.call_mode}` : ""}\n\n${d.message}`;
       await bot(`Sorry, I couldn't send that just now. Please send the same message with one tap:<br><br>${wa ? `<a href="${waLink(txt)}" target="_blank" rel="noopener">💬 Send on WhatsApp</a><br>` : ""}<a href="mailto:${INBOX}?subject=${encodeURIComponent("Enquiry: " + d.service)}&body=${encodeURIComponent(txt)}">✉️ Send by email</a>`);

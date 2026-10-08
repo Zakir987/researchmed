@@ -178,6 +178,9 @@
       up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>'
     };
     const waUrl = wa ? "https://wa.me/" + wa.replace(/\D/g, "") : "";
+    // WhatsApp community group (editable in Admin > Numbers & contact)
+    const grpUrl = /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+$/.test(String(s.whatsapp_group || "").trim()) ? String(s.whatsapp_group).trim() : "https://chat.whatsapp.com/JacGKiNxqda5ZrIUpyTFft";
+    window.RMC_GROUP = grpUrl;
     const fName = esc(s.site_name || "ResearchMed Connect");
     const fLink = (h, t) => `<li><a href="${h}"><span>${t}</span><i aria-hidden="true">→</i></a></li>`;
     footer.innerHTML = `
@@ -203,6 +206,7 @@
           <div class="ft-col"><h2>Reach us</h2><div class="ft-cards">
             ${email ? `<a class="ft-card" href="mailto:${esc(email)}"><span class="ft-ic">${fIco.mail}</span><span><small>Email</small><b>${esc(email)}</b></span></a>` : ""}
             ${waUrl ? `<a class="ft-card" href="${esc(waUrl)}" target="_blank" rel="noopener"><span class="ft-ic ft-ic-wa">${fIco.wa}</span><span><small>WhatsApp</small><b>${esc(wa)}</b></span></a>` : ""}
+            <a class="ft-card ft-card-grp" href="${esc(grpUrl)}" target="_blank" rel="noopener"><span class="ft-ic ft-ic-wa">${fIco.wa}</span><span><small>Community</small><b>Join our WhatsApp group</b></span></a>
           </div><p class="ft-reply"><span aria-hidden="true"></span>We reply within 1&ndash;2 working days</p></div>
         </div>
         <div class="foot-bottom ft-bottom">
@@ -226,6 +230,7 @@
 
     // Contact placeholders on static pages
     $$("[data-email]").forEach((el) => { el.textContent = email; if (el.tagName === "A") el.href = "mailto:" + email; });
+    $$("[data-wa-group]").forEach((el) => { el.href = window.RMC_GROUP; });
     $$("[data-whatsapp]").forEach((el) => { el.textContent = wa; if (el.tagName === "A") el.href = "https://wa.me/" + wa.replace(/\D/g, ""); });
   }
 
@@ -627,7 +632,7 @@
         if (!r.ok || String(j.success) !== "true") throw new Error(j.message || "send failed");
         f.hidden = true;
         status.className = "form-status ok";
-        status.innerHTML = `<strong>Thank you, ${esc(first)}!</strong> ${d.service === CALL ? `Your call request has reached us (reference <b>${ref}</b>). We'll confirm your slot on ${esc(d.call_mode || "WhatsApp")} before ${esc(d.call_date || "the call")}.` : `Your enquiry has reached us (reference <b>${ref}</b>).`} A confirmation has been sent to ${esc(d.email)} — please check your spam folder if you don't see it. We usually reply within one to two working days.${wa ? `<div class="btn-row" style="margin-top:12px"><a class="btn btn-ghost btn-sm" href="${waLink(d)}" target="_blank" rel="noopener">Need it faster? WhatsApp us</a></div>` : ""}`;
+        status.innerHTML = `<strong>Thank you, ${esc(first)}!</strong> ${d.service === CALL ? `Your call request has reached us (reference <b>${ref}</b>). We'll confirm your slot on ${esc(d.call_mode || "WhatsApp")} before ${esc(d.call_date || "the call")}.` : `Your enquiry has reached us (reference <b>${ref}</b>).`} A confirmation has been sent to ${esc(d.email)} — please check your spam folder if you don't see it. We usually reply within one to two working days.${wa ? `<div class="btn-row" style="margin-top:12px"><a class="btn btn-ghost btn-sm" href="${waLink(d)}" target="_blank" rel="noopener">Need it faster? WhatsApp us</a></div>` : ""}<p class="grp-after">👥 While you wait, <a href="${esc(window.RMC_GROUP || "https://chat.whatsapp.com/JacGKiNxqda5ZrIUpyTFft")}" target="_blank" rel="noopener">join our WhatsApp group</a> for calls for papers, book chapters and free research tips.</p>`;
         status.hidden = false;
       } catch (err) {
         status.className = "form-status err";
@@ -1346,7 +1351,7 @@
   // ---------- Chat assistant (every public page) ----------
   if (PAGE !== "admin") {
     const sc = document.createElement("script");
-    sc.src = "assets/js/bot.js?v=20261008a"; sc.defer = true;
+    sc.src = "assets/js/bot.js?v=20261008b"; sc.defer = true;
     document.body.append(sc);
   }
 })();

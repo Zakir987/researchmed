@@ -350,6 +350,7 @@
         { k: "papers_published", l: "Papers published", t: "number" },
         { k: "email", l: "Email shown on the website", t: "text" },
         { k: "whatsapp", l: "WhatsApp number", t: "text" },
+        { k: "whatsapp_group", l: "WhatsApp group invite link (shown in footer, contact page and chat)", t: "text", ph: "https://chat.whatsapp.com/JacGKiNxqda5ZrIUpyTFft" },
         { k: "announcement", l: "Announcement bar text (leave empty to hide)", t: "text" },
         { k: "announcement_link", l: "Announcement link", t: "text" },
         { k: "hero_title", l: "Home page headline", t: "text" },
