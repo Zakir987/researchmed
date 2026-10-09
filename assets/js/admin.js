@@ -11,6 +11,8 @@
   const $ = (s, r = document) => r.querySelector(s);
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const today = () => new Date().toISOString().slice(0, 10);
+  const istDay = (off = 0) => new Date(Date.now() + 5.5 * 3600e3 + off * 864e5).toISOString().slice(0, 10);
+  const liveState = (draft, start, end) => (draft ? "Draft" : end && end < istDay() ? "Finished" : start && start > istDay() ? "Scheduled" : "Showing now");
   let token = "";
   try { token = localStorage.getItem(KEY) || ""; } catch (e) {}
 
@@ -72,6 +74,7 @@
 
   // ---------- Section definitions ----------
   const SECTIONS = {
+    dashboard: { label: "Dashboard", dash: true },
     enquiries: { label: "Enquiries", static: true },
     ijaott_tracking: {
       label: "IJAOTT Tracking", file: "content/journal-tracking.json", list: true, noun: "manuscript status",
@@ -124,6 +127,65 @@
         const st = x.draft ? "Draft" : x.end && x.end < t ? "Finished" : x.start && x.start > t ? "Scheduled" : "Showing now";
         return [x.occasion || "Birthday", (x.start || "?") + " → " + (x.end || "?"), st].join(" · ");
       },
+    },
+    offers: {
+      label: "Offers & pop-ups", file: "content/offers.json", list: true, noun: "offer",
+      hint: "Limited-time offers. Between the two dates the home page shows the offer banner with a live countdown and a pop-up (once per visit) with a small button to reopen it. Everything disappears by itself at midnight after the last day (India time). If two offers overlap, the one ending first is shown. Tip: wrap a word in *stars* to highlight it.",
+      fields: [
+        { k: "title", l: "Offer name (e.g. World Anaesthesia Day)", t: "text", req: true },
+        { k: "start", l: "Show from (first day)", t: "date", def: today, req: true },
+        { k: "end", l: "Last day of the offer", t: "date", def: today, req: true },
+        { k: "tag", l: "Small line above the heading (optional)", t: "text", ph: "e.g. World Anaesthesia Day · 16 October" },
+        { k: "heading", l: "Banner heading", t: "text", req: true, ph: "e.g. Celebrate with a *double* offer" },
+        { k: "text", l: "Banner text (optional)", t: "area" },
+        { k: "badge", l: "Badge (optional, short, e.g. 2× or 20% or FREE)", t: "text" },
+        { k: "points", l: "What they get: one per line, use → to split (e.g. One collaboration → two research papers)", t: "area" },
+        { k: "button", l: "Button text (default: Claim the offer)", t: "text" },
+        { k: "link", l: "Button link (optional; default opens the enquiry form with the offer filled in)", t: "text", ph: "https://… or leave empty" },
+        { k: "service", l: "Enquiry form: service to pre-select", t: "select", opts: ["Research collaboration", "Research guidance", "Publication guidance", "Book publication", "Book chapter authorship", "Student research support", "Free 15-minute call", "Something else"] },
+        { k: "enquiry", l: "Enquiry form: message filled in for the visitor (optional)", t: "area" },
+        { k: "whatsapp_text", l: "WhatsApp message filled in for the visitor (optional)", t: "area" },
+        { k: "fine", l: "Small print under the button (optional; default: Valid until <last day>, 11:59 PM IST)", t: "text" },
+        { k: "show", l: "What to show", t: "select", opts: ["Banner and pop-up", "Banner only", "Pop-up only"] },
+        { k: "pages", l: "Pop-up appears on", t: "select", opts: ["Home page only", "All pages"] },
+        { k: "popup_auto", l: "Open the pop-up automatically (otherwise only the small reopen button shows)", t: "check", def: () => true },
+        { k: "confetti", l: "Confetti when the pop-up opens", t: "check", def: () => true },
+        { k: "pop_heading", l: "Pop-up heading (optional; default: banner heading; new line allowed)", t: "area" },
+        { k: "pop_line2", l: "Pop-up second line (optional)", t: "text" },
+        { k: "pop_text", l: "Pop-up text (optional; default: banner text)", t: "area" },
+        { k: "pop_tag", l: "Pop-up small line (optional)", t: "text" },
+        { k: "day", l: "Big date on the pop-up (optional; default: last day)", t: "date" },
+        { k: "pop_note", l: "Line under the big date (optional)", t: "text", ph: "e.g. Ether Day · 1846 → 2026" },
+        { k: "pop_button", l: "Pop-up button text (optional)", t: "text" },
+        { k: "pop_fine", l: "Pop-up small print (optional)", t: "text" },
+        { k: "pill", l: "Reopen-button label (optional; default: <offer name> offer)", t: "text" },
+        { k: "slug", l: "Short code for links (optional, e.g. wad → contact.html?offer=wad)", t: "text" },
+        { k: "draft", l: "Hide (save as draft)", t: "check" },
+      ],
+      summary: (x) => [x.badge, (x.start || "?") + " → " + (x.end || "?"), liveState(x.draft, x.start, x.end)].filter(Boolean).join(" · "),
+    },
+    events: {
+      label: "Events & webinars", file: "content/events.json", list: true, noun: "event",
+      hint: "Workshops and webinars. Upcoming events appear on the Events page (added to the menu automatically) and the next one is highlighted on the home page. After the date passes the event moves to “Past events” by itself; add the recording link there.",
+      fields: [
+        { k: "title", l: "Event title", t: "text", req: true },
+        { k: "type", l: "Type", t: "select", opts: ["Webinar", "Workshop", "Hands-on session", "Conference", "Talk", "Course", "Other"] },
+        { k: "date", l: "Date", t: "date", def: today, req: true },
+        { k: "end_date", l: "Last day (only for multi-day events)", t: "date" },
+        { k: "time", l: "Start time (India time)", t: "text", ph: "e.g. 6:00 PM" },
+        { k: "end_time", l: "End time (optional)", t: "text", ph: "e.g. 7:30 PM" },
+        { k: "mode", l: "Mode", t: "select", opts: ["Online", "In person", "Hybrid"] },
+        { k: "place", l: "Platform or venue", t: "text", ph: "e.g. Google Meet / Zoom / PES University, Bengaluru" },
+        { k: "speaker", l: "Speaker(s)", t: "text" },
+        { k: "fee", l: "Fee (optional)", t: "text", ph: "e.g. Free · Certificate provided" },
+        { k: "poster", l: "Poster (optional)", t: "image", folder: "media/events" },
+        { k: "description", l: "About the event (what attendees will learn)", t: "area" },
+        { k: "button", l: "Button text (default: Register now)", t: "text" },
+        { k: "link", l: "Registration link (Google Form, Zoom etc.; empty = our enquiry form)", t: "text", ph: "https://…" },
+        { k: "recording", l: "Recording link (shown after the event)", t: "text", ph: "https://youtube.com/…" },
+        { k: "draft", l: "Hide (save as draft)", t: "check" },
+      ],
+      summary: (x) => [x.type, [x.date, x.time].filter(Boolean).join(" "), x.mode, x.draft ? "Draft" : String(x.end_date || x.date || "") < istDay() ? "Past" + (x.recording ? " · recording added" : "") : "Upcoming"].filter(Boolean).join(" · "),
     },
     updates: {
       label: "Updates", file: "content/updates.json", list: true, noun: "update",
@@ -393,7 +455,7 @@
   };
 
   // ---------- State ----------
-  let current = "enquiries", doc = null, sha = null, editing = -1;
+  let current = "dashboard", doc = null, sha = null, editing = -1;
   const logos = new Set();
 
   // ---------- Rendering ----------
@@ -449,6 +511,7 @@
     show(`${tabs()}<div class="admin-panel"><div class="skeleton" style="min-height:160px"></div></div>`);
     bindTabs();
     if (SECTIONS[current].static) { $(".admin-panel").innerHTML = enquiriesPanel(); return; }
+    if (SECTIONS[current].dash) { await renderDashboard(); return; }
 if (SECTIONS[current].tracking) { try { if (!localStorage.getItem(IJAOTT_ENDPOINT_KEY)) { const jj = await fetch("content/journal.json", { cache: "no-cache" }).then((r) => r.json()); if (jj.submission_endpoint) localStorage.setItem(IJAOTT_ENDPOINT_KEY, jj.submission_endpoint); } } catch (er) {} await renderTrackingPanel(); return; }
     try {
       const r = await readJson(SECTIONS[current].file);
@@ -680,6 +743,143 @@ if (SECTIONS[current].tracking) { try { if (!localStorage.getItem(IJAOTT_ENDPOIN
     try { await fn(); } catch (e) { toast("Could not save: " + e.message, true); }
     renderSection();
   }
+
+  // ---------- Dashboard: live now, ending soon, visitors, quick actions, change history with undo ----------
+  const fileLabel = (f) => { const s = Object.values(SECTIONS).find((x) => x.file === f); return s ? s.label : f.replace(/^content\/|\.json$/g, ""); };
+  async function readOr(path, list = true) {
+    try { return (await readJson(path)).data; } catch (e) { if (e.status === 404) return list ? { items: [] } : {}; throw e; }
+  }
+  function ago(iso) {
+    const s = (Date.now() - Date.parse(iso)) / 1000;
+    if (s < 90) return "just now"; if (s < 3600) return Math.round(s / 60) + " min ago"; if (s < 86400) return Math.round(s / 3600) + " h ago";
+    if (s < 7 * 86400) return Math.round(s / 86400) + " days ago";
+    return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  }
+  const niceDay = (d) => { if (!d) return ""; if (d === istDay()) return "today"; if (d === istDay(1)) return "tomorrow"; const x = new Date(d + "T12:00:00"); return isNaN(x) ? d : x.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" }); };
+  async function editIn(sec, i) { await start(sec); if (i === "new") openForm(-1); else if (i != null && doc && doc.items && doc.items[+i]) openForm(+i); }
+
+  async function renderDashboard() {
+    const panel = $(".admin-panel");
+    let off, cel, ev, no, up, st;
+    try {
+      [off, cel, ev, no, up, st] = await Promise.all([
+        readOr("content/offers.json"), readOr("content/celebrations.json"), readOr("content/events.json"),
+        readOr("content/notices.json"), readOr("content/updates.json"), readOr("content/settings.json", false),
+      ]);
+    } catch (e) {
+      if (e.status === 401) { signOut(); renderLogin("Your key has expired or was removed. Please connect again."); return; }
+      panel.innerHTML = `<p class="form-status err">Could not load the dashboard: ${esc(e.message)}</p>`; return;
+    }
+    const t = istDay(), wk = istDay(7);
+    const rows = (d) => (d.items || []).map((x, i) => ({ x, i })).filter((r) => r.x && !r.x.draft);
+    const live = [], soon = [], todo = [];
+    const row = (sec, i, title, meta, pill, cls) => `<li><div><b>${esc(title || "(untitled)")}</b><span class="muted">${meta}</span></div>${pill ? `<span class="dash-pill ${cls || ""}">${pill}</span>` : ""}<button type="button" data-go="${sec}" data-i="${i}">Edit</button></li>`;
+    rows(off).forEach(({ x, i }) => {
+      if (x.start <= t && t <= x.end) live.push(row("offers", i, x.title, `Offer · ${esc(x.show || "Banner and pop-up")} · last day ${niceDay(x.end)}`, x.end <= wk ? "Ends soon" : "Live", x.end <= wk ? "warn" : ""));
+      else if (x.start > t && x.start <= wk) soon.push(row("offers", i, x.title, `Offer starts ${niceDay(x.start)}`, "Scheduled", "off"));
+    });
+    rows(cel).forEach(({ x, i }) => {
+      if (x.start <= t && t <= x.end) live.push(row("celebrations", i, x.title, `${esc(x.occasion || "Birthday")} · until ${niceDay(x.end)}`, "Live"));
+      else if (x.start > t && x.start <= wk) soon.push(row("celebrations", i, x.title, `${esc(x.occasion || "Birthday")} starts ${niceDay(x.start)}`, "Scheduled", "off"));
+    });
+    const evs = rows(ev).sort((a, b) => String(a.x.date).localeCompare(String(b.x.date)));
+    evs.forEach(({ x, i }) => {
+      const last = String(x.end_date || x.date || "");
+      if (last >= t) (x.date <= wk ? soon : live).push(row("events", i, x.title, `${esc(x.type || "Event")} · ${niceDay(x.date)}${x.time ? " · " + esc(x.time) : ""} · ${esc(x.mode || "")}`, x.date <= t ? "Today" : x.date <= wk ? "This week" : "Upcoming", x.date <= wk ? "warn" : ""));
+      else if (!x.recording && last >= istDay(-60)) todo.push(row("events", i, x.title, `Finished ${niceDay(last)} · add the recording link so it shows under Past events`, "Add recording", "warn"));
+    });
+    const activeNotices = rows(no).filter(({ x }) => !x.expires || x.expires >= t);
+    activeNotices.forEach(({ x, i }) => { if (x.expires && x.expires <= wk) soon.push(row("notices", i, x.title, `Notice · hides after ${niceDay(x.expires)}`, "Ending", "warn")); });
+    if (st.announcement) live.push(`<li><div><b>${esc(st.announcement)}</b><span class="muted">Announcement bar at the top of every page</span></div><span class="dash-pill">Live</span><button type="button" data-go="settings">Edit</button></li>`);
+    const drafts = [off, cel, ev, no, up].reduce((n, d) => n + (d.items || []).filter((x) => x && x.draft).length, 0);
+    const lastUp = rows(up).sort((a, b) => String(b.x.date || "").localeCompare(String(a.x.date || "")))[0];
+    if (!lastUp || String(lastUp.x.date || "") < istDay(-30)) todo.push(`<li><div><b>No update in the last 30 days</b><span class="muted">A short news post keeps the website looking active${lastUp ? " (last: " + esc(lastUp.x.title) + ")" : ""}</span></div><button type="button" data-go="updates" data-i="new">+ Add update</button></li>`);
+    const upcomingN = evs.filter(({ x }) => String(x.end_date || x.date || "") >= t).length;
+    const liveOffers = rows(off).filter(({ x }) => x.start <= t && t <= x.end).length;
+    const code = String(st.goatcounter || "").trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\.goatcounter\.com.*$/, "");
+    const card = (h, list, emptyTxt) => `<div class="dash-card"><h3>${h}</h3>${list.length ? `<ul>${list.join("")}</ul>` : `<p class="muted" style="margin:0">${emptyTxt}</p>`}</div>`;
+    panel.innerHTML = `<div class="dash">
+      <div class="dash-stats">
+        <div class="dash-stat"><b id="dash-visits">…</b><span>Total visits${code ? ` · <a href="https://${esc(code)}.goatcounter.com" target="_blank" rel="noopener">details ↗</a>` : ""}</span></div>
+        <div class="dash-stat"><b>${liveOffers}</b><span>Offer${liveOffers === 1 ? "" : "s"} live</span></div>
+        <div class="dash-stat"><b>${upcomingN}</b><span>Upcoming event${upcomingN === 1 ? "" : "s"}</span></div>
+        <div class="dash-stat"><b>${activeNotices.length}</b><span>Notices showing</span></div>
+        <div class="dash-stat"><b>${drafts}</b><span>Drafts (hidden)</span></div>
+      </div>
+      <div class="dash-card"><h3>Quick actions</h3><div class="dash-quick">
+        <button type="button" data-go="offers" data-i="new">+ Offer</button>
+        <button type="button" data-go="events" data-i="new">+ Event / webinar</button>
+        <button type="button" data-go="notices" data-i="new">+ Notice</button>
+        <button type="button" data-go="updates" data-i="new">+ Update</button>
+        <button type="button" data-go="celebrations" data-i="new">+ Celebration</button>
+        <button type="button" data-go="settings">Numbers &amp; contact</button>
+        <a href="/" target="_blank" rel="noopener">Open website ↗</a>
+        <a href="https://mail.zoho.in" target="_blank" rel="noopener">Enquiries inbox ↗</a>
+      </div></div>
+      ${card("Live on the website now", live, "Nothing time-limited is showing right now (no offer, celebration or announcement).")}
+      ${card("Coming up in the next 7 days", soon, "Nothing starts or ends in the next 7 days.")}
+      ${todo.length ? card("Worth a look", todo, "") : ""}
+      <div class="dash-card"><h3>Recent changes <span class="muted" style="font-weight:400;font-size:.88rem">· made a mistake? Undo puts that section back the way it was</span></h3><ul id="dash-hist"><li class="muted">Loading…</li></ul>
+        <div class="dash-more"><button type="button" class="btn btn-ghost" id="dash-more" hidden>Show older changes</button></div></div>
+    </div>`;
+    panel.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => editIn(b.dataset.go, b.dataset.i)));
+    if (code && /^[a-z0-9-]+$/.test(code)) fetch(`https://${code}.goatcounter.com/counter/TOTAL.json?t=${Date.now()}`, { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)).then((d) => { $("#dash-visits").textContent = d && d.count ? String(d.count).replace(/\u202f/g, ",") : "—"; }).catch(() => { $("#dash-visits").textContent = "—"; });
+    else $("#dash-visits").textContent = "—";
+    loadHistory(1);
+  }
+
+  async function loadHistory(page) {
+    const ul = $("#dash-hist"), more = $("#dash-more"); if (!ul) return;
+    let list;
+    try { list = await gh(`/commits?path=content&sha=${BRANCH}&per_page=12&page=${page}`, { cache: "no-store" }); }
+    catch (e) { ul.innerHTML = `<li class="muted">Could not load the history: ${esc(e.message)}</li>`; return; }
+    if (page === 1) ul.innerHTML = "";
+    ul.insertAdjacentHTML("beforeend", list.map((c) => {
+      const msg = (c.commit.message || "").split("\n")[0];
+      return `<li data-sha="${c.sha}"><div><b>${esc(msg)}</b><span class="muted">${ago(c.commit.author.date)} · ${esc((c.author && c.author.login) || c.commit.author.name || "")}</span></div><button type="button" data-undo="${c.sha}">Undo</button></li>`;
+    }).join("") || `<li class="muted">No changes yet.</li>`);
+    ul.querySelectorAll("[data-undo]:not([data-b])").forEach((b) => { b.dataset.b = "1"; b.addEventListener("click", () => undo(b)); });
+    more.hidden = list.length < 12;
+    more.onclick = () => { more.hidden = true; loadHistory(page + 1); };
+  }
+
+  async function undo(btn) {
+    const li = btn.closest("li"), shaC = btn.dataset.undo;
+    if (btn.dataset.plan) { // second click: do it
+      const plan = JSON.parse(btn.dataset.plan); btn.disabled = true; btn.textContent = "Undoing…";
+      try {
+        const msg = ("Undo: " + $("b", li).textContent).slice(0, 70);
+        for (const p of plan) {
+          const cur = await gh(`/contents/${p.path}?ref=${BRANCH}`, { cache: "no-store" }).catch((e) => { if (e.status === 404) return null; throw e; });
+          if (p.prev) await writeFile(p.path, p.prev, cur && cur.sha, msg);
+          else if (cur) await gh(`/contents/${p.path}`, { method: "DELETE", body: JSON.stringify({ message: msg, sha: cur.sha, branch: BRANCH }) });
+        }
+        toast("Undone. The website will show the earlier version in about a minute.");
+        setTimeout(() => start("dashboard"), 800);
+      } catch (e) { toast("Could not undo: " + e.message, true); btn.disabled = false; btn.textContent = "Undo"; delete btn.dataset.plan; }
+      return;
+    }
+    btn.disabled = true; btn.textContent = "Checking…";
+    try {
+      const c = await gh(`/commits/${shaC}`);
+      const files = (c.files || []).filter((f) => /^content\/[^/]+\.json$/.test(f.filename));
+      if (!files.length || !c.parents.length) { toast("This change has nothing that can be undone here.", true); btn.disabled = false; btn.textContent = "Undo"; return; }
+      const parent = c.parents[0].sha, plan = []; let later = [];
+      for (const f of files) {
+        const cur = await gh(`/contents/${f.filename}?ref=${BRANCH}`, { cache: "no-store" }).catch((e) => { if (e.status === 404) return null; throw e; });
+        if (cur && f.status !== "removed" && cur.sha !== f.sha) later.push(fileLabel(f.filename));
+        let prev = null;
+        if (f.status !== "added") { const o = await gh(`/contents/${f.previous_filename || f.filename}?ref=${parent}`); prev = (o.content || "").replace(/\n/g, ""); }
+        plan.push({ path: f.filename, prev });
+      }
+      btn.dataset.plan = JSON.stringify(plan); btn.disabled = false; btn.textContent = "Yes, undo"; btn.classList.add("danger");
+      const note = document.createElement("p"); note.className = "dash-files"; note.style.flexBasis = "100%"; note.style.margin = "0";
+      note.textContent = `Restores ${files.map((f) => fileLabel(f.filename)).join(", ")} to how ${files.length > 1 ? "they were" : "it was"} before this change.` + (later.length ? ` Careful: ${later.join(", ")} changed again later, and those later edits will be undone too.` : "") + " Click “Yes, undo” to confirm.";
+      li.appendChild(note);
+      setTimeout(() => { if (btn.isConnected && btn.dataset.plan && !btn.disabled) { delete btn.dataset.plan; btn.textContent = "Undo"; btn.classList.remove("danger"); note.remove(); } }, 15000);
+    } catch (e) { toast("Could not check this change: " + e.message, true); btn.disabled = false; btn.textContent = "Undo"; }
+  }
+
 
   if (token) start(); else renderLogin();
 })();

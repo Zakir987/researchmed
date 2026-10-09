@@ -115,6 +115,7 @@
       ["services.html", "Services", "services", true],
       ["about.html", "About", "about", true],
       ["faqs.html", "FAQs", "faqs", true],
+      ["events.html", "Events", "events", n.events > 0],
       ["updates.html", "Updates", "updates", n.updates > 0],
     ].filter((x) => x[3]);
   }
@@ -132,7 +133,7 @@
           <span><span class="brand-name">${esc(s.site_name || "ResearchMed Connect")}</span><span class="brand-tag">${esc(s.tagline || "Research. Learn. Publish. Grow.")}</span></span>
         </a>
         <nav class="nav" id="site-nav" aria-label="Main">
-          ${NAV.filter(([, , k]) => k !== "updates" || PAGE === "updates").map(([h, t, k]) => `<a href="${h}" ${k === PAGE ? 'aria-current="page"' : ""}>${t}</a>`).join("")}
+          ${NAV.filter(([, , k]) => (k !== "updates" || PAGE === "updates") && (k !== "events" || PAGE === "events" || (counts || {}).events_next > 0)).map(([h, t, k]) => `<a href="${h}" ${k === PAGE ? 'aria-current="page"' : ""}>${t}</a>`).join("")}
           <a class="nav-cta" href="contact.html" ${PAGE === "contact" ? 'aria-current="page"' : ""}>Enquire now</a>
         </nav>
         <button class="theme-toggle" type="button" aria-label="Toggle dark mode">${ICON.moon}</button>
@@ -598,7 +599,11 @@
     document.querySelectorAll("[data-book-call]").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); startCall(); }));
     if (qs.get("call")) startCall(); else syncCall();
     if (qs.get("book") && $("#c-msg", f)) $("#c-msg", f).value = `I would like to contribute a chapter to the book "${qs.get("book")}".\n\nPreferred chapter: \nMy qualification / designation: \nInstitution: `;
-    if (qs.get("offer") === "wad" && $("#c-msg", f)) $("#c-msg", f).value = `I would like to claim the World Anaesthesia Day offer (one collaboration, two papers / one chapter collaboration, two chapters).\n\nI am interested in: paper collaboration / chapter collaboration\nMy qualification / designation: \nInstitution: `;
+    if (qs.get("offer") && $("#c-msg", f)) load("offers").then((list) => {
+      const o = list.find((x) => x._id === qs.get("offer")); const m = $("#c-msg", f);
+      if (!m.value) m.value = o ? (o.enquiry || `I would like to claim the ${o.title} offer.`) + `\n\nMy qualification / designation: \nInstitution: ` : "I would like to claim your current offer.\n\n";
+    });
+    if (qs.get("event") && $("#c-msg", f)) $("#c-msg", f).value = `I would like to register for the event "${qs.get("event")}".\n\nMy qualification / designation: \nInstitution: `;
     if (qs.get("paper") && $("#c-msg", f)) $("#c-msg", f).value = `I would like to collaborate on the study "${qs.get("paper")}".\n\nHow I can contribute (literature review / data collection / analysis / writing): \nMy qualification / designation: \nInstitution: `;
     // Enquiries are emailed straight to the ResearchMed inbox via FormSubmit (no Google Form).
     // FormSubmit also sends the visitor an automatic thank-you reply.
@@ -1062,14 +1067,17 @@
 
   // ---------- Boot ----------
   (async function boot() {
-    const names = ["videos", "notes", "highlights", "gallery", "updates", "notices", "contributors", "books", "testimonials", "papers"];
+    const names = ["videos", "notes", "highlights", "gallery", "updates", "notices", "contributors", "books", "testimonials", "papers", "events"];
     const [settings, ...lists] = await Promise.all(["settings", ...names].map(load));
     const data = {}; names.forEach((n, i) => (data[n] = lists[i]));
     const counts = {}; names.forEach((n) => (counts[n] = data[n].length));
+    counts.events_next = data.events.filter(evUpcoming).length;
     renderLayout(settings, counts);
     if (PAGE === "home" || PAGE === "about") load("founder").then(founder);
     if (PAGE === "home") { home(settings, data); noticeBoard(data.notices); testimonials(data.testimonials); heroTrust(data.testimonials); }
-    if (PAGE === "home") wadOffer(settings);
+    load("offers").then((list) => offers(list, settings));
+    if (PAGE === "home") homeEvent(data.events);
+    if (PAGE === "events") eventsPage(data.events);
     if (PAGE === "about" || PAGE === "home") contributors(data.contributors);
     if (PAGE === "about" || PAGE === "home") load("team").then(team);
     requestAnimationFrame(() => setTimeout(enhance, 60));
@@ -1138,35 +1146,50 @@
     }).observe(document.getElementById("main") || document.body, { childList: true, subtree: true });
   }
 
-  // ---------- World Anaesthesia Day offer (home hero, auto-hides at the deadline) ----------
-  function wadOffer(s) {
-    const END = Date.parse("2026-10-16T00:00:00+05:30"); // 16 October, 12:00 AM IST
-    const hero = $(".hero-x"); if (!hero || Date.now() >= END || $(".wad", hero)) return;
+  // ---------- Offers (Admin > Offers & pop-ups): home banner + pop-up with a live countdown ----------
+  const istToday = () => new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10);
+  const offerEnd = (o) => Date.parse(o.end + "T00:00:00+05:30") + 864e5; // offer closes at midnight after the last day (IST)
+  const offerStart = (o) => (o.start ? Date.parse(o.start + "T00:00:00+05:30") : 0);
+  const emText = (t) => esc(t).replace(/\*(.+?)\*/g, "<em>$1</em>").replace(/\r?\n/g, "<br>");
+  const longDate = (d) => { const dt = new Date(d + "T12:00:00+05:30"); return isNaN(dt) ? esc(d) : dt.toLocaleDateString("en-IN", { day: "numeric", month: "long", timeZone: "Asia/Kolkata" }); };
+  function offers(list, s) {
+    const now = Date.now();
+    const live = (list || []).filter((o) => o.end && offerStart(o) <= now && now < offerEnd(o)).sort((a, b) => offerEnd(a) - offerEnd(b));
+    const o = live[0]; if (!o) return;
+    const END = offerEnd(o);
+    const show = o.show || "Banner and pop-up";
     const wa = String((s && s.whatsapp) || "").replace(/\D/g, "");
-    const waMsg = encodeURIComponent("Hello ResearchMed Connect, I would like to claim the World Anaesthesia Day offer (one collaboration, two papers / one chapter collaboration, two chapters).");
-    const svc = encodeURIComponent("Research collaboration");
+    const waMsg = encodeURIComponent(o.whatsapp_text || `Hello ResearchMed Connect, I would like to claim the ${o.title} offer.`);
+    const href = o.link ? safeUrl(o.link) : `contact.html?offer=${encodeURIComponent(o._id)}&service=${encodeURIComponent(o.service || "Research collaboration")}`;
+    const fine = o.fine || `Valid until ${longDate(o.end)}, 11:59 PM (IST)`;
+    if (PAGE === "home" && show !== "Pop-up only") offerBanner(o, END, wa, waMsg, href, fine);
+    if (show !== "Banner only" && (PAGE === "home" || o.pages === "All pages")) offerPopup(o, END, wa, waMsg, href, fine);
+  }
+  function offerBanner(o, END, wa, waMsg, href, fine) {
+    const hero = $(".hero-x"); if (!hero || $(".wad", hero)) return;
     const tile = (k, l) => `<div class="wad-t"><b data-k="${k}">00</b><small>${l}</small></div>`;
+    const pts = String(o.points || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean).map((l) => {
+      const [b, ...r] = l.split(/\s*(?:→|->)\s*/);
+      return `<div class="wad-o">${o.badge ? `<span class="wad-x" aria-hidden="true">${esc(o.badge)}</span>` : ""}<div><b>${esc(b)}</b>${r.length ? `<span>→ ${esc(r.join(" → "))}</span>` : ""}</div></div>`;
+    }).join("");
     const box = document.createElement("div");
     box.className = "wrap wad-wrap";
-    box.innerHTML = `<aside class="wad" aria-label="World Anaesthesia Day offer">
+    box.innerHTML = `<aside class="wad" aria-label="${esc(o.title)} offer">
       <span class="wad-glow" aria-hidden="true"></span><span class="wad-sparks" aria-hidden="true"></span>
       <div class="wad-l">
-        <p class="wad-tag"><span class="wad-dot" aria-hidden="true"></span>World Anaesthesia Day · 16 October</p>
-        <h2 class="wad-h">Celebrate 180 years of anaesthesia with a <em>double</em> offer</h2>
-        <p class="wad-sub">On 16 October 1846 the first public demonstration of ether anaesthesia changed medicine forever. We are marking the day our way:</p>
-        <div class="wad-offers">
-          <div class="wad-o"><span class="wad-x" aria-hidden="true">2×</span><div><b>One collaboration</b><span>→ two research papers</span></div></div>
-          <div class="wad-o"><span class="wad-x" aria-hidden="true">2×</span><div><b>One chapter collaboration</b><span>→ two book chapters</span></div></div>
-        </div>
+        <p class="wad-tag"><span class="wad-dot" aria-hidden="true"></span>${esc(o.tag || o.title)}</p>
+        <h2 class="wad-h">${emText(o.heading || o.title)}</h2>
+        ${o.text ? `<p class="wad-sub">${emText(o.text)}</p>` : ""}
+        ${pts ? `<div class="wad-offers">${pts}</div>` : ""}
       </div>
       <div class="wad-r">
         <p class="wad-cd-l">Offer ends in</p>
         <div class="wad-cd" role="timer" aria-live="off">${tile("d", "Days")}${tile("h", "Hours")}${tile("m", "Mins")}${tile("s", "Secs")}</div>
         <div class="wad-cta">
-          <a class="btn wad-btn" href="contact.html?offer=wad&amp;service=${svc}">Claim the offer <span aria-hidden="true">→</span></a>
+          <a class="btn wad-btn" href="${esc(href)}">${esc(o.button || "Claim the offer")} <span aria-hidden="true">→</span></a>
           ${wa ? `<a class="wad-wa" href="https://wa.me/${wa}?text=${waMsg}" target="_blank" rel="noopener">or WhatsApp us</a>` : ""}
         </div>
-        <p class="wad-fine">Valid until 16 October, 12:00 AM (IST)</p>
+        <p class="wad-fine">${esc(fine)}</p>
       </div>
     </aside>`;
     hero.insertBefore(box, $(".hero-grid", hero));
@@ -1180,7 +1203,6 @@
       set("d", Math.floor(sec / 86400)); set("h", Math.floor((sec % 86400) / 3600)); set("m", Math.floor((sec % 3600) / 60)); set("s", sec % 60);
     };
     step(); timer = setInterval(step, 1000);
-    wadPopup(END, wa, waMsg, svc);
     // Sparks burst once when the card first appears
     const sp = $(".wad-sparks", box);
     if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -1188,42 +1210,47 @@
     }
   }
 
-  // ---------- World Anaesthesia Day pop-up: opens on arrival, confetti, live countdown ----------
-  function wadPopup(END, wa, waMsg, svc) {
+  // Offer pop-up: opens once per visit, confetti, live countdown, then a small pill to reopen it
+  function offerPopup(o, END, wa, waMsg, href, fine) {
     if (Date.now() >= END || $("#wad-pop")) return;
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let seen = false; try { seen = sessionStorage.getItem("wadPopSeen") === "1"; } catch (e) {}
+    const KEYS = "offerSeen:" + o._id + ":" + o.end;
+    let seen = false; try { seen = sessionStorage.getItem(KEYS) === "1"; } catch (e) {}
     const dlg = document.createElement("dialog");
     dlg.id = "wad-pop"; dlg.className = "wp"; dlg.tabIndex = -1; dlg.setAttribute("aria-labelledby", "wp-title");
     const tile = (k, l) => `<div class="wp-t"><b data-wk="${k}">00</b><small>${l}</small></div>`;
+    const bm = String(o.badge || "").match(/^(\d+)\s*(\D{0,3})$/);
+    const big = bm ? `<span>${esc(bm[1])}</span><i>${esc(bm[2])}</i>` : `<span class="wp-word">${esc(o.badge || "★")}</span>`;
+    const day = new Date((o.day || o.end) + "T12:00:00+05:30");
+    const dd = isNaN(day) ? "" : `<div class="wp-date"><b>${day.toLocaleDateString("en-IN", { day: "numeric", timeZone: "Asia/Kolkata" })}</b><span>${day.toLocaleDateString("en-IN", { month: "short", timeZone: "Asia/Kolkata" }).toUpperCase()}</span></div>`;
     dlg.innerHTML = `<canvas class="wp-confetti" aria-hidden="true"></canvas>
       <div class="wp-card">
         <button type="button" class="wp-x" aria-label="Close offer">×</button>
         <div class="wp-vis" aria-hidden="true">
           <span class="wp-orbit o1"></span><span class="wp-orbit o2"></span><span class="wp-orbit o3"></span>
-          <div class="wp-two"><span>2</span><i>×</i></div>
+          <div class="wp-two">${big}</div>
           <svg class="wp-ecg" viewBox="0 0 400 60" preserveAspectRatio="none"><path pathLength="1" d="M0 34 H120 Q130 26 140 34 H156 L162 38 L170 4 L178 56 L184 34 H214 Q228 20 242 34 H400"/></svg>
-          <div class="wp-date"><b>16</b><span>OCT</span></div>
-          <p class="wp-since">Ether Day · 1846 → 2026</p>
+          ${dd}
+          ${o.pop_note ? `<p class="wp-since">${esc(o.pop_note)}</p>` : ""}
         </div>
         <div class="wp-body">
-          <p class="wp-tag"><span class="wp-dot"></span>World Anaesthesia Day special</p>
-          <h2 id="wp-title" class="wp-h">One collaboration.<br><em>Two papers.</em></h2>
-          <p class="wp-h2">One chapter collaboration. <em>Two chapters.</em></p>
-          <p class="wp-sub">180 years since the first public demonstration of ether anaesthesia — we’re celebrating by doubling what you get.</p>
+          <p class="wp-tag"><span class="wp-dot"></span>${esc(o.pop_tag || o.tag || o.title)}</p>
+          <h2 id="wp-title" class="wp-h">${emText(o.pop_heading || o.heading || o.title)}</h2>
+          ${o.pop_line2 ? `<p class="wp-h2">${emText(o.pop_line2)}</p>` : ""}
+          ${o.pop_text || o.text ? `<p class="wp-sub">${emText(o.pop_text || o.text)}</p>` : ""}
           <div class="wp-cd" role="timer" aria-label="Time left">${tile("d", "Days")}${tile("h", "Hrs")}${tile("m", "Min")}${tile("s", "Sec")}</div>
           <div class="wp-cta">
-            <a class="wp-btn" href="contact.html?offer=wad&amp;service=${svc}"><span>Claim my 2× offer</span><i aria-hidden="true">→</i></a>
+            <a class="wp-btn" href="${esc(href)}"><span>${esc(o.pop_button || o.button || "Claim the offer")}</span><i aria-hidden="true">→</i></a>
             ${wa ? `<a class="wp-wa" href="https://wa.me/${wa}?text=${waMsg}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9s.7-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.8-1c.2-.3.4-.2.6-.1l2 .9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg>WhatsApp</a>` : ""}
           </div>
-          <p class="wp-fine">Offer closes 16 October, 12:00 AM IST · Limited-period offer</p>
+          <p class="wp-fine">${esc(o.pop_fine || fine + " · Limited-period offer")}</p>
         </div>
       </div>`;
     document.body.appendChild(dlg);
     // Floating re-open pill
     const pill = document.createElement("button");
     pill.type = "button"; pill.className = "wp-pill"; pill.hidden = true;
-    pill.innerHTML = `<span class="wp-pill-x">2×</span><span>Anaesthesia Day offer</span><b data-wk="left"></b>`;
+    pill.innerHTML = `<span class="wp-pill-x">${esc(o.badge || "%")}</span><span>${esc(o.pill || o.title + " offer")}</span><b data-wk="left"></b>`;
     document.body.appendChild(pill);
     const els = [...document.querySelectorAll("[data-wk]")];
     const tick = () => {
@@ -1259,14 +1286,116 @@
       };
       requestAnimationFrame(draw);
     };
-    const open = () => { if (dlg.open) return; pill.hidden = true; if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", ""); dlg.classList.remove("closing"); setTimeout(confetti, 260); dlg.focus({ preventScroll: true }); };
+    const open = () => { if (dlg.open) return; pill.hidden = true; if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", ""); dlg.classList.remove("closing"); if (o.confetti !== false) setTimeout(confetti, 260); dlg.focus({ preventScroll: true }); };
     const close = () => { if (!dlg.open) return; dlg.classList.add("closing"); setTimeout(() => { try { dlg.close(); } catch (e) { dlg.removeAttribute("open"); } dlg.classList.remove("closing"); }, reduce ? 0 : 280); };
-    dlg.addEventListener("close", () => { pill.hidden = false; try { sessionStorage.setItem("wadPopSeen", "1"); } catch (e) {} });
+    dlg.addEventListener("close", () => { pill.hidden = false; try { sessionStorage.setItem(KEYS, "1"); } catch (e) {} });
     dlg.addEventListener("cancel", (e) => { e.preventDefault(); close(); });
     dlg.addEventListener("click", (e) => { if (e.target === dlg || e.target === cv) close(); });
     $(".wp-x", dlg).addEventListener("click", close);
     pill.addEventListener("click", open);
-    if (seen) pill.hidden = false; else setTimeout(open, 1400);
+    if (seen || o.popup_auto === false) pill.hidden = false; else setTimeout(open, 1400);
+  }
+
+  // ---------- Events & webinars (Admin > Events & webinars) ----------
+  function evUpcoming(e) { return String(e.end_date || e.date || "") >= istToday(); }
+  function evTime(e) { // "6:00 PM" / "18:30" → [h, m] or null
+    const m = String(e.time || "").match(/(\d{1,2})(?:[:.](\d{2}))?\s*([ap])?\.?m?/i); if (!m) return null;
+    let h = +m[1]; const mi = +(m[2] || 0); if (m[3]) { const pm = /p/i.test(m[3]); if (pm && h < 12) h += 12; if (!pm && h === 12) h = 0; }
+    return h < 24 && mi < 60 ? [h, mi] : null;
+  }
+  function evStamp(e) {
+    const t = evTime(e), pad = (n) => String(n).padStart(2, "0");
+    if (!t) return null;
+    const s = Date.parse(`${e.date}T${pad(t[0])}:${pad(t[1])}:00+05:30`);
+    const et = evTime({ time: e.end_time }); let en = s + (Number(e.duration) || 60) * 60e3;
+    if (et) { const x = Date.parse(`${e.end_date || e.date}T${pad(et[0])}:${pad(et[1])}:00+05:30`); if (x > s) en = x; }
+    return [s, en];
+  }
+  function evCal(e) {
+    const st = evStamp(e), z = (ms) => new Date(ms).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+    const ymd = (d) => String(d).replace(/-/g, "");
+    const next = (d) => new Date(Date.parse(d + "T00:00:00Z") + 864e5).toISOString().slice(0, 10).replace(/-/g, "");
+    const dates = st ? `${z(st[0])}/${z(st[1])}` : `${ymd(e.date)}/${next(e.end_date || e.date)}`;
+    const where = [e.mode, e.place].filter(Boolean).join(" · ");
+    const g = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(e.title)}&dates=${dates}&details=${encodeURIComponent((e.speaker ? "Speaker: " + e.speaker + "\n" : "") + "https://researchmed.in/events.html#" + e._id)}&location=${encodeURIComponent(where)}`;
+    const [a, b] = dates.split("/"); const tv = (x) => (x.length > 8 ? x : `;VALUE=DATE:${x}`);
+    const ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//ResearchMed Connect//Events//EN", "BEGIN:VEVENT", `UID:${e._id}@researchmed.in`, `DTSTAMP:${z(Date.now())}`,
+      `DTSTART${a.length > 8 ? ":" + a : tv(a)}`, `DTEND${b.length > 8 ? ":" + b : tv(b)}`, `SUMMARY:${String(e.title).replace(/[,;]/g, "\\$&")}`, `LOCATION:${where.replace(/[,;]/g, "\\$&")}`,
+      `URL:https://researchmed.in/events.html#${e._id}`, "END:VEVENT", "END:VCALENDAR"].join("\r\n");
+    return { g, ics: "data:text/calendar;charset=utf-8," + encodeURIComponent(ics) };
+  }
+  function evWhen(e) {
+    const t = istToday(); const d = Math.round((Date.parse(e.date) - Date.parse(t)) / 864e5);
+    if (e.date <= t && String(e.end_date || e.date) >= t) return "Today";
+    return d === 1 ? "Tomorrow" : d > 1 && d < 15 ? `In ${d} days` : "";
+  }
+  const evHref = (e) => (e.link ? safeUrl(e.link) : `contact.html?event=${encodeURIComponent(e.title)}&service=${encodeURIComponent("Something else")}`);
+  function evDateBox(e) {
+    const d = new Date(e.date + "T12:00:00+05:30");
+    if (isNaN(d)) return "";
+    const f = (o) => d.toLocaleDateString("en-IN", Object.assign({ timeZone: "Asia/Kolkata" }, o));
+    return `<div class="ev-date" aria-hidden="true"><small>${f({ weekday: "short" })}</small><b>${f({ day: "numeric" })}</b><span>${f({ month: "short" })}</span></div>`;
+  }
+  function evMeta(e) {
+    const d = new Date(e.date + "T12:00:00+05:30");
+    const full = isNaN(d) ? esc(e.date) : d.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Kolkata" }) + (e.end_date && e.end_date !== e.date ? " – " + fmtDate(e.end_date) : "");
+    return [full, e.time ? esc(e.time) + (e.end_time ? "–" + esc(e.end_time) : "") + " IST" : "", esc(e.mode || ""), esc(e.place || ""), esc(e.fee || "")].filter(Boolean).join(" · ");
+  }
+  function evCard(e) {
+    const cal = evCal(e), when = evWhen(e);
+    return `<article class="ev-card" id="${esc(e._id)}">
+      ${e.poster ? `<a class="ev-poster" href="${esc(media(e.poster))}" target="_blank" rel="noopener"><img src="${esc(media(e.poster))}" alt="Poster: ${esc(e.title)}" loading="lazy"></a>` : `<div class="ev-poster ev-poster-x" aria-hidden="true">${evDateBox(e)}</div>`}
+      <div class="ev-body">
+        <div class="ev-top">${e.poster ? evDateBox(e) : ""}<div>${when ? `<span class="ev-when">${when}</span>` : ""}${e.type ? `<span class="ev-type">${esc(e.type)}</span>` : ""}
+        <h3>${esc(e.title)}</h3><p class="ev-meta">${evMeta(e)}</p></div></div>
+        ${e.speaker ? `<p class="ev-sp"><b>Speaker:</b> ${esc(e.speaker)}</p>` : ""}
+        ${e.description ? `<div class="prose">${md(e.description)}</div>` : ""}
+        <div class="btn-row">
+          <a class="btn btn-primary" href="${esc(evHref(e))}" ${e.link ? 'target="_blank" rel="noopener"' : ""}>${esc(e.button || "Register now")} <span aria-hidden="true">→</span></a>
+          <a class="btn btn-ghost" href="${esc(cal.g)}" target="_blank" rel="noopener">Add to Google Calendar</a>
+          <a class="ev-ics" href="${cal.ics}" download="${esc(e._id)}.ics">Other calendar (.ics)</a>
+        </div>
+      </div>
+    </article>`;
+  }
+  function eventsPage(all) {
+    const up = all.filter(evUpcoming).sort((a, b) => String(a.date).localeCompare(String(b.date)));
+    const past = all.filter((e) => !evUpcoming(e)).sort(byDate);
+    const U = $("#ev-up"), P = $("#ev-past");
+    if (U) U.innerHTML = up.length ? up.map(evCard).join("") : `<div class="empty"><strong>No upcoming events right now</strong>New workshops and webinars are announced here and in our <a href="${esc(window.RMC_GROUP || "contact.html")}" data-wa-group target="_blank" rel="noopener">WhatsApp group</a>. Want a session for your institution? <a href="contact.html?service=${encodeURIComponent("Video lecture / session (on request)")}">Ask us</a>.</div>`;
+    if (P) {
+      const box = P.closest("section");
+      if (!past.length) { if (box) box.hidden = true; }
+      else P.innerHTML = past.map((e) => `<li id="${esc(e._id)}"><time datetime="${esc(e.date)}">${fmtDate(e.date)}</time><div><b>${esc(e.title)}</b><span class="muted">${[e.type, e.speaker, e.mode].filter(Boolean).map(esc).join(" · ")}</span></div>${e.recording ? `<a class="btn btn-ghost" href="${esc(safeUrl(e.recording))}" target="_blank" rel="noopener">Watch recording ↗</a>` : ""}</li>`).join("");
+    }
+    // Search engines: Event structured data for upcoming events
+    if (up.length) {
+      const ld = document.createElement("script"); ld.type = "application/ld+json";
+      ld.textContent = JSON.stringify(up.map((e) => {
+        const st = evStamp(e), online = /online/i.test(e.mode || ""), hyb = /hybrid/i.test(e.mode || "");
+        return { "@context": "https://schema.org", "@type": "Event", name: e.title, startDate: st ? new Date(st[0]).toISOString() : e.date, endDate: st ? new Date(st[1]).toISOString() : e.end_date || e.date,
+          eventStatus: "https://schema.org/EventScheduled", eventAttendanceMode: "https://schema.org/" + (hyb ? "Mixed" : online ? "Online" : "Offline") + "EventAttendanceMode",
+          location: online ? { "@type": "VirtualLocation", url: e.link || "https://researchmed.in/events.html" } : { "@type": "Place", name: e.place || "ResearchMed Connect", address: e.place || "India" },
+          image: e.poster ? new URL(media(e.poster), location.href).href : undefined, description: String(e.description || e.title).slice(0, 300),
+          organizer: { "@type": "Organization", name: "ResearchMed Connect", url: "https://researchmed.in/" }, performer: e.speaker ? { "@type": "Person", name: e.speaker } : undefined,
+          url: "https://researchmed.in/events.html#" + e._id };
+      }));
+      document.head.appendChild(ld);
+    }
+    if (location.hash) setTimeout(() => { const t = document.getElementById(decodeURIComponent(location.hash.slice(1))); if (t) t.scrollIntoView({ block: "start" }); }, 200);
+  }
+  function homeEvent(all) {
+    const up = all.filter(evUpcoming).sort((a, b) => String(a.date).localeCompare(String(b.date)));
+    const anchor = $("#home-proof"); if (!up.length || !anchor) return;
+    const e = up[0], when = evWhen(e);
+    const sec = document.createElement("section");
+    sec.className = "section ev-home"; sec.setAttribute("aria-label", "Upcoming event");
+    sec.innerHTML = `<div class="wrap"><div class="ev-strip">
+      ${evDateBox(e)}
+      <div class="ev-strip-m"><span class="ev-when">${when || "Upcoming " + esc((e.type || "event").toLowerCase())}</span><h2>${esc(e.title)}</h2><p class="ev-meta">${evMeta(e)}${e.speaker ? " · " + esc(e.speaker) : ""}</p></div>
+      <div class="ev-strip-b"><a class="btn btn-primary" href="${esc(evHref(e))}" ${e.link ? 'target="_blank" rel="noopener"' : ""}>${esc(e.button || "Register now")}</a><a class="ev-all" href="events.html#${esc(e._id)}">${up.length > 1 ? `All ${up.length} events` : "Details"} →</a></div>
+    </div></div>`;
+    anchor.after(sec);
   }
 
   // ---------- Bedside-monitor ECG: sweep-and-erase trace on every page ----------
