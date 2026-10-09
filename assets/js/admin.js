@@ -98,6 +98,33 @@
       ],
       summary: (x) => [x.date, x.new ? "NEW" : "", x.pinned ? "Pinned" : "", x.expires ? "until " + x.expires : ""].filter(Boolean).join(" · "),
     },
+    celebrations: {
+      label: "Celebrations", file: "content/celebrations.json", list: true, noun: "celebration",
+      hint: "Birthdays, anniversaries and achievements. Between the two dates the website shows a ribbon at the top, a celebration card with confetti (once per visit, on the home page) and a badge on the person's contributor card. It disappears by itself after the last day. Dates are India time.",
+      fields: [
+        { k: "title", l: "Person's name (as on their contributor card, e.g. Mr. S. Sri Balaji)", t: "text", req: true },
+        { k: "occasion", l: "Occasion", t: "select", opts: ["Birthday", "Work anniversary", "Wedding anniversary", "Award / achievement", "Welcome", "Other"] },
+        { k: "start", l: "Show from (first day)", t: "date", def: today, req: true },
+        { k: "end", l: "Show until (last day)", t: "date", def: today, req: true },
+        { k: "photo", l: "Photo (square works best; leave empty to show initials)", t: "image", folder: "media/people" },
+        { k: "role", l: "Designation (optional)", t: "text", ph: "e.g. Assistant Professor, Department of Anaesthesia & OT Technology" },
+        { k: "institution", l: "Institution (optional)", t: "text" },
+        { k: "message", l: "Message on the card", t: "area", req: true, ph: "Today the ResearchMed Connect family celebrates…" },
+        { k: "heading", l: "Card heading (optional; default depends on the occasion, e.g. Happy Birthday)", t: "text" },
+        { k: "ribbon", l: "Extra words on the top ribbon (optional)", t: "text", ph: "e.g. Thank you for inspiring us." },
+        { k: "pages", l: "Where to show it", t: "select", opts: ["Home and About pages", "Home page only", "All pages"] },
+        { k: "popup", l: "Open the celebration card automatically on the home page", t: "check", def: () => true },
+        { k: "confetti", l: "Confetti burst when the card opens", t: "check", def: () => true },
+        { k: "button", l: "Button text (optional, default: Send your wishes)", t: "text" },
+        { k: "link", l: "Button link (optional, default: your WhatsApp group)", t: "text", ph: "https://…" },
+        { k: "draft", l: "Hide (save as draft)", t: "check" },
+      ],
+      summary: (x) => {
+        const t = new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10);
+        const st = x.draft ? "Draft" : x.end && x.end < t ? "Finished" : x.start && x.start > t ? "Scheduled" : "Showing now";
+        return [x.occasion || "Birthday", (x.start || "?") + " → " + (x.end || "?"), st].join(" · ");
+      },
+    },
     updates: {
       label: "Updates", file: "content/updates.json", list: true, noun: "update",
       hint: "News shown on the Updates page (newest first). The page appears in the menu once there is at least one update.",

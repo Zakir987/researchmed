@@ -1,27 +1,36 @@
-/* ResearchMed Connect: birthday celebration for a contributor (self-contained, auto-hides after the date).
-   Shown on the home and About pages: a ribbon, a one-time celebration card with gentle confetti,
-   and a "Birthday today" badge on his contributor card. */
+/* ResearchMed Connect: celebrations (birthdays, anniversaries, awards…) managed in Admin > Celebrations.
+   Each entry has a start and end date (IST). While active it shows a ribbon, a one-time celebration card
+   with a gentle confetti burst, and a badge on the person's contributor card. Nothing shows outside the dates. */
 (function () {
   "use strict";
-  const START = Date.parse("2026-10-08T00:00:00+05:30");
-  const END = Date.parse("2026-10-10T00:00:00+05:30"); // visible through 9 October (IST) for late wishes
-  const now = Date.now();
+  if (window.__rmcCelebrate) return; window.__rmcCelebrate = true;
   const page = document.body.dataset.page || "";
-  if (now < START || now >= END || !["home", "about"].includes(page) || window.__rmcBday) return;
-  window.__rmcBday = true;
+  if (page === "admin") return;
 
-  const P = {
-    name: "Mr. S. Sri Balaji",
-    first: "Balaji",
-    role: "Assistant Professor, Department of Anaesthesia & Operation Theatre Technology",
-    inst: "PES University Institute of Medical Sciences & Research, Bengaluru",
-    photo: "media/people/mus9oqmr-whatsapp-image-2026-10-03-at-4.14.15-pm.jpeg",
-  };
   const GROUP_DEFAULT = "https://chat.whatsapp.com/JacGKiNxqda5ZrIUpyTFft";
+  const OCC = {
+    "Birthday": { e: "🎂", h: "Happy Birthday", badge: "Birthday today" },
+    "Work anniversary": { e: "🎉", h: "Happy Work Anniversary", badge: "Anniversary today" },
+    "Wedding anniversary": { e: "💐", h: "Happy Anniversary", badge: "Anniversary today" },
+    "Award / achievement": { e: "🏆", h: "Congratulations", badge: "Congratulations" },
+    "Welcome": { e: "👋", h: "Welcome", badge: "Welcome" },
+    "Other": { e: "🎉", h: "Celebrating", badge: "Celebrating today" },
+  };
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const todayIST = new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10);
+  const onPage = (w) => (w === "All pages" ? true : w === "Home page only" ? page === "home" : page === "home" || page === "about");
+  const safeLink = (u) => { u = String(u || "").trim(); return /^https:\/\//.test(u) ? u : ""; };
 
-  const css = `
+  fetch("content/celebrations.json", { cache: "no-cache" }).then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((j) => {
+    const all = ((j && j.items) || []).filter((x) => x && x.title && x.draft !== true && x.start && x.end && String(x.start) <= todayIST && todayIST <= String(x.end));
+    const list = all.filter((x) => onPage(x.pages || "Home and About pages"));
+    if (!list.length) return;
+    run(list);
+  });
+
+  function run(list) {
+    const css = `
   .bd-rib{position:relative;z-index:5;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 14px;padding:10px 16px;background:linear-gradient(90deg,#0B1F3A,#12294A);color:#fff;font:600 .95rem/1.4 inherit;text-align:center;border-bottom:2px solid #C9A227}
   .bd-rib b{color:#F3D77A}
   .bd-rib button{border:1px solid rgba(243,215,122,.7);background:transparent;color:#F3D77A;border-radius:8px;padding:6px 14px;font:600 .88rem inherit;cursor:pointer;min-height:36px}
@@ -36,12 +45,12 @@
   .bd-tag{display:inline-flex;align-items:center;gap:6px;margin:0 0 14px;padding:4px 12px;border-radius:999px;background:#0B1F3A;color:#F3D77A;font:700 .74rem/1.4 inherit;letter-spacing:.1em;text-transform:uppercase}
   .bd-ph{width:128px;height:128px;margin:0 auto 14px;border-radius:50%;padding:4px;background:conic-gradient(#C9A227,#F3D77A,#087F8C,#C9A227);box-shadow:0 10px 26px rgba(201,162,39,.35)}
   .bd-ph img{display:block;width:100%;height:100%;border-radius:50%;object-fit:cover;border:3px solid #fff;background:#eef2f6}
+  .bd-ph span{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;border:3px solid #fff;background:#0B1F3A;color:#F3D77A;font:700 2.4rem Georgia,serif}
   .bd-h{margin:0;font:700 clamp(1.45rem,1.1rem + 1.4vw,1.95rem)/1.2 Georgia,"Times New Roman",serif;color:#0B1F3A}
   .bd-h span{display:block;font-size:.62em;color:#7A5F0C;letter-spacing:.02em;margin-bottom:4px}
   .bd-role{margin:8px 0 0;color:#0B1F3A;font-weight:600;font-size:.95rem}
   .bd-inst{margin:2px 0 0;color:#5B6777;font-size:.9rem}
-  .bd-msg{margin:16px auto 0;max-width:44ch;font-size:1rem;line-height:1.6;color:#17202A}
-  .bd-msg b{color:#087F8C}
+  .bd-msg{margin:16px auto 0;max-width:46ch;font-size:1rem;line-height:1.6;color:#17202A;white-space:pre-line}
   .bd-sign{margin:12px 0 0;font:italic 600 .98rem Georgia,serif;color:#0B1F3A}
   .bd-acts{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:20px}
   .bd-acts a,.bd-acts button{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 20px;border-radius:10px;font:600 .95rem inherit;text-decoration:none;cursor:pointer}
@@ -51,40 +60,85 @@
   .bd-cv{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:2147483000}
   .bd-badge{display:inline-flex;align-items:center;gap:5px;margin:0 auto 8px;padding:3px 10px;border-radius:999px;background:#C9A227;color:#1d1604;font:700 .74rem/1.5 inherit;letter-spacing:.02em}
   .cf-card.bd-on{box-shadow:0 0 0 3px #C9A227,0 18px 40px rgba(201,162,39,.35)!important}
-  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bd-card{background:#10223B;color:#E4EAF2}:root:not([data-theme="light"]) .bd-card::before{background:linear-gradient(180deg,rgba(201,162,39,.18),transparent)}:root:not([data-theme="light"]) .bd-h,:root:not([data-theme="light"]) .bd-role,:root:not([data-theme="light"]) .bd-sign{color:#F1F5FA}:root:not([data-theme="light"]) .bd-msg{color:#E4EAF2}:root:not([data-theme="light"]) .bd-inst{color:#A2B0C2}:root:not([data-theme="light"]) .bd-later{color:#F1F5FA;border-color:#F1F5FA}:root:not([data-theme="light"]) .bd-x{color:#fff;background:rgba(255,255,255,.08)}:root:not([data-theme="light"]) .bd-msg b{color:#4FC0CB}:root:not([data-theme="light"]) .bd-h span{color:#E2C35A}}
-  :root[data-theme="dark"] .bd-card{background:#10223B;color:#E4EAF2}:root[data-theme="dark"] .bd-card::before{background:linear-gradient(180deg,rgba(201,162,39,.18),transparent)}:root[data-theme="dark"] .bd-h,:root[data-theme="dark"] .bd-role,:root[data-theme="dark"] .bd-sign{color:#F1F5FA}:root[data-theme="dark"] .bd-msg{color:#E4EAF2}:root[data-theme="dark"] .bd-inst{color:#A2B0C2}:root[data-theme="dark"] .bd-later{color:#F1F5FA;border-color:#F1F5FA}:root[data-theme="dark"] .bd-x{color:#fff;background:rgba(255,255,255,.08)}:root[data-theme="dark"] .bd-msg b{color:#4FC0CB}:root[data-theme="dark"] .bd-h span{color:#E2C35A}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bd-card{background:#10223B;color:#E4EAF2}:root:not([data-theme="light"]) .bd-card::before{background:linear-gradient(180deg,rgba(201,162,39,.18),transparent)}:root:not([data-theme="light"]) .bd-h,:root:not([data-theme="light"]) .bd-role,:root:not([data-theme="light"]) .bd-sign{color:#F1F5FA}:root:not([data-theme="light"]) .bd-msg{color:#E4EAF2}:root:not([data-theme="light"]) .bd-inst{color:#A2B0C2}:root:not([data-theme="light"]) .bd-later{color:#F1F5FA;border-color:#F1F5FA}:root:not([data-theme="light"]) .bd-x{color:#fff;background:rgba(255,255,255,.08)}:root:not([data-theme="light"]) .bd-h span{color:#E2C35A}}
+  :root[data-theme="dark"] .bd-card{background:#10223B;color:#E4EAF2}:root[data-theme="dark"] .bd-card::before{background:linear-gradient(180deg,rgba(201,162,39,.18),transparent)}:root[data-theme="dark"] .bd-h,:root[data-theme="dark"] .bd-role,:root[data-theme="dark"] .bd-sign{color:#F1F5FA}:root[data-theme="dark"] .bd-msg{color:#E4EAF2}:root[data-theme="dark"] .bd-inst{color:#A2B0C2}:root[data-theme="dark"] .bd-later{color:#F1F5FA;border-color:#F1F5FA}:root[data-theme="dark"] .bd-x{color:#fff;background:rgba(255,255,255,.08)}:root[data-theme="dark"] .bd-h span{color:#E2C35A}
   @media print{.bd-rib,.bd-dlg,.bd-cv{display:none}}`;
-  const st = document.createElement("style"); st.textContent = css; document.head.append(st);
+    const st = document.createElement("style"); st.textContent = css; document.head.append(st);
+    const groupUrl = () => { const g = String(window.RMC_GROUP || "").trim(); return /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+$/.test(g) ? g : GROUP_DEFAULT; };
+    const main = document.querySelector("main") || document.body;
+    const dialogs = [];
 
-  const groupUrl = () => {
-    const g = String((window.RMC_SETTINGS && window.RMC_SETTINGS.whatsapp_group) || window.RMC_GROUP || "").trim();
-    return /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+$/.test(g) ? g : GROUP_DEFAULT;
-  };
+    list.slice(0, 3).reverse().forEach((x) => {
+      const o = OCC[x.occasion] || OCC.Birthday;
+      const heading = String(x.heading || "").trim() || o.h;
+      const photo = String(x.photo || "").replace(/^\//, "");
+      const initials = String(x.title).replace(/^(dr|mr|mrs|ms|prof)\.?\s+/i, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+      const link = safeLink(x.link) || groupUrl();
 
-  // ---------- Ribbon at the top of the page ----------
-  const rib = document.createElement("div");
-  rib.className = "bd-rib"; rib.setAttribute("role", "note");
-  rib.innerHTML = `<span>🎂 Happy Birthday, <b>${esc(P.name)}</b>! Thank you for inspiring and motivating us.</span><button type="button">See the celebration</button>`;
-  const main = document.querySelector("main") || document.body;
-  main.prepend(rib);
+      // Ribbon
+      const rib = document.createElement("div");
+      rib.className = "bd-rib"; rib.setAttribute("role", "note");
+      rib.innerHTML = `<span>${o.e} ${esc(heading)}, <b>${esc(x.title)}</b>!${x.ribbon ? ` ${esc(x.ribbon)}` : ""}</span><button type="button">See the celebration</button>`;
+      main.prepend(rib);
 
-  // ---------- Celebration card ----------
-  const dlg = document.createElement("dialog");
-  dlg.className = "bd-dlg"; dlg.setAttribute("aria-labelledby", "bd-h");
-  dlg.innerHTML = `<div class="bd-card">
-      <button type="button" class="bd-x" aria-label="Close">×</button>
-      <p class="bd-tag">🎉 Celebrating today</p>
-      <div class="bd-ph"><img src="${esc(P.photo)}" alt="${esc(P.name)}" width="128" height="128" decoding="async"></div>
-      <h2 class="bd-h" id="bd-h"><span>Happy Birthday</span>${esc(P.name)}</h2>
-      <p class="bd-role">${esc(P.role)}</p>
-      <p class="bd-inst">${esc(P.inst)}</p>
-      <p class="bd-msg">Today the ResearchMed Connect family celebrates a colleague who <b>inspires</b>, <b>motivates</b> and is a truly <b>great soul in anaesthesia</b>. Thank you for lighting the way for your students and for all of us. Wishing you good health, happiness and a wonderful year ahead!</p>
-      <p class="bd-sign">With warm wishes, the ResearchMed Connect family</p>
-      <div class="bd-acts"><a class="bd-go" href="${esc(groupUrl())}" target="_blank" rel="noopener">🎂 Send your wishes</a><button type="button" class="bd-later">Close</button></div>
-    </div>`;
-  document.body.append(dlg);
+      // Card
+      const dlg = document.createElement("dialog");
+      const hid = "bd-h-" + Math.random().toString(36).slice(2, 7);
+      dlg.className = "bd-dlg"; dlg.setAttribute("aria-labelledby", hid);
+      dlg.innerHTML = `<div class="bd-card">
+          <button type="button" class="bd-x" aria-label="Close">×</button>
+          <p class="bd-tag">${o.e} ${x.occasion === "Award / achievement" ? "Celebrating an achievement" : "Celebrating today"}</p>
+          <div class="bd-ph">${photo ? `<img src="${esc(photo)}" alt="${esc(x.title)}" width="128" height="128" decoding="async">` : `<span aria-hidden="true">${esc(initials)}</span>`}</div>
+          <h2 class="bd-h" id="${hid}"><span>${esc(heading)}</span>${esc(x.title)}</h2>
+          ${x.role ? `<p class="bd-role">${esc(x.role)}</p>` : ""}
+          ${x.institution ? `<p class="bd-inst">${esc(x.institution)}</p>` : ""}
+          ${x.message ? `<p class="bd-msg">${esc(x.message)}</p>` : ""}
+          <p class="bd-sign">${esc(x.signature || "With warm wishes, the ResearchMed Connect family")}</p>
+          <div class="bd-acts"><a class="bd-go" href="${esc(link)}" target="_blank" rel="noopener">${o.e} ${esc(x.button || "Send your wishes")}</a><button type="button" class="bd-later">Close</button></div>
+        </div>`;
+      document.body.append(dlg);
+      const confettiOn = x.confetti !== false;
+      const open = () => { if (dlg.open) return; try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); } if (confettiOn) confetti(); setTimeout(() => dlg.querySelector(".bd-go").focus(), 60); };
+      const close = () => { dlg.close ? dlg.close() : dlg.removeAttribute("open"); };
+      rib.querySelector("button").addEventListener("click", open);
+      dlg.querySelector(".bd-x").addEventListener("click", close);
+      dlg.querySelector(".bd-later").addEventListener("click", close);
+      dlg.addEventListener("click", (e) => { if (e.target === dlg) close(); });
+      const key = "celSeen:" + x.title + ":" + x.start;
+      dlg.addEventListener("close", () => { try { sessionStorage.setItem(key, "1"); } catch (e) {} });
+      let seen = false; try { seen = sessionStorage.getItem(key) === "1"; } catch (e) {}
+      if (x.popup !== false && page === "home" && !seen) dialogs.push(open);
+      markCard(x.title, o.e + " " + (x.badge || o.badge));
+    });
 
-  // ---------- Gentle confetti (one burst, skipped for reduced motion) ----------
+    // Open the cards one by one on the home page, after any other pop-up has been closed
+    let tries = 0;
+    const next = () => {
+      if (!dialogs.length) return;
+      if (document.querySelector("dialog[open]") && ++tries < 300) return setTimeout(next, 1000);
+      dialogs.shift()(); setTimeout(next, 1200);
+    };
+    setTimeout(next, 1600);
+  }
+
+  // Badge + bring the person's contributor card to the front of the carousel
+  function markCard(name, text) {
+    const n = String(name).toLowerCase().replace(/^(dr|mr|mrs|ms|prof)\.?\s*/, "").replace(/[^a-z]/g, "");
+    let k = 0;
+    const tick = () => {
+      const cards = [...document.querySelectorAll(".cf-card")].filter((c) => { const t = ((c.querySelector("h3") || {}).textContent || "").toLowerCase().replace(/^(dr|mr|mrs|ms|prof)\.?\s*/, "").replace(/[^a-z]/g, ""); return n && t === n; });
+      cards.forEach((c) => {
+        if (c.classList.contains("bd-on")) return;
+        c.classList.add("bd-on");
+        const info = c.querySelector(".cf-info"); if (info) { const b = document.createElement("span"); b.className = "bd-badge"; b.textContent = text; info.prepend(b); }
+        if (!c.classList.contains("on")) c.click();
+      });
+      if (!cards.length && ++k < 40) setTimeout(tick, 500);
+    };
+    tick();
+  }
+
+  // One gentle confetti burst (skipped for reduced motion)
   function confetti() {
     if (reduce) return;
     const cv = document.createElement("canvas"); cv.className = "bd-cv"; cv.setAttribute("aria-hidden", "true");
@@ -93,9 +147,8 @@
     const W = innerWidth, H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.scale(dpr, dpr);
     const C = ["#C9A227", "#F3D77A", "#087F8C", "#4FC0CB", "#0B1F3A", "#E8735A", "#ffffff"];
     const parts = Array.from({ length: 140 }, (_, i) => {
-      const left = i % 2 === 0, a = (left ? -1 : 1) * (Math.PI / 2.6) + (Math.random() - .5) * .6 - Math.PI / 2 * (left ? -0 : 0);
-      const sp = 9 + Math.random() * 8;
-      return { x: left ? 0 : W, y: H * .75, vx: (left ? 1 : -1) * Math.cos(Math.abs(a) - .2) * sp * .9, vy: -Math.sin(Math.abs(a) + .5) * sp, r: 4 + Math.random() * 5, c: C[i % C.length], rot: Math.random() * 6, vr: (Math.random() - .5) * .3, t: Math.random() < .3 ? "c" : "r" };
+      const left = i % 2 === 0, a = Math.PI / 2.6 + (Math.random() - .5) * .6, sp = 9 + Math.random() * 8;
+      return { x: left ? 0 : W, y: H * .75, vx: (left ? 1 : -1) * Math.cos(a - .2) * sp * .9, vy: -Math.sin(a + .5) * sp, r: 4 + Math.random() * 5, c: C[i % C.length], rot: Math.random() * 6, vr: (Math.random() - .5) * .3, t: Math.random() < .3 ? "c" : "r" };
     });
     const t0 = performance.now();
     (function step(t) {
@@ -109,35 +162,4 @@
       if (el < 4200) requestAnimationFrame(step); else cv.remove();
     })(t0);
   }
-
-  const open = () => { if (dlg.open) return; try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); } confetti(); setTimeout(() => dlg.querySelector(".bd-go").focus(), 60); };
-  const close = () => { dlg.close ? dlg.close() : dlg.removeAttribute("open"); };
-  rib.querySelector("button").addEventListener("click", open);
-  dlg.querySelector(".bd-x").addEventListener("click", close);
-  dlg.querySelector(".bd-later").addEventListener("click", close);
-  dlg.addEventListener("click", (e) => { if (e.target === dlg) close(); });
-  dlg.addEventListener("close", () => { try { sessionStorage.setItem("bdSeen", "1"); } catch (e) {} });
-
-  // Open once per visit on the home page, after any other pop-up has been closed
-  let seen = false; try { seen = sessionStorage.getItem("bdSeen") === "1"; } catch (e) {}
-  if (page === "home" && !seen) {
-    let tries = 0;
-    const tryOpen = () => { if (document.querySelector("dialog[open]:not(.bd-dlg)")) { if (++tries < 120) setTimeout(tryOpen, 1000); return; } open(); };
-    setTimeout(tryOpen, 1600);
-  }
-
-  // ---------- "Birthday today" badge on his contributor card ----------
-  let n = 0;
-  const mark = () => {
-    const cards = [...document.querySelectorAll(".cf-card")].filter((c) => /sri\s*balaji/i.test((c.querySelector("h3") || {}).textContent || ""));
-    cards.forEach((c) => {
-      if (c.classList.contains("bd-on")) return;
-      c.classList.add("bd-on");
-      const info = c.querySelector(".cf-info"); if (info && !info.querySelector(".bd-badge")) { const b = document.createElement("span"); b.className = "bd-badge"; b.textContent = "🎂 Birthday today"; info.prepend(b); }
-      // Bring his card to the front of the carousel today
-      if (!c.classList.contains("on")) c.click();
-    });
-    if (!cards.length && ++n < 40) setTimeout(mark, 500);
-  };
-  mark();
 })();

@@ -1353,10 +1353,8 @@
     const sc = document.createElement("script");
     sc.src = "assets/js/bot.js?v=20261008b"; sc.defer = true;
     document.body.append(sc);
-    // Birthday celebration for a contributor (the script hides itself after 9 Oct 2026)
-    if (Date.now() < Date.parse("2026-10-10T00:00:00+05:30") && (PAGE === "home" || PAGE === "about")) {
-      const bd = document.createElement("script"); bd.src = "assets/js/celebrate.js?v=20261008a"; bd.defer = true; document.body.append(bd);
-    }
+    // Celebrations (birthdays, anniversaries, awards) from Admin > Celebrations; shows only between its dates
+    const cel = document.createElement("script"); cel.src = "assets/js/celebrate.js?v=20261009a"; cel.defer = true; document.body.append(cel);
   }
 })();
 /* Visitor analytics (GoatCounter: no cookies) + live visitor count in the footer. Set the code in Admin > Numbers & contact. */
