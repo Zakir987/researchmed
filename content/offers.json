@@ -1,0 +1,35 @@
+{
+  "items": [
+    {
+      "title": "World Anaesthesia Day",
+      "slug": "wad",
+      "tag": "World Anaesthesia Day · 16 October",
+      "heading": "Celebrate 180 years of anaesthesia with a *double* offer",
+      "text": "On 16 October 1846 the first public demonstration of ether anaesthesia changed medicine forever. We are marking the day our way:",
+      "badge": "2×",
+      "points": "One collaboration → two research papers\nOne chapter collaboration → two book chapters",
+      "start": "2026-10-01",
+      "end": "2026-10-15",
+      "fine": "Valid until 16 October, 12:00 AM (IST)",
+      "button": "Claim the offer",
+      "link": "",
+      "service": "Research collaboration",
+      "enquiry": "I would like to claim the World Anaesthesia Day offer (one collaboration, two papers / one chapter collaboration, two chapters).\n\nI am interested in: paper collaboration / chapter collaboration",
+      "whatsapp_text": "Hello ResearchMed Connect, I would like to claim the World Anaesthesia Day offer (one collaboration, two papers / one chapter collaboration, two chapters).",
+      "show": "Banner and pop-up",
+      "pages": "Home page only",
+      "popup_auto": true,
+      "confetti": true,
+      "pop_tag": "World Anaesthesia Day special",
+      "pop_heading": "One collaboration.\n*Two papers.*",
+      "pop_line2": "One chapter collaboration. *Two chapters.*",
+      "pop_text": "180 years since the first public demonstration of ether anaesthesia — we’re celebrating by doubling what you get.",
+      "pop_note": "Ether Day · 1846 → 2026",
+      "day": "2026-10-16",
+      "pop_button": "Claim my 2× offer",
+      "pop_fine": "Offer closes 16 October, 12:00 AM IST · Limited-period offer",
+      "pill": "Anaesthesia Day offer",
+      "draft": false
+    }
+  ]
+}
