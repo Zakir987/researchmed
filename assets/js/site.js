@@ -636,6 +636,7 @@
         const j = await r.json().catch(() => ({}));
         if (!r.ok || String(j.success) !== "true") throw new Error(j.message || "send failed");
         f.hidden = true;
+        document.dispatchEvent(new CustomEvent("rmc:lead", { detail: { kind: d.service === CALL ? "New call request" : "New enquiry sent", info: d.service === CALL ? `${d.call_date || ""} ${d.call_time || ""} IST · ${d.call_mode || ""}` : d.service, name: first } }));
         status.className = "form-status ok";
         status.innerHTML = `<strong>Thank you, ${esc(first)}!</strong> ${d.service === CALL ? `Your call request has reached us (reference <b>${ref}</b>). We'll confirm your slot on ${esc(d.call_mode || "WhatsApp")} before ${esc(d.call_date || "the call")}.` : `Your enquiry has reached us (reference <b>${ref}</b>).`} A confirmation has been sent to ${esc(d.email)} — please check your spam folder if you don't see it. We usually reply within one to two working days.${wa ? `<div class="btn-row" style="margin-top:12px"><a class="btn btn-ghost btn-sm" href="${waLink(d)}" target="_blank" rel="noopener">Need it faster? WhatsApp us</a></div>` : ""}<p class="grp-after">👥 While you wait, <a href="${esc(window.RMC_GROUP || "https://chat.whatsapp.com/JacGKiNxqda5ZrIUpyTFft")}" target="_blank" rel="noopener">join our WhatsApp group</a> for calls for papers, book chapters and free research tips.</p>`;
         status.hidden = false;
@@ -1489,8 +1490,14 @@
 /* Visitor analytics (GoatCounter: no cookies) + live visitor count in the footer. Set the code in Admin > Numbers & contact. */
 (function () {
   var page = document.body.dataset.page || "";
+  if (page === "admin") { try { localStorage.setItem("rmc-me", "1"); } catch (e) {} } // the owner's own devices never trigger visitor alerts
   if (page === "admin" || /^(localhost|127\.)/.test(location.hostname)) return;
   fetch("content/settings.json", { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; }).then(function (s) {
+    // Visitor alerts on WhatsApp / email (Admin > Numbers & contact)
+    if (s.visitor_alert_url && s.visitor_alerts !== false) {
+      window.RMC_ALERT = String(s.visitor_alert_url).trim();
+      var va = document.createElement("script"); va.src = "assets/js/alerts.js?v=20261010b"; va.defer = true; document.body.appendChild(va);
+    }
     var code = String(s.goatcounter || "").trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\.goatcounter\.com.*$/, "");
     if (!/^[a-z0-9-]+$/.test(code)) return;
     var base = "https://" + code + ".goatcounter.com";
