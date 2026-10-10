@@ -33,5 +33,7 @@
   "show_visitors": true,
   "whatsapp_group": "",
   "google_cse_key": "",
-  "google_cse_cx": ""
+  "google_cse_cx": "",
+  "visitor_alert_url": "https://script.google.com/macros/s/AKfycbxGuD9i_WQ8sGYaPwcDcRqhq0V1V5bxMbC3F-U41kf5mNiQc5VnCUzzBC_i_E3K0Oq-/exec",
+  "visitor_alerts": true
 }
