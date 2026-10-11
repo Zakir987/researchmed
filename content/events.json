@@ -1,3 +1,22 @@
 {
-  "items": []
+  "items": [
+    {
+      "title": "From Thesis to Publication: A Step-by-Step Guide to Writing a Research Paper",
+      "type": "Webinar",
+      "date": "2026-10-15",
+      "end_date": "",
+      "time": "",
+      "end_time": "",
+      "mode": "Online",
+      "place": "Google Meet",
+      "speaker": "Dr. Ankita Priyadarshini PhD (Microbiology)",
+      "fee": "800",
+      "poster": "/media/events/mv42618h-researchmed-webinar-banner-final.webp",
+      "description": "Key Takeaways\nThesis-to-paper conversion\nManuscript writing and structuring\nJournal selection and submission\nPeer review and common publication mistakes",
+      "button": "Register Now",
+      "link": "https://forms.gle/oVwFNwseXDkU7xBB8",
+      "recording": "",
+      "draft": false
+    }
+  ]
 }
