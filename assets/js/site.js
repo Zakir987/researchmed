@@ -114,6 +114,7 @@
       ["gallery.html", "Gallery", "gallery", n.gallery > 0],
       ["services.html", "Services", "services", true],
       ["about.html", "About", "about", true],
+      ["alliedpath/", "AlliedPath", "alliedpath", true],
       ["faqs.html", "FAQs", "faqs", true],
       ["events.html", "Events", "events", n.events > 0],
       ["updates.html", "Updates", "updates", n.updates > 0],
@@ -133,7 +134,7 @@
           <span><span class="brand-name">${esc(s.site_name || "ResearchMed Connect")}</span><span class="brand-tag">${esc(s.tagline || "Research. Learn. Publish. Grow.")}</span></span>
         </a>
         <nav class="nav" id="site-nav" aria-label="Main">
-          ${NAV.filter(([, , k]) => (k !== "updates" || PAGE === "updates") && (k !== "events" || PAGE === "events" || (counts || {}).events_next > 0)).map(([h, t, k]) => `<a href="${h}" ${k === PAGE ? 'aria-current="page"' : ""}>${t}</a>`).join("")}
+          ${NAV.filter(([, , k]) => (k !== "updates" || PAGE === "updates") && (k !== "events" || PAGE === "events" || (counts || {}).events_next > 0)).map(([h, t, k]) => `<a href="${h}" ${k === "alliedpath" ? 'class="nav-ap"' : ""} ${k === PAGE ? 'aria-current="page"' : ""}>${t}</a>`).join("")}
           <a class="nav-cta" href="contact.html" ${PAGE === "contact" ? 'aria-current="page"' : ""}>Enquire now</a>
         </nav>
         <button class="theme-toggle" type="button" aria-label="Toggle dark mode">${ICON.moon}</button>
