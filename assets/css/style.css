@@ -1765,3 +1765,6 @@ body .jh-hero,body .jd-hero,body .jn-hero,body .trk-hero{background:radial-gradi
 .dash-card li button[disabled]{opacity:.55;cursor:wait}
 .dash-files{font-size:.8rem;color:var(--muted)}
 .dash-more{margin-top:10px}
+
+/* AlliedPath link: shown in the mobile menu and on wide screens; hidden where the desktop bar is full */
+@media (min-width:1181px) and (max-width:1400px){.site-header .nav a.nav-ap{display:none}}
