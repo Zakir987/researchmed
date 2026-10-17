@@ -454,10 +454,146 @@
         { k: "google_cse_cx", l: "Chat assistant: Google Programmable Search engine ID (optional)", t: "text", ph: "e.g. 0123456789abcdef" },
       ],
     },
+    // ---------- AlliedPath (shown at admin.html?site=ap) ----------
+    ap_batches: {
+      ap: true, label: "Batches", file: "content/ap-batches.json", list: true, noun: "batch",
+      hint: "Upcoming batches on the AlliedPath home page and program page. Enter the time in India time (IST); visitors abroad also see it in their own time zone. A batch disappears by itself after its start date unless its status is Ongoing. Tick 'Hide' to keep a batch as a draft until the details are final.",
+      fields: [
+        { k: "title", l: "Batch name (e.g. AOTT Batch 1)", t: "text", req: true },
+        { k: "program", l: "Program (exactly as written in Programs)", t: "text", ph: "Anaesthesia & Operation Theatre Technology" },
+        { k: "start", l: "Start date", t: "date" },
+        { k: "days", l: "Class days", t: "text", ph: "e.g. Mon, Wed, Fri" },
+        { k: "time", l: "Class time (India time)", t: "text", ph: "e.g. 7:00 PM" },
+        { k: "duration", l: "Duration", t: "text", ph: "e.g. 12 weeks · 36 live classes" },
+        { k: "mode", l: "Mode", t: "select", opts: ["Live online", "In person", "Hybrid", "Recorded + live doubt sessions"] },
+        { k: "seats", l: "Total seats (optional)", t: "number" },
+        { k: "seats_left", l: "Seats left (optional; shows a progress bar)", t: "number" },
+        { k: "faculty", l: "Faculty (optional)", t: "text" },
+        { k: "status", l: "Status", t: "select", opts: ["Enrolling", "Filling fast", "Few seats left", "Full", "Ongoing", "Closed"] },
+        { k: "fee_inr", l: "Fee in ₹ (optional; leave empty to use the program fee)", t: "number" },
+        { k: "fee_usd", l: "Fee in US$ for students outside India (optional)", t: "number" },
+        { k: "link", l: "Registration / payment link for this batch (optional; empty = our seat request form)", t: "text", ph: "https://rzp.io/… or https://forms.gle/…" },
+        { k: "draft", l: "Hide (save as draft)", t: "check" },
+      ],
+      summary: (x) => [x.program, x.start || "date TBA", x.time, x.status, x.draft ? "Draft (hidden)" : ""].filter(Boolean).join(" · "),
+    },
+    ap_programs: {
+      ap: true, label: "Programs", file: "content/ap-programs.json", list: true, noun: "program", append: true,
+      hint: "Programs shown on the AlliedPath home page. Programs with status 'Planned' appear as small tags; all others get a full program page with syllabus, outcomes, batches and fees. For payment, paste a Razorpay Payment Page / Payment Link (India) and a PayPal or Stripe link (outside India).",
+      fields: [
+        { k: "title", l: "Program name", t: "text", req: true },
+        { k: "status", l: "Status", t: "select", opts: ["Enrolling soon", "Enrolling", "Running", "Planned"] },
+        { k: "summary", l: "One-line summary", t: "area" },
+        { k: "audience", l: "Who it's for", t: "text" },
+        { k: "duration", l: "Duration (e.g. 6 months · 3 classes a week)", t: "text" },
+        { k: "mode", l: "Format", t: "text", ph: "Live online classes + doubt clearing" },
+        { k: "fee_inr", l: "Fee in ₹ (optional)", t: "number" },
+        { k: "fee_usd", l: "Fee in US$ for students outside India (optional)", t: "number" },
+        { k: "overview", l: "Overview (new line for each paragraph; start a line with - for a bullet)", t: "area" },
+        { k: "modules", l: "Syllabus modules: one per line, 'Module name: topics'", t: "area" },
+        { k: "outcomes", l: "Outcomes: one per line", t: "area" },
+        { k: "pay_in", l: "Payment link for India (Razorpay, optional)", t: "text", ph: "https://rzp.io/…" },
+        { k: "pay_intl", l: "Payment link for outside India (PayPal / Stripe, optional)", t: "text", ph: "https://paypal.me/… or https://buy.stripe.com/…" },
+        { k: "brochure", l: "Brochure PDF (optional)", t: "file", folder: "media/alliedpath" },
+        { k: "slug", l: "Short web address (optional, e.g. aott → program.html?p=aott)", t: "text" },
+        { k: "draft", l: "Hide (save as draft)", t: "check" },
+      ],
+      summary: (x) => [x.status, x.fee_inr ? "₹" + x.fee_inr : "", x.modules ? String(x.modules).split("\n").filter(Boolean).length + " modules" : "", x.draft ? "Draft" : ""].filter(Boolean).join(" · "),
+    },
+    ap_faculty: {
+      ap: true, label: "Faculty", file: "content/ap-faculty.json", list: true, noun: "faculty member", append: true,
+      hint: "Teachers shown in the Faculty section, in order (lowest number first). Add only real faculty who have agreed to teach.",
+      fields: [
+        { k: "title", l: "Name", t: "text", req: true },
+        { k: "designation", l: "Role (e.g. Lead faculty, Anaesthesia technology)", t: "text" },
+        { k: "qualification", l: "Qualifications", t: "text" },
+        { k: "subjects", l: "Subjects (comma separated)", t: "text" },
+        { k: "bio", l: "Short bio (2 lines)", t: "area" },
+        { k: "photo", l: "Photo (square works best)", t: "image", folder: "media/alliedpath" },
+        { k: "linkedin", l: "LinkedIn link (optional)", t: "text" },
+        { k: "order", l: "Order (1 = first)", t: "number" },
+        { k: "draft", l: "Hide (save as draft)", t: "check" },
+      ],
+      summary: (x) => [x.designation, x.subjects, x.draft ? "Draft" : ""].filter(Boolean).join(" · "),
+    },
+    ap_resources: {
+      ap: true, label: "Free resources", file: "content/ap-resources.json", list: true, noun: "resource",
+      hint: "Free notes, videos and links on the AlliedPath resources page (the newest 3 also show on the home page). A YouTube video link plays right on the page.",
+      fields: [
+        { k: "title", l: "Title", t: "text", req: true },
+        { k: "type", l: "Type", t: "select", opts: ["Notes (PDF)", "Video", "Article", "Quiz", "Other"] },
+        { k: "description", l: "Short description", t: "area" },
+        { k: "file", l: "File (PDF, optional)", t: "file", folder: "media/alliedpath" },
+        { k: "youtube", l: "YouTube video link (optional)", t: "text" },
+        { k: "link", l: "Other link (optional)", t: "text" },
+        { k: "program", l: "Program (optional)", t: "text" },
+        { k: "draft", l: "Hide (save as draft)", t: "check" },
+      ],
+      summary: (x) => [x.type, x.program, x.draft ? "Draft" : ""].filter(Boolean).join(" · "),
+    },
+    ap_quiz: {
+      ap: true, label: "Practice quiz", file: "content/ap-quiz.json", list: true, noun: "question", append: true,
+      hint: "Questions for the free practice quiz on the resources page, in this order. Put each option on its own line and give the number of the correct option.",
+      fields: [
+        { k: "title", l: "Question", t: "text", req: true },
+        { k: "options", l: "Options (one per line)", t: "area", req: true },
+        { k: "answer", l: "Correct option number (1 = first line)", t: "number", req: true },
+        { k: "explanation", l: "Explanation shown after answering", t: "area" },
+        { k: "draft", l: "Hide (save as draft)", t: "check" },
+      ],
+      summary: (x) => ["Answer: option " + (x.answer || "?"), x.draft ? "Draft" : ""].filter(Boolean).join(" · "),
+    },
+    ap_faqs: {
+      ap: true, label: "FAQs", file: "content/ap-faqs.json", list: true, noun: "question", append: true,
+      hint: "Frequently asked questions at the bottom of the AlliedPath home page, in this order.",
+      fields: [
+        { k: "title", l: "Question", t: "text", req: true },
+        { k: "answer", l: "Answer (start a line with - for a bullet)", t: "area", req: true },
+        { k: "draft", l: "Hide (save as draft)", t: "check" },
+      ],
+    },
+    ap_reviews: {
+      ap: true, label: "Student reviews", file: "content/ap-reviews.json", list: true, noun: "review",
+      hint: "Real reviews from AlliedPath students. The section stays hidden until there is at least one. Only add a review with the student's permission.",
+      fields: [
+        { k: "title", l: "Student name (as they agreed to be shown)", t: "text", req: true },
+        { k: "quote", l: "What they said", t: "area", req: true },
+        { k: "rating", l: "Rating (1–5, optional)", t: "number" },
+        { k: "program", l: "Program / batch", t: "text" },
+        { k: "country", l: "Country / institution (optional)", t: "text" },
+        { k: "consent", l: "The student agreed to have this published", t: "check", req: true },
+        { k: "draft", l: "Hide (save as draft)", t: "check" },
+      ],
+      summary: (x) => [x.program, x.rating ? x.rating + "★" : "", x.draft ? "Draft" : ""].filter(Boolean).join(" · "),
+    },
+    ap_settings: {
+      ap: true, label: "Contact & policies", file: "content/alliedpath.json",
+      hint: "Contact details, notes and policy text used on the AlliedPath pages. Please review the terms and refund policy carefully: they are what students agree to when they pay.",
+      fields: [
+        { k: "whatsapp", l: "WhatsApp number", t: "text" },
+        { k: "email", l: "Email for registrations (forms are sent here)", t: "text" },
+        { k: "community_link", l: "AlliedPath WhatsApp community link (optional)", t: "text", ph: "https://chat.whatsapp.com/…" },
+        { k: "fee_note", l: "Note under the payment buttons", t: "text" },
+        { k: "intl_note", l: "Note for students outside India", t: "area" },
+        { k: "terms", l: "Terms of use (start a line with - for a bullet)", t: "area" },
+        { k: "refund", l: "Refund & cancellation policy", t: "area" },
+        { k: "privacy_note", l: "Privacy note", t: "area" },
+      ],
+    },
   };
 
   // ---------- State ----------
-  let current = "dashboard", doc = null, sha = null, editing = -1;
+  // Two admin areas share one key: ResearchMed (admin.html) and AlliedPath (admin.html?site=ap)
+  const SITE = /[?&]site=ap\b/.test(location.search) ? "ap" : "rmc";
+  const inSite = (s) => (SITE === "ap") === !!s.ap;
+  let current = SITE === "ap" ? "ap_batches" : "dashboard", doc = null, sha = null, editing = -1;
+  if (SITE === "ap") {
+    document.title = "AlliedPath admin";
+    const h = document.querySelector(".page-hero h1"), sub = document.querySelector(".page-hero p"), ey = document.querySelector(".page-hero .eyebrow");
+    if (h) h.textContent = "Edit AlliedPath";
+    if (sub) sub.textContent = "Batches, programs, faculty, free resources, quiz, FAQs, reviews and policies for researchmed.in/alliedpath. Changes go live in about a minute.";
+    if (ey) ey.textContent = "AlliedPath admin";
+  }
   const logos = new Set();
 
   // ---------- Rendering ----------
@@ -502,7 +638,9 @@
   }
 
   function tabs() {
-    return `<div class="admin-tabs" role="tablist">${Object.entries(SECTIONS).map(([k, s]) =>
+    const other = SITE === "ap" ? `<a class="site-switch" href="admin.html">← ResearchMed admin</a>` : `<a class="site-switch" href="admin.html?site=ap">AlliedPath admin →</a>`;
+    const view = SITE === "ap" ? `<a class="site-switch" href="alliedpath/" target="_blank" rel="noopener">Open AlliedPath ↗</a>` : "";
+    return `<div class="admin-tabs" role="tablist">${other}${view}${Object.entries(SECTIONS).filter(([, s]) => inSite(s)).map(([k, s]) =>
       `<button type="button" role="tab" data-tab="${k}" aria-selected="${k === current}">${s.label}</button>`).join("")}
       <button type="button" class="signout" id="signout">Sign out</button></div>`;
   }
