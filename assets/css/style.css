@@ -1768,3 +1768,7 @@ body .jh-hero,body .jd-hero,body .jn-hero,body .trk-hero{background:radial-gradi
 
 /* AlliedPath link: shown in the mobile menu and on wide screens; hidden where the desktop bar is full */
 @media (min-width:1181px) and (max-width:1400px){.site-header .nav a.nav-ap{display:none}}
+
+/* Admin: switch between the ResearchMed and AlliedPath admin areas */
+.admin-tabs .site-switch{font-weight:700;padding:9px 16px;border-radius:999px;text-decoration:none;background:#0F2A2E;color:#fff;border:1px solid #0F2A2E}
+.admin-tabs .site-switch:hover{background:#0E7C66;border-color:#0E7C66}
