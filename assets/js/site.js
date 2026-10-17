@@ -105,6 +105,7 @@
   function navItems(s, n) {
     return [
       ["index.html", "Home", "home", true],
+      ["alliedpath/", "AlliedPath", "alliedpath", true],
       ["highlights.html", "Publications", "highlights", n.highlights > 0],
       ["books.html", "Books", "books", true],
       ["papers.html", "Collaborate", "papers", true],
@@ -114,7 +115,6 @@
       ["gallery.html", "Gallery", "gallery", n.gallery > 0],
       ["services.html", "Services", "services", true],
       ["about.html", "About", "about", true],
-      ["alliedpath/", "AlliedPath", "alliedpath", true],
       ["faqs.html", "FAQs", "faqs", true],
       ["events.html", "Events", "events", n.events > 0],
       ["updates.html", "Updates", "updates", n.updates > 0],
