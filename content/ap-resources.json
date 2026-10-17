@@ -1,0 +1,24 @@
+{
+  "items": [
+    {
+      "title": "The OR Companion on YouTube",
+      "type": "Video",
+      "link": "https://www.youtube.com/@theorcompanion",
+      "youtube": "",
+      "program": "Anaesthesia & Operation Theatre Technology",
+      "description": "Free videos on operation theatre and anaesthesia practice from our founder's channel.",
+      "file": "",
+      "draft": false
+    },
+    {
+      "title": "Study notes from ResearchMed Connect",
+      "type": "Notes (PDF)",
+      "link": "https://researchmed.in/notes.html",
+      "youtube": "",
+      "program": "",
+      "description": "Free notes and PDFs for allied health students.",
+      "file": "",
+      "draft": false
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "items": [
+    {
+      "title": "Anaesthesia & Operation Theatre Technology",
+      "slug": "aott",
+      "status": "Enrolling soon",
+      "summary": "For B.Sc. and diploma students in anaesthesia and OT technology, and for working technologists who want to sharpen their basics.",
+      "audience": "B.Sc. / diploma AOTT students and working OT & anaesthesia technologists",
+      "duration": "",
+      "mode": "Live online classes + doubt clearing",
+      "fee_inr": "",
+      "fee_usd": "",
+      "overview": "A structured course that follows the NCAHP curriculum for Anaesthesia & Operation Theatre Technology. Each topic is taught live, with time for questions, case discussions and practical tips from the operating room.\n- Small groups, so you can ask questions\n- Notes after every class\n- Regular quizzes and viva practice",
+      "modules": "Basics of anatomy & physiology for the OT: airway, respiratory and cardiovascular systems\nPharmacology for anaesthesia technologists: induction agents, inhalational agents, opioids, muscle relaxants and reversal\nThe anaesthesia workstation: gas supply, cylinders and pin index, vaporisers, breathing circuits and machine checks\nAirway management: assessment, airway devices, intubation assistance and the difficult airway cart\nPatient monitoring: ECG, NIBP, SpO2, capnography, temperature and alarms\nRegional anaesthesia: spinal, epidural and nerve blocks, and how to assist safely\nOT design, sterilisation and infection control: CSSD, autoclave cycles, asepsis and waste handling\nPatient preparation and positioning: pre-op checks, WHO surgical safety checklist and safe positioning\nEmergencies in the OT: BLS/ACLS basics, malignant hyperthermia, anaphylaxis and the crash cart\nRecovery room (PACU) care and post-operative monitoring\nAnaesthesia for specialities: obstetrics, paediatrics, cardiac, neuro and day care\nClinical case discussions, viva and practical exam practice",
+      "outcomes": "Check and prepare an anaesthesia machine and breathing circuit\nAssist confidently with airway management and intubation\nRead and respond to OT monitoring and alarms\nApply sterilisation and infection-control standards in the OT\nRespond to common OT emergencies as part of the team\nAnswer viva and interview questions with confidence",
+      "pay_in": "",
+      "pay_intl": "",
+      "brochure": "",
+      "draft": false
+    },
+    {
+      "title": "Critical Care Technology",
+      "status": "Planned",
+      "summary": "",
+      "draft": false
+    },
+    {
+      "title": "Cardiac Care Technology",
+      "status": "Planned",
+      "summary": "",
+      "draft": false
+    },
+    {
+      "title": "Dialysis Therapy Technology",
+      "status": "Planned",
+      "summary": "",
+      "draft": false
+    },
+    {
+      "title": "Medical Laboratory Sciences",
+      "status": "Planned",
+      "summary": "",
+      "draft": false
+    },
+    {
+      "title": "Radiology & Imaging Technology",
+      "status": "Planned",
+      "summary": "",
+      "draft": false
+    },
+    {
+      "title": "Emergency & Trauma Care",
+      "status": "Planned",
+      "summary": "",
+      "draft": false
+    },
+    {
+      "title": "Respiratory Therapy",
+      "status": "Planned",
+      "summary": "",
+      "draft": false
+    }
+  ]
+}

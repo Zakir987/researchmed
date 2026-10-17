@@ -1,0 +1,60 @@
+{
+  "items": [
+    {
+      "title": "What is the pin index position for an oxygen cylinder?",
+      "options": "1 and 5\n2 and 5\n3 and 5\n7",
+      "answer": 2,
+      "explanation": "Oxygen uses pins 2 and 5. Nitrous oxide uses 3 and 5, medical air 1 and 5, and Entonox a single pin at 7. The pin index stops the wrong cylinder being fitted.",
+      "draft": false
+    },
+    {
+      "title": "Which neuromuscular blocker is depolarising?",
+      "options": "Atracurium\nVecuronium\nSuccinylcholine (suxamethonium)\nRocuronium",
+      "answer": 3,
+      "explanation": "Succinylcholine is the only depolarising muscle relaxant in routine use. The others are non-depolarising.",
+      "draft": false
+    },
+    {
+      "title": "What is the normal end-tidal CO2 (EtCO2) range in a healthy adult?",
+      "options": "15–25 mmHg\n35–45 mmHg\n55–65 mmHg\n75–85 mmHg",
+      "answer": 2,
+      "explanation": "Normal EtCO2 is about 35–45 mmHg. Capnography is also the best quick confirmation that the tube is in the trachea.",
+      "draft": false
+    },
+    {
+      "title": "Cricoid pressure is also known as:",
+      "options": "Sellick's manoeuvre\nJaw thrust\nBURP manoeuvre\nTrendelenburg position",
+      "answer": 1,
+      "explanation": "Cricoid pressure (Sellick's manoeuvre) presses the cricoid cartilage backwards to help reduce the risk of regurgitation during rapid sequence induction.",
+      "draft": false
+    },
+    {
+      "title": "A standard steam autoclave cycle for wrapped instruments is:",
+      "options": "100 °C for 5 minutes\n121 °C for 15 minutes\n60 °C for 30 minutes\n160 °C for 10 minutes",
+      "answer": 2,
+      "explanation": "A common steam sterilisation cycle is 121 °C at about 15 psi for 15 minutes (or 134 °C for about 3 minutes). Hot-air ovens use much higher temperatures for longer.",
+      "draft": false
+    },
+    {
+      "title": "In the ASA physical status classification, ASA III means:",
+      "options": "A normal healthy patient\nMild systemic disease\nSevere systemic disease\nA brain-dead organ donor",
+      "answer": 3,
+      "explanation": "ASA I is healthy, ASA II mild systemic disease, ASA III severe systemic disease, ASA IV severe disease that is a constant threat to life, ASA V moribund and ASA VI a brain-dead organ donor.",
+      "draft": false
+    },
+    {
+      "title": "The Mallampati classification helps to:",
+      "options": "Grade post-operative pain\nPredict a difficult airway\nMeasure depth of anaesthesia\nAssess the risk of bleeding",
+      "answer": 2,
+      "explanation": "Mallampati grades how much of the oropharynx is visible with the mouth open and tongue out. Higher classes suggest intubation may be more difficult.",
+      "draft": false
+    },
+    {
+      "title": "MAC (minimum alveolar concentration) of an inhalational agent is the concentration that:",
+      "options": "Causes apnoea in 50% of patients\nPrevents movement to a surgical incision in 50% of patients\nPrevents awareness in 100% of patients\nCauses loss of consciousness in 95% of patients",
+      "answer": 2,
+      "explanation": "MAC is the alveolar concentration at 1 atmosphere that prevents movement in response to a surgical skin incision in 50% of patients. It is used to compare the potency of inhalational agents.",
+      "draft": false
+    }
+  ]
+}
