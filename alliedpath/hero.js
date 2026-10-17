@@ -1,4 +1,4 @@
-/* AlliedPath hero: ECG intro, surgical-light spotlight, journey monitor, scroll journey */
+/* AlliedPath hero: ECG intro, surgical-light spotlight, journey monitor, faculty badges */
 (function () {
   "use strict";
   var REDUCE = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -124,47 +124,30 @@
     })(performance.now());
   })();
 
-  // ---------- scroll journey (sticky on wide screens) ----------
-  var sj = document.querySelector(".sj");
-  if (sj) (function () {
-    var steps = Array.prototype.slice.call(sj.querySelectorAll(".sj-steps > li")), n = steps.length;
-    var pr = sj.querySelector(".dial .pr"), tks = sj.querySelectorAll(".dial .tk"), num = sj.querySelector(".dial .n"), ico = sj.querySelector(".dial .ico");
-    var word = sj.querySelector(".sj-word"), dots = sj.querySelector(".sj-dots");
-    var GLOW = ["#0E7C66", "#1F6F9A", "#7A5BC4", "#C2662F", "#E8A33D"];
-    var WORDS = steps.map(function (s) { return s.getAttribute("data-w") || ""; });
-    var ICONS = steps.map(function (s) { var t = s.querySelector("template"); return t ? t.innerHTML : ""; });
-    var CIRC = 553, cur = -1, liveMode = false;
-    if (dots) { dots.innerHTML = steps.map(function (s, i) { return '<button type="button" aria-label="Step ' + (i + 1) + ': ' + s.querySelector("h3").textContent + '"></button>'; }).join("");
-      Array.prototype.forEach.call(dots.children, function (b, i) { b.addEventListener("click", function () {
-        var top = sj.getBoundingClientRect().top + window.scrollY, span = sj.offsetHeight - innerHeight;
-        window.scrollTo({ top: top + span * (i + 0.5) / n, behavior: REDUCE ? "auto" : "smooth" }); }); }); }
-    var setStep = function (k) {
-      if (k === cur) return; cur = k;
-      steps.forEach(function (s, i) { s.classList.toggle("on", i === k); s.classList.toggle("past", i < k); });
-      Array.prototype.forEach.call(tks, function (t, i) { t.classList.toggle("on", i <= k); });
-      if (dots) Array.prototype.forEach.call(dots.children, function (b, i) { b.classList.toggle("on", i === k); });
-      sj.style.setProperty("--glow", GLOW[k % GLOW.length]);
-      if (num) { num.textContent = "0" + (k + 1); num.classList.remove("swap"); void num.offsetWidth; num.classList.add("swap"); }
-      if (ico) { ico.innerHTML = ICONS[k]; ico.classList.remove("swap"); void ico.offsetWidth; ico.classList.add("swap"); }
-      if (word) word.textContent = WORDS[k];
-    };
-    var onScroll = function () {
-      if (!liveMode) return;
-      var b = sj.getBoundingClientRect(), span = sj.offsetHeight - innerHeight;
-      var p = Math.max(0, Math.min(1, -b.top / span));
-      setStep(Math.min(n - 1, Math.floor(p * n * 0.999)));
-      if (pr) pr.style.strokeDashoffset = CIRC * (1 - p);
-      if (word) word.style.transform = "translateX(" + (8 - p * 40) + "vw)";
-    };
-    var mq = window.matchMedia("(min-width: 861px) and (min-height: 600px)");
-    var mode = function () {
-      liveMode = !REDUCE && mq.matches;
-      sj.classList.toggle("live", liveMode);
-      if (!liveMode) { steps.forEach(function (s) { s.classList.remove("on", "past"); }); cur = -1; if (word) { word.textContent = ""; } }
-      else { cur = -1; onScroll(); }
-    };
-    if (mq.addEventListener) mq.addEventListener("change", mode); else if (mq.addListener) mq.addListener(mode);
-    window.addEventListener("scroll", onScroll, { passive: true }); window.addEventListener("resize", onScroll);
-    mode();
-  })();
+  // ---------- faculty badges: tilt with the pointer, tap to flip ----------
+  var FE = document.getElementById("ap-faculty");
+  if (FE) {
+    FE.addEventListener("pointermove", function (e) {
+      if (e.pointerType !== "mouse" || REDUCE) return;
+      var b = e.target.closest(".badge"); if (!b) return;
+      var bd = b.querySelector(".bd"), r = bd.getBoundingClientRect();
+      var px = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)), py = Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
+      var f = b.classList.contains("flipped") ? -1 : 1;
+      bd.style.setProperty("--ry", (px - 0.5) * 22 * f + "deg"); bd.style.setProperty("--rx", (0.5 - py) * 16 + "deg");
+      var fr = b.querySelector(".holo"); if (fr) { fr.style.setProperty("--hx", px * 100 + "%"); fr.style.setProperty("--hy", py * 100 + "%"); }
+      b.classList.add("tilt");
+    });
+    FE.addEventListener("pointerout", function (e) {
+      var b = e.target.closest(".badge"); if (!b || b.contains(e.relatedTarget)) return;
+      var bd = b.querySelector(".bd"); b.classList.remove("tilt"); bd.style.setProperty("--rx", "0deg"); bd.style.setProperty("--ry", "0deg");
+    });
+    FE.addEventListener("click", function (e) {
+      var b = e.target.closest(".badge"); if (!b || b.classList.contains("badge-join") || (e.target.closest("a") && !e.target.closest("button"))) return;
+      var on = b.classList.toggle("flipped");
+      b.classList.remove("tilt"); var bd = b.querySelector(".bd"); bd.style.setProperty("--rx", "0deg"); bd.style.setProperty("--ry", "0deg");
+      Array.prototype.forEach.call(b.querySelectorAll(".flip"), function (x) { x.setAttribute("aria-expanded", on); });
+      var F = b.querySelector(".fr"), K = b.querySelector(".bk"); if (F) F.inert = on; if (K) K.inert = !on;
+      var tgt = b.querySelector(on ? ".bk .flip" : ".fr .flip"); if (tgt && e.target.closest("button")) setTimeout(function () { tgt.focus({ preventScroll: true }); }, 350);
+    });
+  }
 })();

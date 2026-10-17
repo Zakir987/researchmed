@@ -204,12 +204,40 @@
         : '<a class="btn btn-main" href="' + (b.link ? esc(safeUrl(b.link)) + '" target="_blank" rel="noopener' : "#join") + '" data-want="seat" data-batch="' + esc(b.title) + '" data-program="' + esc(b.program || "") + '">Reserve my seat <span class="arr" aria-hidden="true">\u2192</span></a>') +
       '<a class="btn btn-ghost" href="#join" data-want="demo" data-program="' + esc(b.program || "") + '">Free demo first</a></div></article>';
   }
-  function facultyCard(x) {
+  function facultyCard(x, i) {
     var init = String(x.title).replace(/^(dr|mr|mrs|ms|prof)\.?\s+/i, "").split(/\s+/).map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
-    return '<article class="fac rv">' + (x.photo ? '<img src="' + esc(media(x.photo)) + '" alt="' + esc(x.title) + '" loading="lazy">' : '<div class="fac-i" aria-hidden="true">' + esc(init) + "</div>") +
-      "<div><h3>" + esc(x.title) + "</h3>" + (x.designation ? '<p class="fac-d">' + esc(x.designation) + "</p>" : "") + (x.qualification ? '<p class="fac-q">' + esc(x.qualification) + "</p>" : "") +
-      (x.subjects ? '<ul class="tags">' + String(x.subjects).split(",").map(function (s) { return s.trim() ? "<li>" + esc(s.trim()) + "</li>" : ""; }).join("") + "</ul>" : "") +
-      (x.bio ? '<p class="fac-b">' + esc(x.bio) + "</p>" : "") + (x.linkedin ? '<a class="fac-l" href="' + esc(safeUrl(x.linkedin)) + '" target="_blank" rel="noopener">LinkedIn \u2197</a>' : "") + "</div></article>";
+    var subs = String(x.subjects || "").split(",").map(function (t) { return t.trim(); }).filter(Boolean);
+    var li = function (t) { return "<li>" + esc(t) + "</li>"; };
+    var first = String(x.title).split(/\s+/).slice(0, 2).join(" ");
+    return '<article class="badge rv" style="--k:' + i + '"><div class="sw">' +
+      '<span class="strap" aria-hidden="true"></span><span class="clip" aria-hidden="true"></span>' +
+      '<div class="bd">' +
+        '<div class="face fr">' +
+          '<div class="bh"><span class="bl">AlliedPath</span><span>Faculty</span></div>' +
+          '<div class="pic">' + (x.photo ? '<img src="' + esc(media(x.photo)) + '" alt="' + esc(x.title) + '" loading="lazy">' : '<span class="ini" aria-hidden="true">' + esc(init) + "</span>") + "</div>" +
+          "<h3>" + esc(x.title) + "</h3>" + (x.designation ? '<p class="b-d">' + esc(x.designation) + "</p>" : "") + (x.qualification ? '<p class="b-q">' + esc(x.qualification) + "</p>" : "") +
+          (subs.length ? '<ul class="b-t">' + subs.slice(0, 3).map(li).join("") + "</ul>" : "") +
+          '<div class="bf"><span class="bc" aria-hidden="true"></span><span class="bid">AP-F' + ("00" + (i + 1)).slice(-3) + '</span><button type="button" class="flip" aria-expanded="false">About ' + esc(first) + ' \u21bb</button></div>' +
+          '<i class="holo" aria-hidden="true"></i>' +
+        "</div>" +
+        '<div class="face bk" inert>' +
+          '<span class="bk-k">About</span><p>' + esc(x.bio || "Allied health faculty at AlliedPath.") + "</p>" +
+          (subs.length ? '<span class="bk-k">Teaches</span><ul class="bk-s">' + subs.map(li).join("") + "</ul>" : "") +
+          '<div class="bk-a"><a class="btn btn-main" href="#join" data-want="demo">Book a free demo</a>' + (x.linkedin ? '<a class="bk-l" href="' + esc(safeUrl(x.linkedin)) + '" target="_blank" rel="noopener">LinkedIn \u2197</a>' : "") + "</div>" +
+          '<button type="button" class="flip" aria-expanded="true">\u21bb Back</button>' +
+        "</div>" +
+      "</div></div></article>";
+  }
+  function joinBadge(n) {
+    return '<a class="badge badge-join rv" style="--k:' + n + '" href="#join" data-want="interest" data-role="Faculty"><div class="sw">' +
+      '<span class="strap" aria-hidden="true"></span><span class="clip" aria-hidden="true"></span>' +
+      '<div class="bd"><div class="face fr">' +
+        '<div class="bh"><span class="bl">AlliedPath</span><span>Faculty</span></div>' +
+        '<div class="pic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8.5" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div>' +
+        '<h3>Your name here</h3><p class="b-d">This could be you</p>' +
+        '<p class="b-q">Allied health educator or experienced clinician? We are building our faculty team now.</p>' +
+        '<div class="bf"><span class="bc" aria-hidden="true"></span><span class="bid">AP-F???</span><span class="flip">Apply to teach \u2192</span></div>' +
+      "</div></div></div></a>";
   }
   var ytId = function (u) { var m = String(u || "").match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/); return m ? m[1] : ""; };
   function resourceCard(x) {
@@ -284,7 +312,7 @@
       }
       // faculty
       var FE = $("#ap-faculty");
-      if (FE) FE.innerHTML = faculty.map(facultyCard).join("") + '<a class="fac fac-join rv" href="#join" data-want="interest" data-role="Faculty"><div class="fac-i" aria-hidden="true">+</div><div><h3>Teach with AlliedPath</h3><p class="fac-b">Allied health educator or experienced clinician? We are building our faculty team now.</p><span class="fac-l">Apply to teach \u2192</span></div></a>';
+      if (FE) FE.innerHTML = faculty.map(facultyCard).join("") + joinBadge(faculty.length);
       // resources teaser
       var RE = $("#ap-res");
       if (RE) RE.innerHTML = resources.slice(0, 3).map(resourceCard).join("") || "";
