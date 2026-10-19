@@ -231,7 +231,7 @@
       "</div></div></article>";
   }
   function joinBadge(n) {
-    return '<a class="badge badge-join rv" style="--k:' + n + '" href="#join" data-want="interest" data-role="Faculty"><div class="sw">' +
+    return '<a class="badge badge-join rv" style="--k:' + n + '" href="faculty.html"><div class="sw">' +
       '<span class="strap" aria-hidden="true"></span><span class="clip" aria-hidden="true"></span>' +
       '<div class="bd"><div class="face fr">' +
         '<div class="bh"><span class="bl">AlliedPath</span><span>Faculty</span></div>' +
