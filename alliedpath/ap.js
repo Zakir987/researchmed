@@ -386,4 +386,52 @@
     if (s.visitor_alert_url && s.visitor_alerts !== false) { window.RMC_ALERT = String(s.visitor_alert_url).trim(); var va = document.createElement("script"); va.src = "../assets/js/alerts.js?v=20261010b"; va.defer = true; document.body.appendChild(va); }
   });
   var yr = $("#yr"); if (yr) yr.textContent = new Date().getFullYear();
+
+  // ---------- "Register interest" asks: student or faculty? ----------
+  (function () {
+    var css = ".who{position:fixed;inset:0;z-index:150;display:grid;place-items:center;padding:16px;background:rgba(6,20,22,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;transition:opacity .25s}" +
+      ".who.on{opacity:1}.who[hidden]{display:none}" +
+      ".who-box{position:relative;width:min(640px,100%);background:#FAF7F0;border-radius:26px;padding:30px 26px 22px;box-shadow:0 40px 80px -30px rgba(0,0,0,.7);transform:translateY(14px) scale(.98);transition:transform .3s cubic-bezier(.2,.8,.2,1)}" +
+      ".who.on .who-box{transform:none}" +
+      ".who h2{font-size:clamp(1.5rem,3.4vw,2rem);margin:0 0 6px}.who p.sub{margin:0 0 20px;color:var(--muted)}" +
+      ".who-opts{display:grid;grid-template-columns:1fr 1fr;gap:14px}" +
+      ".who-opts a{display:grid;gap:8px;padding:20px 18px;border-radius:20px;border:1.5px solid var(--line);background:#fff;text-decoration:none;color:var(--text);transition:transform .2s,border-color .2s,box-shadow .2s}" +
+      ".who-opts a:hover,.who-opts a:focus-visible{transform:translateY(-3px);border-color:var(--emerald);box-shadow:0 18px 36px -22px rgba(15,42,46,.5)}" +
+      ".who-opts .ic{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:#E6F5F0;color:var(--emerald)}" +
+      ".who-opts a.who-f .ic{background:#FBEFD9;color:var(--saffron-ink)}.who-opts .ic svg{width:26px;height:26px}" +
+      ".who-opts b{font:650 1.15rem var(--serif);color:var(--ink)}.who-opts span{font-size:.88rem;color:var(--muted);line-height:1.45}.who-opts em{font-style:normal;font-weight:700;font-size:.9rem;color:var(--emerald)}.who-opts a.who-f em{color:var(--saffron-ink)}" +
+      ".who-x{position:absolute;right:14px;top:12px;width:38px;height:38px;border-radius:50%;border:0;background:transparent;font-size:1.5rem;line-height:1;color:var(--muted);cursor:pointer}.who-x:hover{background:#EFEAE0}" +
+      ".who-alt{margin:16px 0 0;font-size:.88rem;color:var(--muted);text-align:center}.who-alt a{color:var(--emerald);font-weight:600}" +
+      "@media (max-width:560px){.who-opts{grid-template-columns:1fr}.who-box{padding:26px 18px 18px}}";
+    var st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
+    var onHome = !!$("#join");
+    var m = document.createElement("div"); m.className = "who"; m.hidden = true;
+    m.setAttribute("role", "dialog"); m.setAttribute("aria-modal", "true"); m.setAttribute("aria-labelledby", "who-h");
+    m.innerHTML = '<div class="who-box"><button class="who-x" type="button" aria-label="Close">\u00d7</button>' +
+      '<h2 id="who-h">Register your interest</h2><p class="sub">Tell us who you are and we\u2019ll open the right form.</p>' +
+      '<div class="who-opts">' +
+      '<a class="who-s" href="student.html"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.5 12 2l10 4.5L12 11 2 6.5Z"/><path d="M6 8.5V14c0 1.7 2.7 3 6 3s6-1.3 6-3V8.5"/></svg></span><b>I\u2019m a student</b><span>Classes, doubt clearing, research, interview and placement guidance.</span><em>Student registration \u2192</em></a>' +
+      '<a class="who-f" href="faculty.html"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M17 11l2 2 4-4"/></svg></span><b>I\u2019m faculty</b><span>Allied health educator or clinician who wants to teach or mentor.</span><em>Faculty application \u2192</em></a>' +
+      "</div>" +
+      '<p class="who-alt">Just want a free demo or to ask a doubt? <a href="' + (onHome ? "#join" : "index.html#join") + '" data-alt>Use the quick form</a></p></div>';
+    document.body.appendChild(m);
+    var last = null;
+    var close = function () { m.classList.remove("on"); setTimeout(function () { m.hidden = true; }, 220); document.removeEventListener("keydown", esc2); if (last) last.focus({ preventScroll: true }); };
+    var esc2 = function (e) { if (e.key === "Escape") close(); };
+    var open = function (from) { last = from; m.hidden = false; requestAnimationFrame(function () { m.classList.add("on"); }); document.addEventListener("keydown", esc2); setTimeout(function () { var a = m.querySelector(".who-opts a"); if (a) a.focus({ preventScroll: true }); }, 60); };
+    m.addEventListener("click", function (e) {
+      if (e.target === m || e.target.closest(".who-x")) { close(); return; }
+      var alt = e.target.closest("[data-alt]");
+      if (alt && onHome) { e.preventDefault(); close(); $("#join").scrollIntoView({ behavior: REDUCE ? "auto" : "smooth" }); }
+    });
+    document.addEventListener("click", function (e) {
+      var a = e.target.closest("a[href]"); if (!a || m.contains(a)) return;
+      var h = a.getAttribute("href") || "", w = a.getAttribute("data-want");
+      if (!/(^|index\.html)#join$/.test(h)) return;
+      if (w && w !== "interest") return;                       // demo, seat and doubt links keep using the quick form
+      if (w === "interest" && a.getAttribute("data-program")) return; // "tell me about this program" keeps the quick form
+      if (!/register/i.test(a.textContent)) return;
+      e.preventDefault(); e.stopPropagation(); open(a);
+    }, true);
+  })();
 })();
