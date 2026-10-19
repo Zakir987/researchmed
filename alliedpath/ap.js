@@ -143,7 +143,9 @@
       window.apChoose(a.getAttribute("data-want") || "interest", { batch: a.getAttribute("data-batch"), program: a.getAttribute("data-program"), role: a.getAttribute("data-role") });
     });
     var qs = new URLSearchParams(location.search);
-    if (qs.get("want")) window.apChoose(qs.get("want"), { batch: qs.get("batch"), program: qs.get("program") });
+    if (qs.get("want") || qs.get("role")) window.apChoose(qs.get("want") || "interest", { batch: qs.get("batch"), program: qs.get("program"), role: qs.get("role") });
+    // shared join links (e.g. /alliedpath/join/) land straight on the form
+    if ((qs.get("want") || qs.get("role") || location.hash === "#join") && $("#join")) setTimeout(function () { $("#join").scrollIntoView({ behavior: REDUCE ? "auto" : "smooth", block: "start" }); var n = f.querySelector("input[name=name]"); if (n) n.focus({ preventScroll: true }); }, 400);
     f.addEventListener("submit", function (e) {
       e.preventDefault();
       if (!f.reportValidity()) return;

@@ -25,7 +25,7 @@
   // ---------- intro: one heartbeat opens the theatre (once per visit) ----------
   var seen = false;
   try { seen = sessionStorage.getItem("ap-intro") === "1"; sessionStorage.setItem("ap-intro", "1"); } catch (e) {}
-  if (REDUCE || seen || window.scrollY > 50) { go(); }
+  if (REDUCE || seen || window.scrollY > 50 || location.hash || /[?&](want|role)=/.test(location.search)) { go(); }
   else {
     var ov = document.createElement("div");
     ov.className = "hx-intro"; ov.setAttribute("aria-hidden", "true");
