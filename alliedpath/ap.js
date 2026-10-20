@@ -210,27 +210,20 @@
     var init = String(x.title).replace(/^(dr|mr|mrs|ms|prof)\.?\s+/i, "").split(/\s+/).map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
     var subs = String(x.subjects || "").split(",").map(function (t) { return t.trim(); }).filter(Boolean);
     var li = function (t) { return "<li>" + esc(t) + "</li>"; };
-    var first = String(x.title).split(/\s+/).slice(0, 2).join(" ");
-    return '<article class="badge rv" style="--k:' + i + '"><div class="sw">' +
+    return '<article class="badge rv" style="--k:' + i + '" data-fi="' + i + '" tabindex="0" role="button" aria-haspopup="dialog" aria-label="Open the profile of ' + esc(x.title) + '"><div class="sw">' +
       '<span class="strap" aria-hidden="true"></span><span class="clip" aria-hidden="true"></span>' +
       '<div class="bd">' +
         '<div class="face fr">' +
           '<div class="bh"><span class="bl">AlliedPath</span><span>Faculty</span></div>' +
-          '<div class="pic">' + (x.photo ? '<img src="' + esc(media(x.photo)) + '" alt="' + esc(x.title) + '" loading="lazy">' : '<span class="ini" aria-hidden="true">' + esc(init) + "</span>") + "</div>" +
-          "<h3>" + esc(x.title) + "</h3>" + (x.designation ? '<p class="b-d">' + esc(x.designation) + "</p>" : "") + (x.qualification || x.institution ? '<p class="b-q">' + esc([x.qualification, x.institution].filter(Boolean).join(" \u00b7 ")) + "</p>" : "") +
+          '<div class="pic">' + (x.photo ? '<img src="' + esc(media(x.photo)) + '" alt="" loading="lazy">' : '<span class="ini" aria-hidden="true">' + esc(init) + "</span>") + "</div>" +
+          "<h3>" + esc(x.title) + "</h3>" + (x.designation ? '<p class="b-d">' + esc(x.designation) + "</p>" : "") + (x.qualification || x.institution ? '<p class="b-q">' + esc([x.qualification, x.institution].filter(Boolean).join(" · ")) + "</p>" : "") +
           (subs.length ? '<ul class="b-t">' + subs.slice(0, 3).map(li).join("") + "</ul>" : "") +
-          '<div class="bf"><span class="bc" aria-hidden="true"></span><span class="bid">AP-F' + ("00" + (i + 1)).slice(-3) + '</span><button type="button" class="flip" aria-expanded="false">About ' + esc(first) + ' \u21bb</button></div>' +
+          '<div class="bf"><span class="bc" aria-hidden="true"></span><span class="bid">AP-F' + ("00" + (i + 1)).slice(-3) + '</span><span class="flip">View profile <span aria-hidden="true">↗</span></span></div>' +
           '<i class="holo" aria-hidden="true"></i>' +
-        "</div>" +
-        '<div class="face bk" inert>' +
-          '<span class="bk-k">About</span><p>' + esc(x.bio || "Allied health faculty at AlliedPath.") + "</p>" +
-          (subs.length ? '<span class="bk-k">Teaches</span><ul class="bk-s">' + subs.map(li).join("") + "</ul>" : "") +
-          '<div class="bk-a"><a class="btn btn-main" href="#join" data-want="demo">Book a free demo</a>' + (x.linkedin ? '<a class="bk-l" href="' + esc(safeUrl(x.linkedin)) + '" target="_blank" rel="noopener">LinkedIn \u2197</a>' : "") + "</div>" +
-          '<button type="button" class="flip" aria-expanded="true">\u21bb Back</button>' +
         "</div>" +
       "</div></div></article>";
   }
-  // faculty spotlight: a large animated banner for faculty marked "spotlight" in Admin
+  // faculty profile popup (opens when a faculty ID card is tapped)
   function spotCard(x, i) {
     var hl = String(x.highlights || "").split(",").map(function (t) { return t.trim(); }).filter(Boolean);
     var subs = String(x.subjects || "").split(",").map(function (t) { return t.trim(); }).filter(Boolean);
@@ -244,7 +237,7 @@
         '<span class="sp-seal" aria-hidden="true"><b>✓</b>Faculty</span>' +
         '<span class="sp-tag" aria-hidden="true"><i></i>AlliedPath faculty</span></div>' +
       '<div class="sp-body">' +
-        '<span class="sp-k"><i aria-hidden="true"></i>Faculty spotlight</span>' +
+        '<span class="sp-k"><i aria-hidden="true"></i>Faculty profile</span>' +
         '<h3 class="sp-name">' + (pre ? '<span class="sp-pre">' + esc(pre.trim()) + "</span> " : "") + esc(short) + "</h3>" +
         (x.designation ? '<p class="sp-role">' + esc(x.designation) + "</p>" : "") +
         (x.qualification ? '<p class="sp-q">' + esc(x.qualification) + "</p>" : "") +
@@ -254,6 +247,42 @@
         '<div class="sp-cta"><a class="btn btn-main" href="#join" data-want="demo">Book a free demo class <span class="arr" aria-hidden="true">→</span></a>' +
         (x.linkedin ? '<a class="btn btn-ghost" href="' + esc(safeUrl(x.linkedin)) + '" target="_blank" rel="noopener">LinkedIn ↗</a>' : "") + "</div>" +
       "</div></article>";
+  }
+  function profilePopup(FE, faculty) {
+    if (FE.getAttribute("data-pop")) return; FE.setAttribute("data-pop", "1");
+    var dlg = document.createElement("dialog"); dlg.className = "fp-dlg"; dlg.setAttribute("aria-label", "Faculty profile");
+    document.body.appendChild(dlg);
+    var last = null, closing = false;
+    function close() {
+      if (!dlg.open || closing) return; closing = true;
+      dlg.classList.add("out"); document.documentElement.classList.remove("fp-open");
+      setTimeout(function () { dlg.classList.remove("out", "on"); dlg.close(); closing = false; if (last) last.focus({ preventScroll: true }); }, REDUCE ? 0 : 260);
+    }
+    function open(card) {
+      var x = faculty[Number(card.getAttribute("data-fi"))]; if (!x) return;
+      last = card;
+      var r = card.getBoundingClientRect();
+      dlg.style.setProperty("--ox", (r.left + r.width / 2) + "px"); dlg.style.setProperty("--oy", (r.top + r.height / 3) + "px");
+      dlg.innerHTML = '<button type="button" class="fp-x" aria-label="Close">×</button>' + spotCard(x, 0).replace('class="fspot rv"', 'class="fspot"');
+      if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+      document.documentElement.classList.add("fp-open");
+      dlg.scrollTop = 0;
+      requestAnimationFrame(function () { requestAnimationFrame(function () { dlg.classList.add("on"); var c = dlg.querySelector(".fspot"); if (c) c.classList.add("in"); }); });
+      var x0 = dlg.querySelector(".fp-x"); if (x0) x0.focus({ preventScroll: true });
+    }
+    FE.addEventListener("click", function (e) {
+      var card = e.target.closest(".badge[data-fi]"); if (!card) return;
+      e.preventDefault(); open(card);
+    });
+    FE.addEventListener("keydown", function (e) {
+      var card = e.target.closest && e.target.closest(".badge[data-fi]");
+      if (card && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); open(card); }
+    });
+    dlg.addEventListener("click", function (e) {
+      if (e.target === dlg || e.target.closest(".fp-x")) { close(); return; }
+      var a = e.target.closest("a[href^='#']"); if (a) { close(); }
+    });
+    dlg.addEventListener("cancel", function (e) { e.preventDefault(); close(); });
   }
   function joinBadge(n) {
     return '<a class="badge badge-join rv" style="--k:' + n + '" href="faculty.html"><div class="sw">' +
@@ -354,8 +383,7 @@
       // faculty
       var FE = $("#ap-faculty");
       if (FE) FE.innerHTML = faculty.map(facultyCard).join("") + joinBadge(faculty.length);
-      var SP = $("#ap-spot"), spots = faculty.filter(function (x) { return x.spotlight === true || x.spotlight === "true"; });
-      if (SP) SP.innerHTML = spots.map(spotCard).join("");
+      if (FE) profilePopup(FE, faculty);
       // resources teaser
       var RE = $("#ap-res");
       if (RE) RE.innerHTML = resources.slice(0, 3).map(resourceCard).join("") || "";

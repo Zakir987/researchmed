@@ -124,7 +124,7 @@
     })(performance.now());
   })();
 
-  // ---------- faculty badges: tilt with the pointer, tap to flip ----------
+  // ---------- faculty badges: tilt with the pointer (a tap opens the profile popup, see ap.js) ----------
   var FE = document.getElementById("ap-faculty");
   if (FE) {
     FE.addEventListener("pointermove", function (e) {
@@ -132,7 +132,7 @@
       var b = e.target.closest(".badge"); if (!b) return;
       var bd = b.querySelector(".bd"), r = bd.getBoundingClientRect();
       var px = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)), py = Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
-      var f = b.classList.contains("flipped") ? -1 : 1;
+      var f = 1;
       bd.style.setProperty("--ry", (px - 0.5) * 22 * f + "deg"); bd.style.setProperty("--rx", (0.5 - py) * 16 + "deg");
       var fr = b.querySelector(".holo"); if (fr) { fr.style.setProperty("--hx", px * 100 + "%"); fr.style.setProperty("--hy", py * 100 + "%"); }
       b.classList.add("tilt");
@@ -140,14 +140,6 @@
     FE.addEventListener("pointerout", function (e) {
       var b = e.target.closest(".badge"); if (!b || b.contains(e.relatedTarget)) return;
       var bd = b.querySelector(".bd"); b.classList.remove("tilt"); bd.style.setProperty("--rx", "0deg"); bd.style.setProperty("--ry", "0deg");
-    });
-    FE.addEventListener("click", function (e) {
-      var b = e.target.closest(".badge"); if (!b || b.classList.contains("badge-join") || (e.target.closest("a") && !e.target.closest("button"))) return;
-      var on = b.classList.toggle("flipped");
-      b.classList.remove("tilt"); var bd = b.querySelector(".bd"); bd.style.setProperty("--rx", "0deg"); bd.style.setProperty("--ry", "0deg");
-      Array.prototype.forEach.call(b.querySelectorAll(".flip"), function (x) { x.setAttribute("aria-expanded", on); });
-      var F = b.querySelector(".fr"), K = b.querySelector(".bk"); if (F) F.inert = on; if (K) K.inert = !on;
-      var tgt = b.querySelector(on ? ".bk .flip" : ".fr .flip"); if (tgt && e.target.closest("button")) setTimeout(function () { tgt.focus({ preventScroll: true }); }, 350);
     });
   }
 })();
