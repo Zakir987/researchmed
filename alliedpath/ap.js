@@ -217,7 +217,7 @@
         '<div class="face fr">' +
           '<div class="bh"><span class="bl">AlliedPath</span><span>Faculty</span></div>' +
           '<div class="pic">' + (x.photo ? '<img src="' + esc(media(x.photo)) + '" alt="' + esc(x.title) + '" loading="lazy">' : '<span class="ini" aria-hidden="true">' + esc(init) + "</span>") + "</div>" +
-          "<h3>" + esc(x.title) + "</h3>" + (x.designation ? '<p class="b-d">' + esc(x.designation) + "</p>" : "") + (x.qualification ? '<p class="b-q">' + esc(x.qualification) + "</p>" : "") +
+          "<h3>" + esc(x.title) + "</h3>" + (x.designation ? '<p class="b-d">' + esc(x.designation) + "</p>" : "") + (x.qualification || x.institution ? '<p class="b-q">' + esc([x.qualification, x.institution].filter(Boolean).join(" \u00b7 ")) + "</p>" : "") +
           (subs.length ? '<ul class="b-t">' + subs.slice(0, 3).map(li).join("") + "</ul>" : "") +
           '<div class="bf"><span class="bc" aria-hidden="true"></span><span class="bid">AP-F' + ("00" + (i + 1)).slice(-3) + '</span><button type="button" class="flip" aria-expanded="false">About ' + esc(first) + ' \u21bb</button></div>' +
           '<i class="holo" aria-hidden="true"></i>' +
@@ -229,6 +229,31 @@
           '<button type="button" class="flip" aria-expanded="true">\u21bb Back</button>' +
         "</div>" +
       "</div></div></article>";
+  }
+  // faculty spotlight: a large animated banner for faculty marked "spotlight" in Admin
+  function spotCard(x, i) {
+    var hl = String(x.highlights || "").split(",").map(function (t) { return t.trim(); }).filter(Boolean);
+    var subs = String(x.subjects || "").split(",").map(function (t) { return t.trim(); }).filter(Boolean);
+    var short = String(x.title).replace(/^(dr|mr|mrs|ms|prof)\.?\s+/i, "");
+    var pre = (String(x.title).match(/^(dr|mr|mrs|ms|prof)\.?\s+/i) || [""])[0];
+    var ic = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg>';
+    return '<article class="fspot rv" style="--k:' + i + '">' +
+      '<div class="sp-media"><i class="sp-ring" aria-hidden="true"></i><div class="sp-arch">' +
+        (x.photo ? '<img src="' + esc(media(x.photo)) + '" alt="' + esc(x.title) + '" loading="lazy">' : "") +
+        '<i class="sp-shine" aria-hidden="true"></i></div>' +
+        '<span class="sp-seal" aria-hidden="true"><b>✓</b>Faculty</span>' +
+        '<span class="sp-tag" aria-hidden="true"><i></i>AlliedPath faculty</span></div>' +
+      '<div class="sp-body">' +
+        '<span class="sp-k"><i aria-hidden="true"></i>Faculty spotlight</span>' +
+        '<h3 class="sp-name">' + (pre ? '<span class="sp-pre">' + esc(pre.trim()) + "</span> " : "") + esc(short) + "</h3>" +
+        (x.designation ? '<p class="sp-role">' + esc(x.designation) + "</p>" : "") +
+        (x.qualification ? '<p class="sp-q">' + esc(x.qualification) + "</p>" : "") +
+        (x.institution ? '<p class="sp-inst"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10l9-6 9 6M5 10v9h14v-9M9 19v-5h6v5"/></svg>' + esc(x.institution) + "</p>" : "") +
+        (hl.length ? '<ul class="sp-hl">' + hl.map(function (t, n) { return '<li style="--n:' + n + '">' + ic + "<span>" + esc(t) + "</span></li>"; }).join("") + "</ul>" : "") +
+        (subs.length ? '<div class="sp-subs"><span>Teaches</span>' + subs.map(function (t) { return "<em>" + esc(t) + "</em>"; }).join("") + "</div>" : "") +
+        '<div class="sp-cta"><a class="btn btn-main" href="#join" data-want="demo">Book a free demo class <span class="arr" aria-hidden="true">→</span></a>' +
+        (x.linkedin ? '<a class="btn btn-ghost" href="' + esc(safeUrl(x.linkedin)) + '" target="_blank" rel="noopener">LinkedIn ↗</a>' : "") + "</div>" +
+      "</div></article>";
   }
   function joinBadge(n) {
     return '<a class="badge badge-join rv" style="--k:' + n + '" href="faculty.html"><div class="sw">' +
@@ -329,6 +354,8 @@
       // faculty
       var FE = $("#ap-faculty");
       if (FE) FE.innerHTML = faculty.map(facultyCard).join("") + joinBadge(faculty.length);
+      var SP = $("#ap-spot"), spots = faculty.filter(function (x) { return x.spotlight === true || x.spotlight === "true"; });
+      if (SP) SP.innerHTML = spots.map(spotCard).join("");
       // resources teaser
       var RE = $("#ap-res");
       if (RE) RE.innerHTML = resources.slice(0, 3).map(resourceCard).join("") || "";

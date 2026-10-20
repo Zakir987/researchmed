@@ -131,12 +131,12 @@
   });
 
   // 6) spotlight + tilt on content cards (batches, resources, panels, channel cards, outcomes)
-  var SEL = ".batch, .res, .panel, .ch, .quiz-teaser, .note";
+  var SEL = ".batch, .res, .panel, .ch, .quiz-teaser, .note, .fspot";
   document.addEventListener("pointermove", function (e) {
     var c = e.target.closest && e.target.closest(SEL); if (!c) return;
     var r = c.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
     c.style.setProperty("--gx", (x * 100).toFixed(1) + "%"); c.style.setProperty("--gy", (y * 100).toFixed(1) + "%");
-    var amt = c.classList.contains("panel") || c.classList.contains("note") ? 3 : 7;
+    var amt = c.classList.contains("panel") || c.classList.contains("note") || c.classList.contains("fspot") ? 3 : 7;
     c.style.setProperty("--trx", ((0.5 - y) * amt).toFixed(2) + "deg"); c.style.setProperty("--try", ((x - 0.5) * amt).toFixed(2) + "deg");
     c.classList.add("glow");
   });
