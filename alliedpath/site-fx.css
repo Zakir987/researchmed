@@ -69,7 +69,7 @@ h2.wsplit.shown .wi{transform:none}
 .ch:hover .arr{transform:translateX(4px)}
 /* YouTube */
 .ch-yt .ch-art{background:linear-gradient(135deg,#2A0E0E,#120B0B)}
-.yt-screen{position:relative;width:72%;aspect-ratio:16/9;border-radius:12px;background:linear-gradient(160deg,#3B1616,#1A0C0C);box-shadow:0 18px 40px -16px rgba(0,0,0,.8);display:grid;place-items:center}
+.yt-screen{position:relative;width:min(72%,270px);aspect-ratio:16/9;border-radius:12px;background:linear-gradient(160deg,#3B1616,#1A0C0C);box-shadow:0 18px 40px -16px rgba(0,0,0,.8);display:grid;place-items:center}
 .yt-play{width:58px;height:40px;border-radius:12px;background:#FF0033;display:grid;place-items:center;position:relative;z-index:1;transition:transform .4s cubic-bezier(.3,1.6,.5,1)}
 .yt-play svg{width:22px;height:22px;fill:#fff}
 .ch-yt:hover .yt-play{transform:scale(1.15)}
