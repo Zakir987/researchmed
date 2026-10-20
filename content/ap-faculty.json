@@ -10,6 +10,20 @@
       "linkedin": "https://www.linkedin.com/in/zakir-hussain-parray-b3ba153b2",
       "order": 1,
       "draft": false
+    },
+    {
+      "title": "Ms. Antony Jennert Linu J",
+      "designation": "Assistant Professor, Anaesthesia & Operation Theatre Technology",
+      "qualification": "",
+      "institution": "CMR School of Allied Health Sciences",
+      "highlights": "Assistant Professor in Anaesthesia & OT Technology, Teaches at CMR School of Allied Health Sciences, Contributor to ResearchMed Connect",
+      "subjects": "Anaesthesia technology, Operation theatre technology",
+      "bio": "Assistant Professor in the Department of Anaesthesia and Operation Theatre Technology at CMR School of Allied Health Sciences, and a contributor to ResearchMed Connect.",
+      "photo": "/media/people/antony-jennert-linu-j.webp",
+      "linkedin": "",
+      "order": 2,
+      "spotlight": true,
+      "draft": false
     }
   ]
 }
