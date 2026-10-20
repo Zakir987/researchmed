@@ -11,12 +11,31 @@
   var VTZ = ""; try { VTZ = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) {}
   var S = {};
 
+  var QS = new URLSearchParams(location.search);
+  var WANTS = { interest: "Register interest", demo: "Book a free demo class", seat: "Reserve a seat in a batch", doubt: "Ask a doubt" };
+  var HEADS = { interest: "Join AlliedPath as a student", demo: "Book your free demo class", seat: "Reserve your seat", doubt: "Ask an AlliedPath faculty member" };
+  function wantNow() { var r = f.querySelector("input[name=want]:checked"); return r ? r.value : "interest"; }
+  function syncWant() {
+    var w = wantNow(), msg = f.querySelector("textarea[name=message]"), mt = f.querySelector(".msg-t"), h1 = document.getElementById("reg-h"), btn0 = f.querySelector("button[type=submit]");
+    if (msg) { msg.required = w === "doubt"; msg.placeholder = w === "doubt" ? "Type your question here. Add the topic and your course/year if it helps." : ""; }
+    if (mt) mt.innerHTML = w === "doubt" ? "Your doubt" : 'Anything else? <span class="opt">(optional)</span>';
+    if (h1 && KIND === "student") h1.textContent = HEADS[w] || HEADS.interest;
+    if (btn0 && !btn0.disabled) btn0.textContent = w === "demo" ? "Book my free demo" : w === "seat" ? "Reserve my seat" : w === "doubt" ? "Send my doubt" : "Register as a student";
+  }
+  if (KIND === "student") {
+    var w0 = QS.get("want"); var r0 = w0 && f.querySelector('input[name=want][value="' + w0 + '"]'); if (r0) r0.checked = true;
+    var bt = (QS.get("batch") || "").slice(0, 120), bn = f.querySelector(".batch-note"), bi = f.querySelector("input[name=batch]");
+    if (bt && bi) { bi.value = bt; if (bn) { bn.textContent = "Batch: " + bt; bn.hidden = false; } }
+    [].forEach.call(f.querySelectorAll("input[name=want]"), function (x) { x.addEventListener("change", syncWant); });
+    syncWant();
+  }
   Promise.all([get("alliedpath"), get("ap-programs")]).then(function (r) {
     S = r[0] || {};
     var progs = ((r[1] && r[1].items) || []).filter(function (p) { return !p.draft && p.title; }).map(function (p) { return p.title; });
     if (!progs.length) progs = ["Anaesthesia & Operation Theatre Technology"];
     var sel = $("select[name=program]", f);
     if (sel) sel.innerHTML = progs.map(function (t) { return "<option>" + esc(t) + "</option>"; }).join("") + "<option>Other allied health program</option>";
+    var qp = QS.get("program"); if (sel && qp) { [].forEach.call(sel.options, function (o) { if (o.textContent.trim().toLowerCase() === qp.trim().toLowerCase()) sel.value = o.value; }); }
     var box = $("#prog-boxes", f);
     if (box) box.innerHTML = progs.concat(["Other allied health program"]).map(function (t, i) { return '<label><input type="checkbox" name="programs" value="' + esc(t) + '"' + (i ? "" : " checked") + "> " + esc(t) + "</label>"; }).join("");
   });
@@ -116,6 +135,8 @@
   units.forEach(function (u, i) { if (i > 0) { u.el.classList.add("st-wait"); if (u.row && u.row.firstElementChild === u.el) u.row.classList.add("st-wait"); if (u.head) u.head.classList.add("st-wait"); } });
   if (units[0] && units[0].head) units[0].head.classList.remove("st-wait");
   submitBtn.classList.add("st-wait"); f.classList.add("stepped"); show(0);
+  // arriving from a "Book a free demo" / "Reserve a seat" / "Ask a doubt" button: that question is already answered
+  if (KIND === "student" && QS.get("want")) { var cw = f.querySelector("input[name=want]:checked"); if (cw) setTimeout(function () { cw.dispatchEvent(new Event("change", { bubbles: true })); }, 60); }
   var showAll = function () { units.forEach(function (u) { u.done = true; }); show(total - 1); submitBtn.classList.remove("st-wait"); };
 
   var all = function (name) { return [].slice.call(f.querySelectorAll('input[name="' + name + '"]:checked')).map(function (x) { return x.value; }).join(", ") || "-"; };
@@ -129,21 +150,23 @@
     checkFile(f.querySelector("input[name=cv]"), 5, /\.(pdf|docx?)$/i, "PDF or Word");
     if (!f.checkValidity()) { showAll(); f.reportValidity(); return; }
     var fd = new FormData(f); if (fd.get("_honey")) return;
-    var d = {}; fd.forEach(function (v, k) { if (k !== "programs" && k !== "needs" && k !== "modes") d[k] = String(v).trim(); });
+    var d = {}; fd.forEach(function (v, k) { if (k !== "programs" && k !== "needs" && k !== "modes") d[k] = String(v).trim();
+    if (KIND === "student" && !d.want) d.want = "interest"; });
     var first = (d.name || "").split(/\s+/)[0] || "there";
     var ref = (KIND === "student" ? "APS-" : "APF-") + new Date().toISOString().slice(2, 10).replace(/-/g, "") + "-" + Math.random().toString(36).slice(2, 6).toUpperCase();
     var payload, label, info;
     if (KIND === "student") {
-      label = "student registration";
-      info = "Student · " + (d.program || "") + (d.country ? " · " + d.country : "");
+      var wl = WANTS[d.want] || WANTS.interest;
+      label = d.want === "demo" ? "free demo request" : d.want === "seat" ? "seat reservation" : d.want === "doubt" ? "doubt" : "student registration";
+      info = "Student · " + wl + " · " + (d.program || "") + (d.country ? " · " + d.country : "");
       payload = {
-        "Reference": ref, "Registration": "Student", "Name": d.name, "WhatsApp": d.phone, "Country": d.country,
+        "Reference": ref, "Registration": "Student", "Request": wl, "Batch": d.batch || "-", "Name": d.name, "WhatsApp": d.phone, "Country": d.country,
         "Program": d.program, "Course & year": d.level, "College / university": d.college || "-",
         "Wants help with": all("needs"), "Preferred class time": (d.slot || "-") + (VTZ ? " (" + VTZ + ")" : ""),
         "Heard about us": d.source || "-", "Message": d.message || "-", "Consent to contact": "Yes", "Sent from": location.href,
         email: d.email,
-        _subject: "AlliedPath student registration " + ref + ": " + d.name + " · " + d.program,
-        _autoresponse: "Dear " + first + ",\n\nThank you for registering with AlliedPath (reference " + ref + ").\n\nWe will contact you personally, usually within a day, with batch details and a free demo class.\n\nPlease note: AlliedPath provides teaching and mentoring only and does not issue certificates.\n\nWarm regards,\nAlliedPath by ResearchMed Connect\nhttps://researchmed.in/alliedpath/"
+        _subject: "AlliedPath " + label + " " + ref + ": " + d.name + " · " + d.program,
+        _autoresponse: "Dear " + first + ",\n\nThank you for contacting AlliedPath (" + wl.toLowerCase() + ", reference " + ref + ").\n\n" + (d.want === "doubt" ? "A faculty member will reply to your doubt personally, usually within a day." : d.want === "demo" ? "We will contact you personally, usually within a day, to fix a time for your free demo class." : d.want === "seat" ? "We will contact you personally, usually within a day, to confirm your seat and the batch details." : "We will contact you personally, usually within a day, with batch details and a free demo class.") + "\n\nPlease note: AlliedPath provides teaching and mentoring only and does not issue certificates.\n\nWarm regards,\nAlliedPath by ResearchMed Connect\nhttps://researchmed.in/alliedpath/"
       };
     } else {
       label = "faculty application";
@@ -179,7 +202,7 @@
         document.dispatchEvent(new CustomEvent("rmc:lead", { detail: { kind: "AlliedPath " + label, info: info, name: first } }));
         [].slice.call(f.querySelectorAll("input,select,textarea,button")).forEach(function (el) { el.disabled = true; });
         st.className = "status ok";
-        st.innerHTML = "<strong>Thank you, " + esc(first) + "!</strong> " + (KIND === "student" ? "Your registration has reached us" : "Your application has reached us") + " (reference " + ref + "). We'll contact you personally soon, and a confirmation email is on its way.";
+        st.innerHTML = "<strong>Thank you, " + esc(first) + "!</strong> " + (KIND === "student" ? (d.want === "doubt" ? "Your doubt has reached us" : d.want === "demo" ? "Your free demo request has reached us" : d.want === "seat" ? "Your seat request has reached us" : "Your registration has reached us") : "Your application has reached us") + " (reference " + ref + "). We'll contact you personally soon, and a confirmation email is on its way.";
         st.hidden = false; btn.textContent = "Sent ✓"; st.scrollIntoView({ block: "nearest" });
       })
       .catch(function () {

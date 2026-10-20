@@ -284,6 +284,25 @@
     });
     dlg.addEventListener("cancel", function (e) { e.preventDefault(); close(); });
   }
+  // one place for every request: students -> student.html (with what they asked for), faculty -> faculty.html
+  function reqUrl(want, program, batch) {
+    var q = new URLSearchParams(); if (want && want !== "interest") q.set("want", want); if (program) q.set("program", program); if (batch) q.set("batch", batch);
+    var t = q.toString(); return "student.html" + (t ? "?" + t : "");
+  }
+  function joinActions(program) {
+    var ic = {
+      s: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.5 12 2l10 4.5L12 11 2 6.5Z"/><path d="M6 8.5V14c0 1.7 2.7 3 6 3s6-1.3 6-3V8.5"/></svg>',
+      d: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3"/></svg>',
+      q: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.4M12 16h.01"/></svg>',
+      f: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M17 11l2 2 4-4"/></svg>'
+    };
+    var card = function (cls, href, i, b, t, cta) { return '<a class="ja ' + cls + '" href="' + esc(href) + '"><span class="ja-i">' + i + "</span><b>" + b + "</b><span>" + t + '</span><em>' + cta + ' <span class="arr" aria-hidden="true">→</span></em></a>'; };
+    return '<div class="ja-grid">' +
+      card("ja-s", reqUrl("interest", program), ic.s, "Register as a student", "Batch dates, programs and a personal call back.", "Register") +
+      card("ja-d", reqUrl("demo", program), ic.d, "Book a free demo class", "Meet a faculty member before you decide. Free.", "Book demo") +
+      card("ja-q", reqUrl("doubt", program), ic.q, "Ask a doubt", "Send your question to allied health faculty.", "Ask now") +
+      card("ja-f", "faculty.html", ic.f, "Teach with AlliedPath", "Educators and clinicians: apply with photo and CV.", "Apply") + "</div>";
+  }
   function joinBadge(n) {
     return '<a class="badge badge-join rv" style="--k:' + n + '" href="faculty.html"><div class="sw">' +
       '<span class="strap" aria-hidden="true"></span><span class="clip" aria-hidden="true"></span>' +
@@ -393,8 +412,7 @@
       // faqs + notes
       var FQ = $("#ap-faq-list"); if (FQ && faqs.length) FQ.innerHTML = faqHTML(faqs);
       var IN = $("#ap-intl"); if (IN && S.intl_note) IN.innerHTML = md(S.intl_note);
-      var FS = $("#form-slot"); if (FS) FS.innerHTML = formHTML(programs, up);
-      wireForm(S);
+      var FS = $("#form-slot"); if (FS) FS.innerHTML = joinActions("");
       // structured data for courses
       if (open.length) {
         var ld = document.createElement("script"); ld.type = "application/ld+json";
@@ -425,9 +443,9 @@
         (pb.length ? pb.map(function (b) { return batchCard(b, programs); }).join("") : '<div class="empty rv"><strong>Dates for the next batch are coming soon</strong><p>Register your interest and we will tell you first.</p></div>') + "</div>" +
         ((p.pay_in || p.pay_intl) ? '<div class="pay rv"><div><h3>Pay online</h3><p>Reserve your seat first, then pay securely online. ' + (S.fee_note ? esc(S.fee_note) : "") + '</p></div><div class="btn-row">' + (p.pay_in ? '<a class="btn btn-main" href="' + esc(safeUrl(p.pay_in)) + '" target="_blank" rel="noopener">Pay in \u20b9 (India)</a>' : "") + (p.pay_intl ? '<a class="btn btn-ghost" href="' + esc(safeUrl(p.pay_intl)) + '" target="_blank" rel="noopener">Pay from outside India</a>' : "") + '</div><p class="fine">By paying you agree to the <a href="policies.html">terms and refund policy</a>.</p></div>' : "") +
         (p.brochure ? '<p class="rv" style="margin-top:18px"><a class="btn btn-ghost" href="' + esc(media(p.brochure)) + '" target="_blank" rel="noopener">Download the brochure (PDF)</a></p>' : "") + "</div></section>" +
-        '<section class="join on-dark" id="join"><div class="wrap join-grid"><div><span class="eyebrow" style="color:var(--mint)">Join</span><h2 style="margin-top:12px">Reserve a seat, book a free demo or ask a question</h2><p class="lead" style="margin-top:14px">We reply personally, usually within a day.</p></div><div id="form-slot"></div></div></section>';
-      $("#form-slot").innerHTML = formHTML(programs, up);
-      wireForm(S); window.apChoose(pb.length ? "seat" : "interest", { program: p.title });
+        '<section class="join on-dark" id="join"><div class="wrap join-grid"><div><span class="eyebrow" style="color:var(--mint)">Ready to start?</span><h2 style="margin-top:12px">Register, book a free demo or ask a doubt</h2><p class="lead" style="margin-top:14px">Pick one. Each opens a short form, and we reply personally, usually within a day.</p></div><div id="form-slot"></div></div></section>';
+      $("#form-slot").innerHTML = joinActions(p.title);
+      wireForm(S);
       var ld2 = document.createElement("script"); ld2.type = "application/ld+json";
       ld2.textContent = JSON.stringify({ "@context": "https://schema.org", "@type": "Course", name: p.title, description: p.summary || p.title, url: location.href.split("#")[0], provider: { "@type": "Organization", name: "AlliedPath by ResearchMed Connect", sameAs: "https://researchmed.in/alliedpath/" } });
       document.head.appendChild(ld2);
@@ -456,6 +474,7 @@
     if (s.visitor_alert_url && s.visitor_alerts !== false) { window.RMC_ALERT = String(s.visitor_alert_url).trim(); var va = document.createElement("script"); va.src = "../assets/js/alerts.js?v=20261010b"; va.defer = true; document.body.appendChild(va); }
   });
   var yr = $("#yr"); if (yr) yr.textContent = new Date().getFullYear();
+  (function () { var q = new URLSearchParams(location.search); if (!$("#reg-form") && (q.get("want") || q.get("role")) && /\/alliedpath\/(index\.html)?$/.test(location.pathname)) { if (/faculty/i.test(q.get("role") || "")) location.replace("faculty.html"); else location.replace(reqUrl(q.get("want") || "interest", q.get("program"), q.get("batch"))); } })();
 
   // ---------- "Register interest" asks: student or faculty? ----------
   (function () {
@@ -483,7 +502,7 @@
       '<a class="who-s" href="student.html"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.5 12 2l10 4.5L12 11 2 6.5Z"/><path d="M6 8.5V14c0 1.7 2.7 3 6 3s6-1.3 6-3V8.5"/></svg></span><b>I\u2019m a student</b><span>Classes, doubt clearing, research, interview and placement guidance.</span><em>Student registration \u2192</em></a>' +
       '<a class="who-f" href="faculty.html"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M17 11l2 2 4-4"/></svg></span><b>I\u2019m faculty</b><span>Allied health educator or clinician who wants to teach or mentor.</span><em>Faculty application \u2192</em></a>' +
       "</div>" +
-      '<p class="who-alt">Just want a free demo or to ask a doubt? <a href="' + (onHome ? "#join" : "index.html#join") + '" data-alt>Use the quick form</a></p></div>';
+      '<p class="who-alt">Just want a free demo or to ask a doubt? <a href="student.html?want=demo">Book a free demo</a> \u00b7 <a href="student.html?want=doubt">Ask a doubt</a></p></div>';
     document.body.appendChild(m);
     var last = null;
     var close = function () { m.classList.remove("on"); setTimeout(function () { m.hidden = true; }, 220); document.removeEventListener("keydown", esc2); if (last) last.focus({ preventScroll: true }); };
@@ -491,17 +510,19 @@
     var open = function (from) { last = from; m.hidden = false; requestAnimationFrame(function () { m.classList.add("on"); }); document.addEventListener("keydown", esc2); setTimeout(function () { var a = m.querySelector(".who-opts a"); if (a) a.focus({ preventScroll: true }); }, 60); };
     m.addEventListener("click", function (e) {
       if (e.target === m || e.target.closest(".who-x")) { close(); return; }
-      var alt = e.target.closest("[data-alt]");
-      if (alt && onHome) { e.preventDefault(); close(); $("#join").scrollIntoView({ behavior: REDUCE ? "auto" : "smooth" }); }
+
     });
     document.addEventListener("click", function (e) {
       var a = e.target.closest("a[href]"); if (!a || m.contains(a)) return;
       var h = a.getAttribute("href") || "", w = a.getAttribute("data-want");
-      if (!/(^|index\.html)#join$/.test(h)) return;
-      if (w && w !== "interest") return;                       // demo, seat and doubt links keep using the quick form
-      if (w === "interest" && a.getAttribute("data-program")) return; // "tell me about this program" keeps the quick form
-      if (!/register/i.test(a.textContent)) return;
-      e.preventDefault(); e.stopPropagation(); open(a);
+      var mm = h.match(/^(?:index\.html)?(\?[^#]*)?#join$/); if (!mm) return;
+      var hq = new URLSearchParams(mm[1] || "");
+      w = w || hq.get("want") || "";
+      var prog = a.getAttribute("data-program") || hq.get("program") || "", batch = a.getAttribute("data-batch") || hq.get("batch") || "";
+      e.preventDefault(); e.stopPropagation();
+      if (a.getAttribute("data-role") === "Faculty" || hq.get("role") === "faculty") { location.href = "faculty.html"; return; }
+      if ((!w || w === "interest") && !prog && /register/i.test(a.textContent)) { open(a); return; }   // plain "Register interest": student or faculty?
+      location.href = reqUrl(w || "interest", prog, batch);
     }, true);
   })();
 })();

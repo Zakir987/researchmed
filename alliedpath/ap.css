@@ -429,3 +429,19 @@ fieldset .st-ok{margin-top:4px}
 .form.stepped h3{animation:stIn .5s both}
 .form.stepped button[type=submit]{animation:stIn .6s both}
 @media (prefers-reduced-motion:reduce){.st-in,.form.stepped h3,.form.stepped button[type=submit]{animation:none}}
+
+/* "Ready to start?" request cards (replace the old duplicate form) */
+.ja-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ja{display:grid;gap:8px;align-content:start;padding:22px 20px;border-radius:22px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#DDECE8;text-decoration:none;transition:transform .25s,border-color .25s,background .25s,box-shadow .25s}
+.ja:hover,.ja:focus-visible{transform:translateY(-4px);border-color:rgba(52,195,160,.55);background:rgba(52,195,160,.08);box-shadow:0 24px 44px -26px rgba(0,0,0,.8);outline:none}
+.ja-i{width:50px;height:50px;border-radius:15px;display:grid;place-items:center;background:rgba(52,195,160,.16);color:#34C3A0;transition:transform .4s cubic-bezier(.3,1.6,.5,1)}
+.ja:hover .ja-i{transform:rotate(-8deg) scale(1.08)}
+.ja-i svg{width:25px;height:25px}
+.ja b{font:650 1.15rem var(--serif);color:#fff}
+.ja>span:not(.ja-i){font-size:.9rem;color:#A9C6C0;line-height:1.5}
+.ja em{font-style:normal;font-weight:700;font-size:.92rem;color:#34C3A0;margin-top:2px}
+.ja .arr{display:inline-block;transition:transform .25s}.ja:hover .arr{transform:translateX(4px)}
+.ja-d{background:linear-gradient(150deg,rgba(232,163,61,.18),rgba(255,255,255,.04) 60%);border-color:rgba(232,163,61,.4)}
+.ja-d .ja-i{background:rgba(232,163,61,.2);color:#E8A33D}.ja-d em{color:#E8A33D}
+.ja-f .ja-i{background:rgba(255,255,255,.1);color:#DDECE8}.ja-f em{color:#DDECE8}
+@media (max-width:560px){.ja-grid{grid-template-columns:1fr}}
