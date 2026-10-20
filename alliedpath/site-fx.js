@@ -70,6 +70,38 @@
     if ("IntersectionObserver" in window && !REDUCE) { var co = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { setTimeout(function () { c.classList.add("live"); }, i * 180); co.disconnect(); } }, { threshold: 0.35 }); co.observe(c); }
     else c.classList.add("live");
   });
+  // channel phones: little looping stories (WhatsApp quiz, Instagram stories)
+  var visible = function (el) { var r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight && !document.hidden; };
+  var wa = document.querySelector(".wa-scr");
+  if (wa) (function () {
+    var o2 = wa.querySelector(".o2"), body = wa.querySelector(".wa-body");
+    var place = function () { if (!o2 || !body) return; var a = o2.getBoundingClientRect(), b = body.getBoundingClientRect(); var x = a.left - b.left + a.width * 0.35, y = a.top - b.top + a.height / 2; wa.style.setProperty("--tx", x + "px"); wa.style.setProperty("--ty", y + "px"); };
+    var steps = [[0, "a1"], [1100, "a2"], [2500, "a3"], [3300, "a4"], [3500, "typing"], [4300, "a5"], [5000, "a6"], [5400, "typing"], [6400, "a7"]];
+    var cycle = function () {
+      if (!wa.closest(".ch").classList.contains("live") || !visible(wa)) { setTimeout(cycle, 800); return; }
+      wa.className = "ph-scr wa-scr"; void wa.offsetWidth;
+      steps.forEach(function (s) { setTimeout(function () { if (s[1] === "typing") { wa.classList.add("typing"); setTimeout(function () { wa.classList.remove("typing"); }, 800); } else { if (s[1] === "a3") place(); wa.classList.add(s[1]); } }, s[0]); });
+      setTimeout(function () { wa.classList.add("fade"); }, 10400);
+      setTimeout(cycle, 11200);
+    };
+    if (REDUCE) { wa.classList.add("a1", "a2", "a4", "a5", "a6", "a7"); } else setTimeout(cycle, 600);
+  })();
+  var ig = document.querySelector(".ig-scr");
+  if (ig) (function () {
+    var SD = 3200;
+    var cycle = function () {
+      if (!ig.closest(".ch").classList.contains("live") || !visible(ig)) { setTimeout(cycle, 800); return; }
+      ig.className = "ph-scr ig-scr"; void ig.offsetWidth; ig.style.setProperty("--sd", SD + "ms");
+      requestAnimationFrame(function () { ig.classList.add("p0"); });
+      setTimeout(function () { ig.classList.remove("p0"); ig.classList.add("p1"); }, SD);
+      setTimeout(function () { ig.classList.add("hrt"); }, SD + 1300);
+      setTimeout(function () { ig.classList.remove("p1"); ig.classList.add("p2"); }, SD * 2);
+      setTimeout(function () { ig.classList.add("fw"); }, SD * 2 + 1500);
+      setTimeout(cycle, SD * 3 + 300);
+    };
+    if (REDUCE) { ig.classList.add("p0"); } else setTimeout(cycle, 900);
+  })();
+
   // the WhatsApp card uses the community link from Admin when one is set
   fetch("../content/alliedpath.json", { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : {}; }).then(function (s) {
     var a = document.querySelector("[data-ap-channel]"); if (!a) return;

@@ -294,7 +294,7 @@
     var up = upcoming(batches);
     // contact bits everywhere
     var wa = String(S.whatsapp || "").replace(/\D/g, "");
-    $$("[data-ap-wa]").forEach(function (a) { if (wa) { a.href = "https://wa.me/" + wa + "?text=" + encodeURIComponent("Hello, I'm interested in AlliedPath"); a.textContent = a.textContent || S.whatsapp; } });
+    $$("[data-ap-wa]").forEach(function (a) { if (wa) { a.href = "https://wa.me/" + wa + "?text=" + encodeURIComponent("Hello, I'm interested in AlliedPath"); a.textContent = S.whatsapp; } });
     $$("[data-ap-community]").forEach(function (a) { if (S.community_link) { a.href = safeUrl(S.community_link); a.hidden = false; } else a.hidden = true; });
 
     if (PAGE === "home") {
