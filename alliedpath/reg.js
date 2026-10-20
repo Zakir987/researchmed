@@ -28,6 +28,7 @@
     var st0 = $("#reg-status"), who = (back.get("n") || "").slice(0, 40);
     if (st0) { st0.className = "status ok"; st0.innerHTML = "<strong>Thank you" + (who ? ", " + esc(who) : "") + "!</strong> Your application, photo and CV have reached us (reference " + esc(back.get("sent").slice(0, 30)) + "). We'll contact you personally soon, and a confirmation email is on its way."; st0.hidden = false; }
     [].slice.call(f.querySelectorAll("input,select,textarea,button")).forEach(function (el) { el.disabled = true; });
+    f.classList.add("st-sent");
     setTimeout(function () { if (st0) st0.scrollIntoView({ block: "center" }); document.dispatchEvent(new CustomEvent("rmc:lead", { detail: { kind: "AlliedPath faculty application", info: "Faculty (with photo and CV)", name: who || "someone" } })); }, 2500);
   }
   var photo = f.querySelector("input[name=photo]"), prev = $("#photo-prev");
@@ -44,6 +45,79 @@
     return true;
   };
 
+  // step by step: each question appears once the one before it is answered
+  var REDUCE = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var units = [], heads = [];
+  [].slice.call(f.children).forEach(function (el) {
+    if (el.tagName === "H3") { heads.push(el); return; }
+    if (el.matches("input[name=_honey], .photo-prev, .status, button[type=submit]")) return;
+    var parts = el.classList.contains("row") ? [].slice.call(el.children) : [el];
+    parts.forEach(function (u) { units.push({ el: u, row: el !== u ? el : null, head: heads.shift() || null }); });
+  });
+  var submitBtn = f.querySelector("button[type=submit]");
+  var ctrls = function (u) { return [].slice.call(u.el.querySelectorAll("input,select,textarea")); };
+  var required = function (u) { return ctrls(u).some(function (c) { return c.required; }) || !!u.el.querySelector("[data-need-one]") || u.el.matches("fieldset:has([data-need-one])"); };
+  var valid = function (u) {
+    var cs = ctrls(u), need = u.el.querySelector("[data-need-one]");
+    if (need && !need.querySelector("input:checked")) return false;
+    return cs.every(function (c) { if (c.type === "file") { checkFile(c, c.name === "photo" ? 2 : 5, c.name === "photo" ? /\.(jpe?g|png)$/i : /\.(pdf|docx?)$/i, c.name === "photo" ? "JPG or PNG" : "PDF or Word"); } return c.checkValidity(); });
+  };
+  // a step counts as answered when it is valid and the person has acted on it
+  // (typed and paused, left the field, pressed Enter, picked an option, or tapped OK / Skip)
+  units.forEach(function (u, i) {
+    u.done = false;
+    var cs = ctrls(u), text = cs.some(function (c) { return /^(text|email|tel|url|number|)$/.test(c.type) && c.tagName !== "SELECT" || c.tagName === "TEXTAREA"; });
+    var isConsent = u.el.classList.contains("check");
+    if (!isConsent) {
+      var ok = document.createElement("button"); ok.type = "button"; ok.className = "st-ok";
+      ok.textContent = required(u) ? "OK ✓" : "Skip →";
+      ok.addEventListener("click", function () { if (valid(u)) commit(i); else { var c = ctrls(u)[0]; f.reportValidity(); if (c) c.focus(); } });
+      u.ok = ok; u.el.appendChild(ok);
+      var relabel = function () { if (!required(u)) ok.textContent = ctrls(u).some(function (c) { return c.type === "checkbox" ? false : String(c.value || "").trim(); }) ? "OK ✓" : "Skip →"; };
+      cs.forEach(function (c) { c.addEventListener("input", relabel); });
+    }
+    var t = null;
+    cs.forEach(function (c) {
+      c.addEventListener("input", function () { u.el.classList.toggle("st-good", valid(u)); clearTimeout(t); if (text && c.tagName !== "TEXTAREA" && valid(u) && c.type !== "email") t = setTimeout(function () { commit(i, true); }, 1400); if (c.type === "email" && valid(u) && /\.[a-z]{2,}$/i.test(c.value)) t = setTimeout(function () { commit(i, true); }, 1600); });
+      c.addEventListener("change", function () { u.el.classList.toggle("st-good", valid(u)); if (valid(u) && (c.tagName === "SELECT" || c.type === "file" || c.type === "radio" || isConsent || (c.type !== "checkbox" && required(u)))) commit(i); });
+      c.addEventListener("keydown", function (e) { if (e.key === "Enter" && c.tagName !== "TEXTAREA") { e.preventDefault(); if (valid(u)) commit(i); else f.reportValidity(); } });
+    });
+  });
+  var bar = document.createElement("div"); bar.className = "st-bar"; bar.innerHTML = '<span class="st-txt"></span><i><b></b></i>';
+  f.insertBefore(bar, f.firstChild);
+  var total = units.length, shownTo = -1;
+  function show(i, focus) {
+    for (var k = 0; k <= Math.min(i, total - 1); k++) {
+      var u = units[k]; if (!u.el.classList.contains("st-wait")) continue;
+      u.el.classList.remove("st-wait"); if (u.row) u.row.classList.remove("st-wait"); if (u.head) u.head.classList.remove("st-wait");
+      if (!REDUCE) { u.el.classList.add("st-in"); setTimeout(function (el) { el.classList.remove("st-in"); }.bind(null, u.el), 700); }
+    }
+    shownTo = Math.max(shownTo, i);
+    var last = shownTo >= total - 1;
+    submitBtn.classList.toggle("st-wait", !(last && units[total - 1].done));
+    var doneN = units.filter(function (u) { return u.done; }).length;
+    bar.querySelector("b").style.width = Math.round(doneN / total * 100) + "%";
+    bar.querySelector(".st-txt").textContent = doneN >= total ? "All done. Press the button to send." : "Question " + Math.min(shownTo + 1, total) + " of " + total;
+    if (focus && units[i] && i > 0) {
+      var c = ctrls(units[i]).filter(function (x) { return x.type !== "checkbox" && x.type !== "file"; })[0];
+      var r = units[i].el.getBoundingClientRect();
+      if (r.bottom > innerHeight - 40) units[i].el.scrollIntoView({ behavior: REDUCE ? "auto" : "smooth", block: "center" });
+      if (c && !(window.matchMedia && matchMedia("(hover: none)").matches)) setTimeout(function () { try { c.focus({ preventScroll: true }); } catch (e) { c.focus(); } }, 250);
+    }
+  }
+  function commit(i, quiet) {
+    var u = units[i]; if (!valid(u)) return;
+    u.done = true; u.el.classList.add("st-done");
+    var nx = i + 1; while (nx < total && units[nx].done) nx++;
+    if (nx >= total) { show(total - 1); submitBtn.classList.remove("st-wait"); if (!quiet) submitBtn.focus({ preventScroll: true }); return; }
+    if (nx > shownTo) show(nx, !quiet || document.activeElement === null || u.el.contains(document.activeElement));
+    else show(shownTo);
+  }
+  units.forEach(function (u, i) { if (i > 0) { u.el.classList.add("st-wait"); if (u.row && u.row.firstElementChild === u.el) u.row.classList.add("st-wait"); if (u.head) u.head.classList.add("st-wait"); } });
+  if (units[0] && units[0].head) units[0].head.classList.remove("st-wait");
+  submitBtn.classList.add("st-wait"); f.classList.add("stepped"); show(0);
+  var showAll = function () { units.forEach(function (u) { u.done = true; }); show(total - 1); submitBtn.classList.remove("st-wait"); };
+
   var all = function (name) { return [].slice.call(f.querySelectorAll('input[name="' + name + '"]:checked')).map(function (x) { return x.value; }).join(", ") || "-"; };
   var btn = $("button[type=submit]", f), st = $("#reg-status");
 
@@ -53,7 +127,7 @@
     if (needOne && !needOne.querySelector("input:checked")) { needOne.querySelector("input").setCustomValidity("Please choose at least one."); } else if (needOne) { needOne.querySelector("input").setCustomValidity(""); }
     checkFile(photo, 2, /\.(jpe?g|png)$/i, "JPG or PNG");
     checkFile(f.querySelector("input[name=cv]"), 5, /\.(pdf|docx?)$/i, "PDF or Word");
-    if (!f.reportValidity()) return;
+    if (!f.checkValidity()) { showAll(); f.reportValidity(); return; }
     var fd = new FormData(f); if (fd.get("_honey")) return;
     var d = {}; fd.forEach(function (v, k) { if (k !== "programs" && k !== "needs" && k !== "modes") d[k] = String(v).trim(); });
     var first = (d.name || "").split(/\s+/)[0] || "there";

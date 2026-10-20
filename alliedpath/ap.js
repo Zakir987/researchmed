@@ -286,6 +286,19 @@
   }
 
   // ---------- page boot ----------
+  // programs: the planned list stays folded into one bar; it opens on hover, keyboard focus or a tap
+  function foldPrograms() {
+    [].forEach.call(document.querySelectorAll(".pl-fold"), function (f) {
+      if (f.getAttribute("data-fold")) return; f.setAttribute("data-fold", "1");
+      var b = f.querySelector(".pl-head"), h = f.querySelector(".pl-hint");
+      var touch = window.matchMedia && !matchMedia("(hover: hover)").matches;
+      if (h) h.textContent = touch ? "Tap to see all of them" : "Hover to see all of them";
+      var set = function (on) { f.classList.toggle("open", on); b.setAttribute("aria-expanded", on ? "true" : "false"); };
+      b.addEventListener("click", function () { set(!f.classList.contains("open")); });
+      f.addEventListener("mouseenter", function () { if (!touch) b.setAttribute("aria-expanded", "true"); });
+      f.addEventListener("mouseleave", function () { if (!touch && !f.classList.contains("open")) b.setAttribute("aria-expanded", "false"); });
+    });
+  }
   Promise.all(["alliedpath", "ap-programs", "ap-batches", "ap-faculty", "ap-resources", "ap-quiz", "ap-faqs", "ap-reviews"].map(load)).then(function (r) {
     var S = r[0] || {}, programs = list(r[1]), batches = list(r[2]), faculty = list(r[3]).sort(function (a, b) { return (Number(a.order) || 99) - (Number(b.order) || 99); }),
       resources = list(r[4]), qz = list(r[5]), faqs = list(r[6]), reviews = list(r[7]).filter(function (x) { return x.quote && x.consent !== false; });
@@ -310,7 +323,8 @@
             (lines(p.modules).length ? "<ul>" + lines(p.modules).slice(0, 4).map(function (m) { return "<li>" + esc(m.split(":")[0]) + "</li>"; }).join("") + (lines(p.modules).length > 4 ? "<li>+ " + (lines(p.modules).length - 4) + " more modules</li>" : "") + "</ul>" : "") +
             '<span class="pf-go">See the full program <span class="arr" aria-hidden="true">\u2192</span></span></div><div class="pf-r"><b>NCAHP</b><span>Teaching follows the National Commission for Allied and Healthcare Professions curriculum for the program.</span>' +
             [p.duration ? "<em>" + esc(p.duration) + "</em>" : "", p.mode ? "<em>" + esc(p.mode) + "</em>" : "", feeText(p) ? "<em>" + esc(feeText(p)) + "</em>" : ""].join("") + "</div></a>";
-        }).join("") + (planned.length ? '<div class="planned rv"><p>More allied health streams we are planning. Open one to see its full syllabus, or tell us which one you need:</p><div class="pl-grid">' + planned.map(function (p) { return '<a class="pl-card" href="program.html?p=' + esc(p.slug) + '"><span class="tag">Planned</span><b>' + esc(p.title) + "</b>" + (p.summary ? "<span>" + esc(p.summary) + "</span>" : "") + (lines(p.modules).length ? "<em>" + lines(p.modules).length + " modules \u00b7 view syllabus \u2192</em>" : "<em>Register interest \u2192</em>") + "</a>"; }).join("") + "</div></div>" : "");
+        }).join("") + (planned.length ? '<div class="planned pl-fold rv"><button type="button" class="pl-head" aria-expanded="false"><span class="pl-n">+' + planned.length + '</span><span class="pl-t"><b>More allied health programs coming</b><small class="pl-hint"></small></span><span class="pl-chips" aria-hidden="true">' + planned.slice(0, 4).map(function (p) { return "<i>" + esc(String(p.title).replace(/ (Technology|Sciences|Therapy Technology)$/, "")) + "</i>"; }).join("") + '</span><span class="pl-arr" aria-hidden="true"></span></button><div class="pl-wrap"><div class="pl-in"><p>Open one to see its full syllabus, or tell us which one you need:</p><div class="pl-grid">' + planned.map(function (p) { return '<a class="pl-card" href="program.html?p=' + esc(p.slug) + '"><span class="tag">Planned</span><b>' + esc(p.title) + "</b>" + (p.summary ? "<span>" + esc(p.summary) + "</span>" : "") + (lines(p.modules).length ? "<em>" + lines(p.modules).length + " modules \u00b7 view syllabus \u2192</em>" : "<em>Register interest \u2192</em>") + "</a>"; }).join("") + "</div></div></div></div>" : "");
+        foldPrograms();
       }
       // faculty
       var FE = $("#ap-faculty");
