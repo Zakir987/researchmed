@@ -27,7 +27,10 @@
   var io = ("IntersectionObserver" in window) ? new IntersectionObserver(function (es) {
     es.forEach(function (e) { if (!e.isIntersecting) return; var el = e.target; setTimeout(function () { el.classList.add("pon"); countUp(el); }, (Number(el.getAttribute("data-k")) || 0) * 110); io.unobserve(el); });
   }, { threshold: 0.25 }) : null;
-  var arm = function (el, k) { el.setAttribute("data-k", k); if (io && !REDUCE) io.observe(el); else { el.classList.add("pon"); } };
+  var arm = function (el, k) { el.setAttribute("data-k", k); if (io && !REDUCE) io.observe(el); else { el.classList.add("pon"); } if (typeof kick === "function") kick(); };
+  // safety net: if the browser never reports the card as visible, switch it on anyway
+  var armT = null, kick = function () { clearTimeout(armT); armT = setTimeout(function () { [].forEach.call(document.querySelectorAll(".fx[data-k]:not(.pon)"), function (el) { var r = el.getBoundingClientRect(); if (r.top < innerHeight && r.bottom > 0) { el.classList.add("pon"); countUp(el); } }); }, 1600); };
+  window.addEventListener("scroll", kick, { passive: true });
   function countUp(el) {
     var em = el.querySelector("em"); if (!em || REDUCE) return;
     var m = em.textContent.match(/^(\d+)/); if (!m) return;
@@ -86,7 +89,7 @@
   });
 
   // content is drawn after the JSON loads, so watch for it
-  enhance();
+  enhance(); kick();
   if ("MutationObserver" in window) {
     var mo = new MutationObserver(function () { enhance(); });
     mo.observe(document.body, { childList: true, subtree: true });

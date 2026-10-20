@@ -32,8 +32,7 @@
 @keyframes pfxBag{0%,100%{transform:scale(1,.85)}50%{transform:scale(1.1,1.08)}}
 
 /* planned cards: power on, spotlight, tilt */
-.pl-card.fx{position:relative;overflow:hidden;isolation:isolate;transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .45s cubic-bezier(.2,.8,.2,1),border-color .3s,box-shadow .3s,opacity .6s;opacity:.0}
-.pl-card.fx.pon{opacity:1}
+.pl-card.fx{position:relative;overflow:hidden;isolation:isolate;transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .45s cubic-bezier(.2,.8,.2,1),border-color .3s,box-shadow .3s}
 .pl-card.fx.hov{transition:transform .1s linear,border-color .3s,box-shadow .3s;border-style:solid;border-color:var(--emerald);box-shadow:0 26px 50px -28px rgba(15,42,46,.55)}
 .pl-card.fx:hover{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-4px)}
 .pl-card .pfx.sm{width:54px;height:54px;padding:10px;border-radius:16px;background:#E6F5F0;color:var(--emerald);margin-bottom:2px;transition:background .3s,color .3s,transform .5s cubic-bezier(.3,1.6,.5,1)}
@@ -79,8 +78,6 @@ ol.mods.fx > li details{transition:border-color .35s,box-shadow .35s}
 ol.mods.fx > li.lit details{border-color:#CFE6DF}
 
 /* outcomes: ticks pop in one by one */
-.outs li.fx{opacity:0;transform:translateY(14px);transition:opacity .5s,transform .5s cubic-bezier(.2,.8,.2,1)}
-.outs li.fx.pon{opacity:1;transform:none}
 .outs li.fx::before{transform:scale(0) rotate(-90deg);transition:transform .5s .15s cubic-bezier(.3,1.8,.5,1)}
 .outs li.fx.pon::before{transform:none}
 
