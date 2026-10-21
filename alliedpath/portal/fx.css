@@ -1,0 +1,154 @@
+/* AlliedPath FX layer: ambient sky, heartbeat, spotlight cards, ripples, confetti. Loaded after the main stylesheet. */
+:root{--fx-spot:rgba(46,211,191,.13);--fx-orb1:#2ed3bf;--fx-orb2:#4f8df0;--fx-orb3:#f0b24f;--fx-glass:rgba(255,255,255,.72);--fx-p:0ms}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--fx-spot:rgba(46,211,191,.10);--fx-glass:rgba(17,29,49,.72)}}
+:root[data-theme="dark"]{--fx-spot:rgba(46,211,191,.10);--fx-glass:rgba(17,29,49,.72)}
+@property --fx-a{syntax:"<angle>";inherits:false;initial-value:0deg}
+
+body{overflow-x:hidden}
+#app{position:relative;z-index:1}
+#toast{z-index:70}
+
+/* ---------- ambient sky (fixed, never re-rendered) ---------- */
+.fx-sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.fx-sky .orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.22}
+.fx-sky .o1{width:46vmax;height:46vmax;left:-12vmax;top:-14vmax;background:var(--fx-orb1)}
+.fx-sky .o2{width:38vmax;height:38vmax;right:-14vmax;top:22vh;background:var(--fx-orb2);opacity:.14}
+.fx-sky .o3{width:30vmax;height:30vmax;left:30vw;bottom:-16vmax;background:var(--fx-orb3);opacity:.10}
+.fx-sky .x{position:absolute;color:var(--brand-teal);opacity:0;width:26px;height:26px}
+.fx-sky .x svg{width:100%;height:100%;display:block}
+body.fx-sign .fx-sky .x,body.fx-student .fx-sky .x{opacity:.16}
+body.fx-staff .fx-sky .orb{opacity:.12}
+body.fx-staff .fx-sky .o2,body.fx-staff .fx-sky .o3{opacity:.07}
+
+/* ---------- heartbeat line + logo beat (phase-locked so re-renders never restart them) ---------- */
+.fx-ecg{display:block;width:100%;height:26px;margin:-6px 0 -4px;overflow:visible}
+.fx-ecg path{fill:none;stroke:var(--brand-teal);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:420;stroke-dashoffset:420;filter:drop-shadow(0 0 4px rgba(46,211,191,.7))}
+.hero .fx-ecg{position:absolute;left:0;right:0;bottom:6px;height:44px;margin:0;opacity:.55;pointer-events:none}
+.hero .fx-ecg path{stroke-width:2.4}
+
+/* ---------- sidebar ---------- */
+.side{background:linear-gradient(185deg,var(--side) 0%,var(--side) 55%,color-mix(in srgb,var(--side) 82%,var(--brand-teal)) 100%)}
+.nav button>span:first-child{display:inline-flex;align-items:center;gap:10px;min-width:0}
+.fx-ic{display:inline-grid;place-items:center;width:20px;height:20px;flex:none;opacity:.82}
+.fx-ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav button{position:relative;overflow:hidden}
+.nav button[aria-current="page"]{background:linear-gradient(110deg,var(--scrub),color-mix(in srgb,var(--scrub) 70%,var(--fx-orb2)));box-shadow:0 10px 22px -12px var(--brand-teal),inset 0 1px 0 rgba(255,255,255,.18)}
+.nav button[aria-current="page"] .fx-ic{opacity:1}
+.nav .count{background:rgba(255,255,255,.14);padding:1px 7px;border-radius:999px}
+.nav button[aria-current="page"] .count{background:rgba(0,0,0,.18)}
+
+/* ---------- page heading ---------- */
+.head h1{background:linear-gradient(100deg,var(--ink) 0%,var(--ink) 45%,var(--scrub) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;padding-bottom:2px}
+.fx-tod{display:inline-block;margin-right:8px;-webkit-text-fill-color:initial;color:initial}
+.fx-tod svg{width:.95em;height:.95em;vertical-align:-.08em}
+
+/* ---------- cards: spotlight + lift ---------- */
+.kpi,.panel,.card,.hc,.lcard,.qcard,.sess,.fcard,.tablewrap{background-image:radial-gradient(420px circle at var(--mx,-999px) var(--my,-999px),var(--fx-spot),transparent 42%)}
+.kpi{position:relative;overflow:hidden;border-radius:14px}
+.kpi::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--scrub),var(--fx-orb2));opacity:.85}
+.kpi.warn::before{background:linear-gradient(90deg,var(--amber),var(--fx-orb3))}
+.kpi.bad::before{background:linear-gradient(90deg,var(--red),var(--amber))}
+.kpi.good::before{background:linear-gradient(90deg,var(--green),var(--scrub))}
+.panel,.tablewrap,.card{border-radius:14px}
+.panel,.card,.kpi,.tablewrap{box-shadow:0 1px 0 rgba(11,26,48,.03),0 10px 30px -24px rgba(11,26,48,.35)}
+
+/* ---------- buttons ---------- */
+.btn,.chip,.stabs button,.opt,.slotbtn,.lcard,.idcopy{position:relative;overflow:hidden}
+.btn.primary{background:linear-gradient(110deg,var(--scrub),color-mix(in srgb,var(--scrub) 72%,var(--fx-orb2)));border-color:transparent;box-shadow:0 8px 18px -10px var(--scrub)}
+.btn.primary::after{content:"";position:absolute;top:0;bottom:0;left:-70%;width:45%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-20deg);pointer-events:none}
+.fx-ripple{position:absolute;border-radius:50%;pointer-events:none;background:currentColor;opacity:.25;transform:scale(0)}
+
+/* ---------- toast ---------- */
+#toast{display:flex;align-items:center;gap:10px;border-radius:14px;padding:11px 18px 11px 14px;box-shadow:0 18px 40px -16px rgba(0,0,0,.55)}
+#toast.fx-ok::before{content:"";flex:none;width:22px;height:22px;border-radius:50%;background:var(--brand-teal) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' fill='none' stroke='%2304201c' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/14px no-repeat}
+
+/* ---------- modal ---------- */
+#modal{backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.sheet{border-radius:18px;border:1px solid var(--line)}
+
+/* ---------- loading heartbeat ---------- */
+.fx-loader{display:block;width:120px;height:40px;margin:0 auto 10px}
+.fx-loader path{fill:none;stroke:var(--scrub);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:240;stroke-dashoffset:240}
+
+/* ---------- sign-in ---------- */
+body.fx-sign .splash{min-height:100vh}
+body.fx-sign .splash .panel{position:relative;max-width:460px!important;padding:30px 28px 24px;border-radius:24px;border:1.5px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,conic-gradient(from var(--fx-a),var(--brand-teal),var(--fx-orb2),var(--fx-orb3),var(--brand-teal)) border-box;border-width:2px;box-shadow:0 30px 70px -30px rgba(11,26,48,.55)}
+body.fx-sign .splash .brand .aplogo{width:54px;height:54px;border-radius:14px}
+body.fx-sign .splash .brand b{font-size:1.6rem}
+body.fx-sign .splash h2{font-size:1.45rem;margin-top:4px}
+.fx-pitch{margin:6px 0 14px;font-size:1rem;color:var(--muted)}
+.fx-rot{display:inline-block;color:var(--scrub);font-weight:700;min-width:1ch}
+.fx-feats{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:0 0 18px}
+.fx-feats span{font-size:.78rem;font-weight:600;padding:4px 11px;border-radius:999px;background:var(--scrub-soft);color:var(--scrub)}
+body.fx-sign [data-act="signIn"]{width:100%;justify-content:center;padding:13px 20px!important;border-radius:12px;font-size:1.02rem!important}
+
+/* ---------- student extras ---------- */
+.fx-spark{display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:6px 12px 6px 8px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:var(--side-ink);font-size:.86rem;max-width:100%}
+.fx-spark b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--brand-teal);color:var(--id-ink);font-size:.8rem;flex:none}
+.fx-spark span{min-width:0}
+.idcard,.fcard{transform-style:preserve-3d;will-change:transform}
+.stabs button[aria-selected="true"]{background:linear-gradient(110deg,var(--scrub),color-mix(in srgb,var(--scrub) 70%,var(--fx-orb2)))}
+
+/* ---------- confetti ---------- */
+.fx-confetti{position:fixed;inset:0;z-index:80;pointer-events:none}
+
+/* ================= motion (only when the viewer allows it) ================= */
+@media (prefers-reduced-motion:no-preference){
+  @keyframes fxFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(6vmax,4vmax) scale(1.08)}66%{transform:translate(-4vmax,6vmax) scale(.94)}}
+  @keyframes fxRise{0%{transform:translateY(0) rotate(0);opacity:0}12%{opacity:.16}88%{opacity:.16}100%{transform:translateY(-115vh) rotate(220deg);opacity:0}}
+  @keyframes fxEcg{0%{stroke-dashoffset:420;opacity:1}55%{stroke-dashoffset:0;opacity:1}85%,100%{stroke-dashoffset:0;opacity:0}}
+  @keyframes fxBeat{0%,20%,34%,100%{transform:scale(1)}25%{transform:scale(1.16)}29%{transform:scale(.96)}31%{transform:scale(1.07)}}
+  @keyframes fxSpin{to{--fx-a:360deg}}
+  @keyframes fxSheen{0%,72%{left:-70%}100%{left:130%}}
+  @keyframes fxIn{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
+  @keyframes fxRow{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+  @keyframes fxRipple{to{transform:scale(1);opacity:0}}
+  @keyframes fxToast{0%{opacity:0;transform:translate(-50%,24px) scale(.9)}60%{opacity:1;transform:translate(-50%,-4px) scale(1.02)}100%{transform:translate(-50%,0) scale(1)}}
+  @keyframes fxSun{to{transform:rotate(360deg)}}
+  @keyframes fxBob{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-3px) rotate(6deg)}}
+  @keyframes fxWord{0%{opacity:0;transform:translateY(60%) rotateX(70deg)}100%{opacity:1;transform:none}}
+  @keyframes fxPop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.12);opacity:1}100%{transform:scale(1)}}
+  @keyframes fxShake{0%,100%{transform:rotate(0)}25%{transform:rotate(-12deg)}75%{transform:rotate(10deg)}}
+  @keyframes fxGlow{0%,100%{box-shadow:0 0 0 0 rgba(46,211,191,0)}50%{box-shadow:0 0 0 6px rgba(46,211,191,.18)}}
+
+  .fx-sky .o1{animation:fxFloat 26s ease-in-out infinite}
+  .fx-sky .o2{animation:fxFloat 32s ease-in-out -9s infinite reverse}
+  .fx-sky .o3{animation:fxFloat 38s ease-in-out -17s infinite}
+  .fx-sky .x{bottom:-40px;animation:fxRise var(--d,22s) linear var(--dl,0s) infinite}
+
+  .fx-ecg path,.fx-loader path{animation:fxEcg 4s cubic-bezier(.45,0,.55,1) var(--fx-p) infinite}
+  .side .brand .aplogo,.sp-top .brand .aplogo,body.fx-sign .splash .aplogo{animation:fxBeat 4s ease-in-out var(--fx-p) infinite}
+  body.fx-sign .splash .panel{animation:fxIn .7s cubic-bezier(.2,.7,.2,1) both,fxSpin 6s linear infinite}
+  .btn.primary:hover::after{animation:fxSheen 1.1s ease-out}
+  .fx-ripple{animation:fxRipple .6s ease-out forwards}
+  #toast:not([hidden]){animation:fxToast .5s cubic-bezier(.2,.8,.2,1) both}
+  #toast.fx-ok::before{animation:fxPop .45s .1s both}
+
+  .nav button{transition:background .2s,transform .2s,color .2s}
+  .nav button:hover{transform:translateX(3px)}
+  .nav button:hover .fx-ic{animation:fxShake .45s}
+  .nav button[aria-current="page"]{animation:fxGlow 4s ease-in-out var(--fx-p) infinite}
+
+  .kpi,.panel,.card,.tablewrap{transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s,border-color .25s}
+  .kpi:hover,.card:hover{transform:translateY(-4px);box-shadow:0 18px 34px -20px rgba(11,26,48,.45);border-color:color-mix(in srgb,var(--scrub) 45%,var(--line))}
+  .panel:hover{border-color:color-mix(in srgb,var(--scrub) 35%,var(--line))}
+  .enter .kpis>.kpi{animation:fxIn .55s cubic-bezier(.2,.7,.2,1) both}
+  .enter .kpis>.kpi:nth-child(2){animation-delay:.06s}.enter .kpis>.kpi:nth-child(3){animation-delay:.12s}.enter .kpis>.kpi:nth-child(4){animation-delay:.18s}.enter .kpis>.kpi:nth-child(5){animation-delay:.24s}.enter .kpis>.kpi:nth-child(n+6){animation-delay:.3s}
+  .enter .grid2>*{animation:fxIn .6s cubic-bezier(.2,.7,.2,1) both}
+  .enter .grid2>*:nth-child(2){animation-delay:.1s}.enter .grid2>*:nth-child(n+3){animation-delay:.18s}
+  .enter .cards>*{animation:fxIn .5s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(min(var(--r,0),12) * 45ms + .1s)}
+  .enter .tablewrap tbody tr{animation:fxRow .4s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(min(var(--r,0),14) * 28ms + .15s)}
+  .enter .list>.li{animation:fxRow .4s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(min(var(--r,0),10) * 40ms + .15s)}
+  .enter .pill{animation:fxPop .4s .3s both}
+  .tablewrap tr.row td{transition:background .15s}
+  .fx-tod.sun svg{animation:fxSun 14s linear infinite}
+  .fx-tod.moon svg{animation:fxBob 3.5s ease-in-out infinite}
+  .fx-rot.flip{animation:fxWord .5s cubic-bezier(.2,.8,.2,1) both}
+  .fx-spark b{animation:fxPop .5s .6s both}
+  .enter .fx-feats span{animation:fxPop .45s both}
+  .enter .fx-feats span:nth-child(2){animation-delay:.08s}.enter .fx-feats span:nth-child(3){animation-delay:.16s}.enter .fx-feats span:nth-child(4){animation-delay:.24s}.enter .fx-feats span:nth-child(5){animation-delay:.32s}
+  .enter .kpis>.kpi,.enter .grid2>*,.enter .cards>*,.enter .tablewrap tbody tr,.enter .list>.li,.enter .pill,.enter .stagger>*,.enter .fx-feats span{animation-fill-mode:backwards}
+  .idcard,.fcard{transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .25s,border-color .25s}
+  .idcard.fx-tilting,.fcard.fx-tilting{transition:transform .08s linear,box-shadow .25s,border-color .25s}
+}
+@media (max-width:860px){.fx-side-ecg{display:none}}
