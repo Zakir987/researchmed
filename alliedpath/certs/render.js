@@ -37,7 +37,7 @@
   function qrSvg(text){
     try{var q=window.qrcode(0,"M");q.addData(text);q.make();var n=q.getModuleCount(),p="";
       for(var r=0;r<n;r++)for(var c=0;c<n;c++)if(q.isDark(r,c))p+="M"+c+" "+r+"h1v1h-1z";
-      return '<svg width="54" height="54" viewBox="-1 -1 '+(n+2)+' '+(n+2)+'" shape-rendering="crispEdges" aria-hidden="true"><rect x="-1" y="-1" width="'+(n+2)+'" height="'+(n+2)+'" fill="#fff"/><path d="'+p+'" fill="#0b1a30"/></svg>';
+      return '<svg width="54" height="54" style="display:block" viewBox="-1 -1 '+(n+2)+' '+(n+2)+'" shape-rendering="crispEdges" aria-hidden="true"><rect x="-1" y="-1" width="'+(n+2)+'" height="'+(n+2)+'" fill="#fff"/><path d="'+p+'" fill="#0b1a30"/></svg>';
     }catch(x){return ""}
   }
   function verifyUrl(id){return VERIFY+"?id="+encodeURIComponent(id)}
@@ -86,7 +86,7 @@
         '<g fill="none" stroke="'+T.mid+'" stroke-width="1.2"><path d="M62 102 C82 102, 102 82, 102 62"/><path d="M62 92 C76 92, 92 76, 92 62"/><path d="M1061 102 C1041 102, 1021 82, 1021 62"/><path d="M1061 92 C1047 92, 1031 76, 1031 62"/><path d="M62 692 C82 692, 102 712, 102 732"/><path d="M62 702 C76 702, 92 718, 92 732"/><path d="M1061 692 C1041 692, 1021 712, 1021 732"/><path d="M1061 702 C1047 702, 1031 718, 1031 732"/></g>'+
         '<g opacity="0.035" transform="translate(436 285)" fill="#14A3A0"><rect x="94" y="0" width="62" height="250" rx="12"/><rect x="0" y="94" width="250" height="62" rx="12"/></g>'+
       '</svg>'+
-      '<div style="position:absolute;left:62px;top:62px;width:999px;height:670px;box-sizing:border-box;padding:24px 70px 16px;display:flex;flex-direction:column;align-items:center">'+
+      '<div style="position:absolute;left:62px;top:62px;width:999px;height:670px;box-sizing:border-box;padding:20px 70px 92px;display:flex;flex-direction:column;align-items:center">'+
         '<div style="display:flex;flex-direction:row;align-items:center;gap:12px">'+
           '<svg width="44" height="44" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="#0b1a30"/><path fill="#2ed3bf" d="M24 9h16a3 3 0 0 1 3 3v12h12a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H43v12a3 3 0 0 1-3 3H24a3 3 0 0 1-3-3V40H9a3 3 0 0 1-3-3V27a3 3 0 0 1 3-3h12V12a3 3 0 0 1 3-3z"/><path d="M15 50c10-3 15-12 20-22s9-14 13-16" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/><path d="M42 8l10 2-5 8z" fill="#fff"/></svg>'+
           '<div style="display:flex;flex-direction:column;gap:1px"><div style="font-family:Inter,sans-serif;font-size:24px;font-weight:700;letter-spacing:-0.4px;line-height:1"><span style="color:#0F2A4A">Allied</span><span style="color:#0B6E6C">Path</span></div>'+
@@ -102,7 +102,7 @@
         '<div style="margin-top:12px;max-width:780px;font-size:20px;line-height:1.5;color:#2C3A49;text-align:center">'+body(c,T)+'</div>'+batch+
         '<div style="flex-grow:1"></div>'+
         '<div style="width:100%;display:flex;flex-direction:row;justify-content:space-between;align-items:flex-end">'+left+
-          '<svg width="150" height="168" viewBox="0 0 150 168" aria-hidden="true"><defs>'+grad.replace('id="'+G+'"','id="'+G+'s"')+'</defs>'+
+          '<svg width="128" height="143" viewBox="0 0 150 168" aria-hidden="true" style="flex:none"><defs>'+grad.replace('id="'+G+'"','id="'+G+'s"')+'</defs>'+
             '<path d="M48 104 L30 166 L50 154 L62 168 L76 112 Z" fill="'+T.r1+'"/><path d="M102 104 L120 166 L100 154 L88 168 L74 112 Z" fill="'+T.r2+'"/>'+
             '<g transform="translate(75 75)"><polygon points="'+STAR+'" fill="url(#'+G+'s)"/><circle r="46" fill="none" stroke="'+T.ring+'" stroke-width="1.2"/><circle r="40" fill="'+T.band+'"/><circle r="36" fill="none" stroke="'+T.hi+'" stroke-width="1"/>'+
             '<rect x="-5" y="-22" width="10" height="30" rx="2" fill="#2BC4BE"/><rect x="-15" y="-12" width="30" height="10" rx="2" fill="#2BC4BE"/>'+
@@ -112,9 +112,9 @@
             '<div style="width:220px;height:1px;background:#0F2A4A;margin-top:6px"></div>'+
             '<div style="margin-top:6px;font-family:Inter,sans-serif;font-size:13px;font-weight:700;color:#0F2A4A">'+e(FOUNDER.name)+'</div>'+
             '<div style="font-family:Inter,sans-serif;font-size:11.5px;color:#4A5A6B">'+e(FOUNDER.role)+'</div></div></div>'+
-        '<div style="margin-top:8px;width:100%;display:flex;flex-direction:row;justify-content:space-between;align-items:center;font-family:Inter,sans-serif">'+
+        '<div style="position:absolute;left:58px;right:58px;bottom:14px;display:flex;flex-direction:row;justify-content:space-between;align-items:center;font-family:Inter,sans-serif">'+
           '<div style="display:flex;flex-direction:row;align-items:center;gap:10px">'+
-            '<div style="width:58px;height:58px;box-sizing:border-box;background:#FFFFFF;border:1px solid #DCE5EB;display:flex;align-items:center;justify-content:center">'+qr+'</div>'+
+            '<div style="width:62px;height:62px;flex:none;box-sizing:border-box;padding:3px;background:#FFFFFF;border:1px solid #DCE5EB;border-radius:4px;display:flex;align-items:center;justify-content:center">'+qr+'</div>'+
             '<div style="display:flex;flex-direction:column;gap:2px;font-size:10.5px;color:#4A5A6B">'+
               '<div><span style="font-weight:600;color:#0F2A4A">Certificate ID:</span> '+e(id)+'</div>'+
               '<div><span style="font-weight:600;color:#0F2A4A">Issued:</span> '+e(fmt(c.issued)||"—")+' · <span style="font-weight:600;color:#0F2A4A">Udyam:</span> '+UDYAM+'</div>'+
