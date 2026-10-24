@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OT Walkthrough | AlliedPath</title>
+<meta name="description" content="Free 360° virtual tour of a modern operation theatre for Anaesthesia & OT Technology students. 5 viewpoints, 15 equipment stops, close-up photos and a quiz. By AlliedPath.">
+<meta property="og:title" content="AlliedPath OT Walkthrough — 360° Operation Theatre Tour">
+<meta property="og:description" content="Stand inside a fully equipped OT, explore every piece of equipment and test yourself with a quiz.">
+<meta property="og:image" content="img/pano-entrance.jpg">
+<meta name="theme-color" content="#0a1a2e">
+<link rel="icon" href="img/alliedpath-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Poppins:wght@500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* Layout: full-height 360° viewer, guide panel right (bottom sheet on phones). Single dark look in AlliedPath navy + teal. */
+:root{
+  --navy:#0a1a2e; --panel:#0f2238; --raise:#16304d; --line:#23415f;
+  --fg:#eef5f8; --muted:#9cb1c3; --teal:#2fd5c0; --teal-ink:#03241f; --warn:#f5b94c; --ok:#5fe39a; --bad:#ff7a6b;
+  --f-display:"Poppins","Segoe UI",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--navy);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.55;overflow:hidden}
+a{color:var(--teal)}
+[hidden]{display:none!important}
+#app{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr)}
+header{display:flex;align-items:center;gap:8px 10px;flex-wrap:wrap;padding-block:8px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background:var(--panel);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto;min-width:0;text-decoration:none;color:inherit}
+.brand img{width:40px;height:40px;border-radius:8px;flex:none}
+.brand b{display:block;font:700 18px/1.15 var(--f-display);letter-spacing:-.01em}
+.brand b em{font-style:normal;color:var(--teal)}
+.brand span{display:block;font:500 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.btn{font:600 13px var(--f-display);color:var(--fg);background:var(--raise);border:1px solid var(--line);border-radius:8px;padding:7px 12px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn:hover:not(:disabled){border-color:var(--teal)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn.primary{background:var(--teal);color:var(--teal-ink);border-color:var(--teal)}
+.btn[aria-pressed="true"]{border-color:var(--teal);color:var(--teal)}
+button:focus-visible,a:focus-visible{outline:2px solid var(--warn);outline-offset:2px}
+
+main{display:grid;grid-template-columns:minmax(0,1fr) 390px;min-height:0}
+main.full{grid-template-columns:1fr}
+main.full aside{display:none}
+#stage{position:relative;min-height:0;overflow:hidden;background:#06111e;touch-action:none;cursor:grab}
+#stage.drag{cursor:grabbing}
+#stage canvas{display:block;width:100%;height:100%}
+#fade{position:absolute;inset:0;background:#06111e;opacity:0;pointer-events:none;transition:opacity .35s}
+#fade.on{opacity:1}
+#pins{position:absolute;inset:0;pointer-events:none}
+.pin{position:absolute;left:0;top:0;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;padding:0;
+  border:2px solid #fff;background:rgba(10,26,46,.72);color:#fff;font:600 12px var(--f-display);
+  display:grid;place-items:center;cursor:pointer;pointer-events:auto;box-shadow:0 0 0 4px rgba(47,213,192,.35);animation:pulse 2.4s ease-in-out infinite}
+.pin.seen{border-color:var(--teal);color:var(--teal);animation:none}
+.pin:hover{background:var(--teal);color:var(--teal-ink);border-color:var(--teal)}
+.pin.on{background:var(--warn);border-color:var(--warn);color:#2b1a00;box-shadow:0 0 0 6px rgba(245,185,76,.35);animation:none}
+@keyframes pulse{50%{box-shadow:0 0 0 9px rgba(47,213,192,.12)}}
+.go{position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;
+  display:flex;align-items:center;gap:6px;white-space:nowrap;margin:-17px 0 0 0;
+  font:600 13px var(--f-display);color:var(--teal-ink);background:var(--teal);border:0;border-radius:999px;padding:7px 13px 7px 9px;
+  box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.go svg{width:16px;height:16px;flex:none}
+.go:hover{background:#fff}
+.scene-tag{position:absolute;left:max(12px,env(safe-area-inset-left,0px));top:12px;pointer-events:none;
+  background:rgba(10,26,46,.82);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+.scene-tag small{display:block;font:500 10px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--teal)}
+.scene-tag b{font:600 15px var(--f-display)}
+.tools{position:absolute;right:max(12px,env(safe-area-inset-right,0px));top:12px;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.tools .btn{background:rgba(10,26,46,.85)}
+.hint{position:absolute;left:12px;bottom:62px;font:500 12px var(--f-mono);color:var(--muted);background:rgba(10,26,46,.82);border:1px solid var(--line);border-radius:6px;padding:5px 9px;pointer-events:none}
+.strip{position:absolute;left:0;right:0;bottom:0;display:flex;gap:6px;overflow-x:auto;
+  padding-block:8px;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));
+  background:linear-gradient(transparent,rgba(6,17,30,.9))}
+.strip button{flex:none;font:600 13px var(--f-display);color:var(--fg);background:rgba(10,26,46,.85);border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
+.strip button[aria-current="true"]{background:var(--teal);color:var(--teal-ink);border-color:var(--teal)}
+.strip .n{font:500 11px var(--f-mono);opacity:.75;margin-right:5px}
+#loading{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:500 13px var(--f-mono);color:var(--muted);text-align:center}
+
+aside{min-height:0;overflow-y:auto;background:var(--panel);border-left:1px solid var(--line);
+  padding-block:18px 26px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:18px}
+.progress{display:grid;gap:6px}
+.progress .lab{display:flex;justify-content:space-between;font:500 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.progress .bar{height:6px;border-radius:99px;background:var(--raise);overflow:hidden}
+.progress .bar i{display:block;height:100%;width:0;background:var(--teal);transition:width .4s}
+.eyebrow{font:500 11px var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--teal);margin:0}
+#card h2{font:700 24px/1.15 var(--f-display);letter-spacing:-.01em;margin:4px 0 10px;text-wrap:balance}
+#card h3{font:600 12px var(--f-display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px}
+#card p{margin:0 0 8px;max-width:62ch}
+#card ul{margin:0;padding-left:18px;display:grid;gap:6px}
+#card li::marker{color:var(--teal)}
+.photos{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:2px 0 12px}
+.photos button{padding:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;cursor:zoom-in;background:var(--navy);aspect-ratio:3/2;max-width:100%}
+.photos img{width:100%;height:100%;object-fit:cover;display:block}
+.tip{margin-top:14px!important;border:1px solid rgba(245,185,76,.45);background:rgba(245,185,76,.08);border-radius:8px;padding:9px 12px;font-size:14px}
+.tip strong{font:500 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--warn);margin-right:6px}
+.where{font:500 12px var(--f-mono);color:var(--muted);margin-top:10px!important}
+.nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nav .count{font:500 12px var(--f-mono);color:var(--muted);margin-right:auto;font-variant-numeric:tabular-nums}
+.topics h3,.cta h3{font:600 12px var(--f-display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.topics ol{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.topics ol button{width:100%;display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:baseline;text-align:left;
+  background:none;border:0;border-radius:6px;padding:6px 8px;color:var(--fg);font:15px var(--f-body);cursor:pointer}
+.topics ol button:hover{background:var(--raise)}
+.topics ol button.on{background:var(--raise);box-shadow:inset 2px 0 0 var(--warn)}
+.topics .n{font:500 12px var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.topics .t{display:block;font:500 11px var(--f-mono);color:var(--muted)}
+.topics .ck{font:600 13px var(--f-display);color:var(--teal)}
+.quizbtn{width:100%;justify-content:center;margin-top:8px;padding:10px}
+/* quiz */
+.q{display:grid;gap:8px;margin-top:6px}
+.q button{text-align:left;font:15px var(--f-body);color:var(--fg);background:var(--raise);border:1px solid var(--line);border-radius:8px;padding:9px 12px;cursor:pointer}
+.q button:hover:not(:disabled){border-color:var(--teal)}
+.q button.right{border-color:var(--ok);background:rgba(95,227,154,.12)}
+.q button.wrong{border-color:var(--bad);background:rgba(255,122,107,.12)}
+.q button:disabled{cursor:default}
+.fb{margin-top:10px!important;font-size:14px}
+.fb b{color:var(--ok)} .fb b.no{color:var(--bad)}
+.score{font:700 46px/1 var(--f-display);color:var(--teal);margin:6px 0 8px}
+/* CTA */
+.cta{border:1px solid var(--line);border-radius:10px;padding:14px;background:linear-gradient(160deg,rgba(47,213,192,.08),transparent 60%)}
+.cta .who{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.cta .who img{width:38px;height:38px;border-radius:8px}
+.cta .who b{font:700 16px var(--f-display)} .cta .who b em{font-style:normal;color:var(--teal)}
+.cta .who span{display:block;font:500 11px var(--f-mono);color:var(--muted);letter-spacing:.06em}
+.cta p{margin:0 0 10px;font-size:14px;color:var(--muted)}
+.links{display:flex;flex-wrap:wrap;gap:6px}
+.links .btn{font-size:12px;padding:6px 10px}
+
+/* welcome */
+#welcome{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:rgba(6,14,26,.86);backdrop-filter:blur(6px);
+  padding-block:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));overflow-y:auto}
+.wcard{width:100%;max-width:520px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px 24px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.wcard img{width:64px;height:64px;border-radius:12px}
+.wcard h1{font:700 28px/1.12 var(--f-display);letter-spacing:-.015em;margin:14px 0 8px;text-wrap:balance}
+.wcard h1 em{font-style:normal;color:var(--teal)}
+.wcard p{margin:0 0 14px;color:var(--muted)}
+.how{list-style:none;margin:0 0 20px;padding:0;display:grid;gap:10px}
+.how li{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start}
+.how i{font-style:normal;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--raise);border:1px solid var(--line);font:600 13px var(--f-display);color:var(--teal)}
+.how b{font-weight:700}
+.facts{display:flex;gap:18px;margin:0 0 20px;font:500 12px var(--f-mono);color:var(--muted);flex-wrap:wrap}
+.facts b{display:block;font:700 22px var(--f-display);color:var(--fg)}
+.wcard .btn.primary{width:100%;justify-content:center;font-size:16px;padding:12px}
+
+#lightbox{position:fixed;inset:0;z-index:40;background:rgba(4,10,18,.95);display:grid;place-items:center;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));cursor:zoom-out}
+#lightbox img{max-width:100%;max-height:100%;border-radius:8px}
+#lightbox button{position:absolute;top:max(14px,env(safe-area-inset-top,0px));right:max(14px,env(safe-area-inset-right,0px))}
+
+@media (max-width:820px){
+  main{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) minmax(0,46%)}
+  main.full{grid-template-rows:1fr 0}
+  aside{border-left:0;border-top:1px solid var(--line)}
+  .brand span,.hint,#hdrSite{display:none}
+  #card h2{font-size:21px}
+  .wcard h1{font-size:24px}
+}
+@media (prefers-reduced-motion:reduce){.pin{animation:none}#fade,.progress .bar i{transition:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <a class="brand" href="https://researchmed.in/alliedpath/"><img src="img/alliedpath-logo.png" alt="AlliedPath"><div><b>Allied<em>Path</em> OT Walkthrough</b><span>360° operation theatre tour</span></div></a>
+    <a class="btn" id="hdrSite" href="https://researchmed.in/alliedpath/">AlliedPath home</a>
+    <button class="btn" id="guideBtn" type="button" aria-pressed="false">Hide guide</button>
+  </header>
+  <main id="main">
+    <div id="stage">
+      <div id="loading">Loading theatre view…</div>
+      <div id="pins"></div>
+      <div class="scene-tag"><small id="sceneNum">View 1 of 5</small><b id="sceneName">Entrance</b></div>
+      <div class="tools">
+        <button class="btn" id="gyroBtn" type="button" aria-pressed="false" hidden>Move phone to look</button>
+        <button class="btn" id="fsBtn" type="button" hidden>Fullscreen</button>
+        <button class="btn" id="vrBtn" type="button" hidden>Enter VR</button>
+      </div>
+      <div class="hint">Drag to look around · scroll or pinch to zoom · tap a numbered point</div>
+      <nav class="strip" id="strip" aria-label="Viewpoints"></nav>
+      <div id="fade"></div>
+    </div>
+    <aside id="aside">
+      <div class="progress"><div class="lab"><span>Your progress</span><span id="progTxt">0 / 15 explored</span></div><div class="bar"><i id="progBar"></i></div></div>
+      <section id="card" aria-live="polite"></section>
+      <div class="nav" id="navRow">
+        <span class="count" id="count"></span>
+        <button class="btn" id="prevBtn" type="button">Previous</button>
+        <button class="btn primary" id="nextBtn" type="button">Start tour</button>
+      </div>
+      <section class="topics"><h3>Tour stops</h3><ol id="topicList"></ol>
+        <button class="btn quizbtn" id="quizBtn" type="button">Test yourself: 8-question quiz</button></section>
+      <section class="cta">
+        <div class="who"><img src="img/alliedpath-logo.png" alt=""><div><b>Allied<em>Path</em></b><span>TEACH · MENTOR · GUIDE</span></div></div>
+        <p>Live classes, mentoring, research guidance and placement preparation for allied health students, aligned with NCAHP curricula.</p>
+        <div class="links">
+          <a class="btn primary" href="https://researchmed.in/alliedpath/" target="_blank" rel="noopener">Join AlliedPath</a>
+          <a class="btn" href="https://wa.me/919596830800" target="_blank" rel="noopener">WhatsApp</a>
+          <a class="btn" href="https://instagram.com/allied_path" target="_blank" rel="noopener">Instagram</a>
+          <a class="btn" href="https://www.youtube.com/@AlliedPath" target="_blank" rel="noopener">YouTube</a>
+        </div>
+        <p style="margin:10px 0 0">alliedpath@researchmed.in · +91 95968 30800</p>
+      </section>
+    </aside>
+  </main>
+</div>
+
+<div id="welcome" role="dialog" aria-modal="true" aria-labelledby="wTitle">
+  <div class="wcard">
+    <img src="img/alliedpath-logo.png" alt="AlliedPath">
+    <h1 id="wTitle">Step inside a modern <em>operation theatre</em></h1>
+    <p>A free 360° walkthrough for Anaesthesia &amp; Operation Theatre Technology students.</p>
+    <div class="facts"><div><b>5</b>viewpoints</div><div><b>15</b>equipment stops</div><div><b>8</b>quiz questions</div></div>
+    <ol class="how">
+      <li><i>1</i><span><b>Look around.</b> Drag the view, or pinch and scroll to zoom. On a phone you can also move the phone itself.</span></li>
+      <li><i>2</i><span><b>Tap a numbered point</b> to study that equipment, with close-up photos and the checks every OT technologist must know.</span></li>
+      <li><i>3</i><span><b>Walk the room</b> with the teal buttons, or press <b>Next stop</b> for the guided tour. Finish with the quiz.</span></li>
+    </ol>
+    <button class="btn primary" id="startBtn" type="button">Start the walkthrough</button>
+  </div>
+</div>
+<div id="lightbox" hidden><img alt=""><button class="btn" type="button">Close</button></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const W=1774,H=887;
+const SCENES={
+  entrance:{name:'Entrance',img:'img/pano-entrance.jpg',start:[850,470],nav:[['head',590,645],['side',870,720],['foot',1080,650],['emergency',1470,665]]},
+  head:{name:'Head end',img:'img/pano-head.jpg',start:[700,450],nav:[['entrance',1190,560],['side',1360,660],['foot',600,650],['emergency',1640,640]]},
+  side:{name:'Table side',img:'img/pano-side.jpg',start:[800,460],nav:[['head',1110,650],['foot',420,660],['entrance',650,560],['emergency',1470,640]]},
+  foot:{name:'Foot end',img:'img/pano-foot.jpg',start:[880,450],nav:[['head',1190,625],['side',560,700],['entrance',865,535],['emergency',1560,655]]},
+  emergency:{name:'Emergency corner',img:'img/pano-emergency.jpg',start:[700,450],nav:[['side',1000,650],['head',1210,580],['foot',780,610],['entrance',1680,560]]}
+};
+const ORDER=Object.keys(SCENES);
+
+const TOPICS=[
+ {id:'doors',name:'OT doors & zoning',tag:'Protective → clean → sterile zone',at:['entrance',70,420],
+  text:'The theatre complex is divided into zones of increasing cleanliness: protective, clean, sterile and disposal. Sliding doors with vision panels stay shut during surgery so the room keeps positive pressure.',
+  points:['Change into theatre attire, cap, mask and OT footwear before entering the restricted zone.','Every door opening disturbs airflow; keep openings to a minimum during a case.','Waste and used instruments leave by the disposal route, never through the sterile corridor.'],
+  tip:'Never prop OT doors open, even for a quick transfer.'},
+ {id:'scrub',name:'Scrub area',tag:'Surgical hand antisepsis',at:['entrance',1725,430],photos:[['scrub-sink','Scrub sink with sensor taps']],
+  text:'The scrub team cleans hands and forearms here before gowning and gloving. Sensor, elbow or foot taps let you control water without touching anything with clean hands. The scrub area sits just outside the theatre door.',
+  points:['Nails short and clean; no rings, watches or bangles.','Keep hands above elbow level so water drains off at the elbows.','Follow your unit protocol: a timed antiseptic scrub or an alcohol-based surgical hand rub.'],
+  tip:'Dry with a sterile towel from fingertips to elbow, using a separate side of the towel for each arm.'},
+ {id:'laf',name:'Laminar airflow & HVAC',tag:'Air quality control',at:['entrance',830,105],photos:[['laf','Laminar airflow ceiling panel above the table']],
+  text:'HEPA-filtered air flows down from the ceiling panel over the operating table in a steady one-directional stream, sweeping particles away from the wound. Return grilles low on the walls draw air out.',
+  points:['The theatre is kept at positive pressure relative to the corridors.','Common targets: at least 20 air changes per hour, 21 ± 3 °C and 20–60% relative humidity.','Keep tall equipment and people from blocking the airflow above the sterile field.'],
+  tip:'Check and log temperature, humidity and pressure before the first case of the day.'},
+ {id:'table',name:'Operating table',tag:'Patient positioning',at:['entrance',850,545],photos:[['ot-table','Table with head ring, arm board and lithotomy leg supports']],
+  text:'An electrically adjustable table with head, back, seat and leg sections, controlled from a hand pendant. Accessories such as the head ring, arm boards and lithotomy leg supports let the team position the patient for each procedure.',
+  points:['Lock the table before moving the patient on or off it.','Pad pressure points: occiput, elbows, sacrum and heels.','Keep arm-board abduction below 90° to protect the brachial plexus.'],
+  tip:'Practise Trendelenburg and reverse Trendelenburg on the pendant before induction, not during a crisis.'},
+ {id:'machine',name:'Anaesthesia workstation',tag:'Gas delivery & ventilation',at:['head',330,480],photos:[['machine','Anaesthesia workstation, front view'],['machine-detail','Bellows, flowmeters and vaporizers labelled']],
+  text:'Delivers oxygen, air and nitrous oxide through the flowmeters, adds volatile agent from the vaporizers, and ventilates the patient through the breathing circuit using the bellows. The green reservoir bag allows manual ventilation.',
+  points:['Do the full machine check before every list: leak test, O₂ failure alarm, suction and backup O₂.','Vaporizer colour codes: sevoflurane yellow, isoflurane purple, desflurane blue.','Change the CO₂ absorbent when the indicator colour changes.'],
+  tip:'Keep a self-inflating bag and face mask ready beside the machine at all times.'},
+ {id:'monitor',name:'Multiparameter monitor',tag:'Patient monitoring',at:['head',390,300],photos:[['monitor','Monitor showing ECG, SpO₂, arterial line, CVP and respiration']],
+  text:'Displays ECG, SpO₂ with the pleth waveform, blood pressure, respiration and temperature. In major surgery, invasive arterial pressure (ABP) and central venous pressure (CVP) are added, as on this screen.',
+  points:['Minimum monitoring for general anaesthesia: ECG, SpO₂, NIBP and capnography.','Zero and level invasive transducers at the phlebostatic axis.','Set alarm limits for each patient; never silence alarms permanently.'],
+  tip:'Attach monitoring and record a baseline before any induction drug is given.'},
+ {id:'suction',name:'Suction',tag:'Airway & field suction',at:['head',345,665],photos:[['suction','Mobile suction unit with twin 2000 mL canisters']],
+  text:'Clears secretions from the airway and blood from the surgical field into graduated canisters. A canister is mounted on the anaesthesia machine for airway suction, with a mobile unit as backup.',
+  points:['Test suction and connect a Yankauer before induction.','Set vacuum to the level your unit specifies for airway use.','Canister readings help estimate blood loss; subtract any irrigation used.'],
+  tip:'Suction failure during a vomiting induction is a preventable emergency.'},
+ {id:'gas',name:'Medical gas supply',tag:'Pipeline & cylinders',at:['head',1410,412],photos:[['gas-outlets','Colour-coded pipeline outlets including AGSS'],['cylinders','O₂ and N₂O cylinders']],
+  text:'Gases reach the theatre through gas-specific wall or pendant outlets: oxygen, nitrous oxide, medical air, vacuum and anaesthetic gas scavenging (AGSS). Cylinders are the backup if the pipeline fails.',
+  points:['In India, oxygen cylinders are black with a white shoulder; nitrous oxide cylinders are blue.','Outlets are non-interchangeable, so a hose cannot go into the wrong socket.','AGSS removes waste anaesthetic gases from the room to protect staff.'],
+  tip:'Check pipeline pressure (about 4 bar) and backup cylinder contents before the case.'},
+ {id:'lights',name:'Surgical lights',tag:'Shadowless illumination',at:['side',510,230],photos:[['lights','Twin LED surgical light heads']],
+  text:'Each light head has many LED sources that overlap, so the surgeon’s head and hands do not cast deep shadows into the wound. Two heads light the field from different angles.',
+  points:['Sterile handle covers on the central handle let the surgeon adjust focus.','Position the lights before draping.','Clean the light heads daily; dust on them sits directly above the wound.'],
+  tip:'Ask the surgeon before moving a light once the incision is made.'},
+ {id:'esu',name:'Electrosurgical unit',tag:'Diathermy',at:['side',225,455],photos:[['esu','Diathermy unit with CUT, COAG and bipolar outputs, foot pedals and return pad']],
+  text:'Cuts and coagulates tissue with high-frequency current. Monopolar diathermy (yellow cut, blue coag) needs a patient return electrode; bipolar forceps pass current only between the two tips.',
+  points:['Place the return pad on clean, dry skin over a large muscle, away from bony points and metal implants.','Let alcohol-based skin prep dry fully: pooled prep is a fire risk.','Use smoke evacuation where available; surgical smoke is a staff hazard.'],
+  tip:'Keep the active pencil in its insulated holster when not in use.'},
+ {id:'trolley',name:'Instrument trolleys',tag:'Sterile field',at:['foot',330,500],
+  text:'The draped back table holds the full instrument set and supplies laid out for the case. Only scrubbed staff work on its sterile top.',
+  points:['The sterile zone of a draped table is from table height upward.','Count swabs, sharps and instruments at the start, before closure and at the end.','Pass sharps through a neutral zone, never hand to hand.'],
+  tip:'A count discrepancy stops wound closure until it is resolved.'},
+ {id:'iv',name:'IV stand & infusions',tag:'Vascular access',at:['head',85,300],
+  text:'Holds IV fluids and infusions that run into the patient’s cannula. Infusion pumps on the pole deliver drugs at set rates.',
+  points:['Prime lines fully and remove air before connecting.','Label every infusion line with drug and concentration.','Check the cannula flushes freely before induction.'],
+  tip:'Trace each line from bag to patient before giving any drug through it.'},
+ {id:'crash',name:'Crash cart',tag:'Emergency readiness',at:['emergency',165,600],photos:[['crash-cart','Crash cart with labelled Airway, Breathing, Circulation, Drugs and Fluids drawers']],
+  text:'The emergency trolley holds airway equipment, breathing devices, circulation items, drugs and fluids in fixed, labelled drawers, with an oxygen cylinder and defibrillator on top.',
+  points:['Check contents, expiry dates and seal daily, and sign the checklist.','Core drugs include adrenaline, atropine and amiodarone.','Return the cart restocked and sealed after every use.'],
+  tip:'Know where the crash cart is in every theatre you work in.'},
+ {id:'defib',name:'Defibrillator',tag:'Cardiac emergencies',at:['emergency',150,425],photos:[['defibrillator','Defibrillator with sternum and apex paddles']],
+  text:'Delivers a shock to treat ventricular fibrillation and pulseless ventricular tachycardia. It also monitors ECG and can pace the heart.',
+  points:['Paddle positions: sternum (right of the upper sternum) and apex (left lower chest).','Use SYNC mode for cardioversion of a patient with a pulse.','Shout “All clear” and check nobody is touching the patient before shocking.'],
+  tip:'Test the defibrillator daily and keep pads and paper in date.'},
+ {id:'bmw',name:'Biomedical waste bins',tag:'BMW Management Rules, 2016',at:['emergency',440,650],photos:[['bmw-bins','Colour-coded waste bins with segregation chart']],
+  text:'Waste is segregated at the point of generation into colour-coded containers as set out in India’s Bio-Medical Waste Management Rules, 2016.',
+  points:['Yellow: anatomical waste, soiled dressings, expired medicines and chemical waste.','Red: contaminated recyclable plastics such as tubing, catheters, IV sets and gloves.','White (translucent, puncture-proof): needles, blades and other sharps. Blue: glassware and metallic implants.','Black: general, non-infectious waste only. It is not biomedical waste.'],
+  tip:'Segregate at source. Mixed waste must be treated as the highest-risk category.'}
+];
+
+const QUIZ=[
+ {q:'A used IV set and tubing go into which bin?',a:['Yellow','Red','White','Black'],c:1,e:'Contaminated recyclable plastics such as IV sets, tubing, catheters and gloves go in the red bin.'},
+ {q:'What colour is a sevoflurane vaporizer?',a:['Purple','Blue','Yellow','Orange'],c:2,e:'Sevoflurane is yellow, isoflurane purple and desflurane blue.'},
+ {q:'In India, an oxygen cylinder is coloured:',a:['Blue body','Black body with white shoulder','Grey body','White body with black shoulder'],c:1,e:'Oxygen cylinders are black with a white shoulder; nitrous oxide cylinders are blue.'},
+ {q:'Where should the diathermy return electrode be placed?',a:['Over a bony prominence','Over a metal implant','On clean, dry skin over a large muscle','Anywhere the drape allows'],c:2,e:'Good contact over well-perfused muscle spreads the current and prevents burns.'},
+ {q:'Which set is minimum monitoring for general anaesthesia?',a:['ECG, SpO₂, NIBP, capnography','ECG and temperature only','SpO₂ and CVP','Arterial line and BIS'],c:0,e:'ECG, pulse oximetry, non-invasive blood pressure and capnography are the minimum standard.'},
+ {q:'What does laminar airflow over the table do?',a:['Cools the surgeon','Sends HEPA-filtered air down over the wound in one direction','Removes anaesthetic gases','Keeps the room at negative pressure'],c:1,e:'Unidirectional HEPA-filtered air sweeps particles away from the surgical field. The room is kept at positive pressure.'},
+ {q:'For cardioversion of a patient who has a pulse, the defibrillator must be in:',a:['PACER mode','SYNC mode','Monitor mode','AED mode'],c:1,e:'SYNC times the shock to the R wave so it does not fall on the T wave.'},
+ {q:'Arm-board abduction should be kept below:',a:['45°','60°','90°','120°'],c:2,e:'Abduction beyond 90° stretches the brachial plexus.'}
+];
+
+/* ---------- storage (optional) ---------- */
+const KEY='alliedpath-ot-tour-v1';
+let seen=new Set();try{const s=JSON.parse(localStorage.getItem(KEY)||'[]');if(Array.isArray(s))seen=new Set(s)}catch(e){}
+function saveSeen(){try{localStorage.setItem(KEY,JSON.stringify([...seen]))}catch(e){}}
+
+/* ---------- welcome ---------- */
+const welcome=$('#welcome');
+$('#startBtn').onclick=()=>{welcome.hidden=true;$('#nextBtn').focus({preventScroll:true})};
+setTimeout(()=>$('#startBtn').focus({preventScroll:true}),50);
+
+/* ---------- three.js viewer ---------- */
+const stage=$('#stage');
+let renderer=null,glMsg='';
+if(!window.THREE)glMsg='The 360° viewer could not load. Check your connection and reload. The guide, photos and quiz below still work.';
+else{try{renderer=new THREE.WebGLRenderer({antialias:true})}catch(e){glMsg='This device cannot show the 360° view. The guide, photos and quiz still work.'}}
+const GL=!!renderer;
+let scene,camera,sphereMat,loader;const texCache={};
+if(!GL){$('#loading').textContent=glMsg;$('#loading').style.width='min(90%,420px)'}
+else{
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+renderer.xr.enabled=true;
+stage.prepend(renderer.domElement);
+scene=new THREE.Scene();
+camera=new THREE.PerspectiveCamera(75,1,.1,200);
+scene.add(camera);
+const geo=new THREE.SphereGeometry(50,64,40);geo.scale(-1,1,1);
+sphereMat=new THREE.MeshBasicMaterial({color:0xffffff});
+scene.add(new THREE.Mesh(geo,sphereMat));
+loader=new THREE.TextureLoader();
+}
+function getTex(id){return texCache[id]||(texCache[id]=new Promise((res,rej)=>loader.load(SCENES[id].img,t=>{t.anisotropy=renderer.capabilities.getMaxAnisotropy();res(t)},undefined,rej)))}
+
+const dir=(u,v)=>{const p=u*2*Math.PI,t=v*Math.PI;return GL&&new THREE.Vector3(Math.cos(p)*Math.sin(t),Math.cos(t),Math.sin(p)*Math.sin(t))};
+const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const view={u:.5,v:.5,fov:75};let tween=null;
+function lookAt(u,v,instant){if(instant||reduce){view.u=u;view.v=v;tween=null;return}
+  let du=u-view.u;if(du>.5)du-=1;if(du<-.5)du+=1;tween={t:0,u0:view.u,v0:view.v,du,dv:v-view.v}}
+function setFov(f){view.fov=Math.max(35,Math.min(95,f))}
+function clampV(){view.v=Math.max(.12,Math.min(.88,view.v));view.u=(view.u%1+1)%1}
+
+// drag + pinch + wheel
+const ptrs=new Map();if(GL){
+renderer.domElement.addEventListener('pointerdown',e=>{ptrs.set(e.pointerId,[e.clientX,e.clientY]);stage.classList.add('drag');tween=null;try{renderer.domElement.setPointerCapture(e.pointerId)}catch(_){}});
+renderer.domElement.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId))return;const p=ptrs.get(e.pointerId);
+  if(ptrs.size===2){const [a,b]=[...ptrs.values()];ptrs.set(e.pointerId,[e.clientX,e.clientY]);const [c,d]=[...ptrs.values()];
+    const d0=Math.hypot(a[0]-b[0],a[1]-b[1]),d1=Math.hypot(c[0]-d[0],c[1]-d[1]);if(d1>0)setFov(view.fov*d0/d1);return}
+  const k=view.fov/75/stage.clientHeight;view.u-=(e.clientX-p[0])*k*.42;view.v-=(e.clientY-p[1])*k*.75;clampV();ptrs.set(e.pointerId,[e.clientX,e.clientY])});
+const up=e=>{ptrs.delete(e.pointerId);if(!ptrs.size)stage.classList.remove('drag')};
+renderer.domElement.addEventListener('pointerup',up);renderer.domElement.addEventListener('pointercancel',up);
+stage.addEventListener('wheel',e=>{e.preventDefault();setFov(view.fov*(1+e.deltaY*.0012))},{passive:false});}
+
+/* ---------- state + UI ---------- */
+let cur=null,sel=-1,mode='tour';
+const pins=$('#pins'),card=$('#card'),list=$('#topicList');
+$('#strip').innerHTML=ORDER.map((id,i)=>`<button type="button" data-s="${id}"><span class="n">${i+1}</span>${SCENES[id].name}</button>`).join('');
+$('#strip').addEventListener('click',e=>{const b=e.target.closest('button');if(b)goScene(b.dataset.s)});
+function renderList(){list.innerHTML=TOPICS.map((t,i)=>`<li><button type="button" data-i="${i}" class="${i===sel&&mode==='tour'?'on':''}"><span class="n">${String(i+1).padStart(2,'0')}</span><span>${t.name}<span class="t">${SCENES[t.at[0]].name}</span></span><span class="ck">${seen.has(t.id)?'✓':''}</span></button></li>`).join('')}
+list.addEventListener('click',e=>{const b=e.target.closest('button');if(b)select(+b.dataset.i)});
+function progress(){const n=TOPICS.filter(t=>seen.has(t.id)).length;$('#progTxt').textContent=`${n} / ${TOPICS.length} explored`;$('#progBar').style.width=(n/TOPICS.length*100)+'%'}
+const arrow='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>';
+let pinEls=[];
+
+async function goScene(id,look){
+  if(cur===id){if(look)lookAt(...look);return}
+  const fade=$('#fade');
+  if(cur){fade.classList.add('on');await new Promise(r=>setTimeout(r,reduce?0:330))}
+  if(!GL){cur=id;$('#sceneName').textContent=SCENES[id].name;$('#sceneNum').textContent=`View ${ORDER.indexOf(id)+1} of ${ORDER.length}`;document.querySelectorAll('#strip button').forEach(b=>b.setAttribute('aria-current',b.dataset.s===id));fade.classList.remove('on');return}
+  let tex;try{tex=await getTex(id)}catch(e){$('#loading').hidden=false;$('#loading').textContent='This view could not load. Try another viewpoint.';fade.classList.remove('on');return}
+  $('#loading').hidden=true;
+  sphereMat.map=tex;sphereMat.needsUpdate=true;cur=id;
+  const s=SCENES[id],st=look||[s.start[0]/W,s.start[1]/H];lookAt(st[0],st[1],true);view.fov=75;
+  $('#sceneName').textContent=s.name;$('#sceneNum').textContent=`View ${ORDER.indexOf(id)+1} of ${ORDER.length}`;
+  document.querySelectorAll('#strip button').forEach(b=>b.setAttribute('aria-current',b.dataset.s===id));
+  buildPins();fade.classList.remove('on');gyroCal=null;
+  s.nav.forEach(([n])=>getTex(n).catch(()=>{}));
+}
+function buildPins(){
+  if(!cur||!GL)return;
+  const items=[];
+  TOPICS.forEach((t,i)=>{if(t.at[0]===cur)items.push({kind:'t',i,u:t.at[1]/W,v:t.at[2]/H})});
+  SCENES[cur].nav.forEach(([to,x,y])=>items.push({kind:'n',to,u:x/W,v:y/H}));
+  pins.innerHTML='';pinEls=items.map(it=>{const b=document.createElement('button');b.type='button';
+    if(it.kind==='t'){const t=TOPICS[it.i];b.className='pin'+(it.i===sel&&mode==='tour'?' on':'')+(seen.has(t.id)?' seen':'');b.textContent=it.i+1;b.setAttribute('aria-label',t.name);b.onclick=()=>select(it.i)}
+    else{b.className='go';b.innerHTML=arrow+'Go to '+SCENES[it.to].name;b.onclick=()=>goScene(it.to)}
+    pins.appendChild(b);return {el:b,go:it.kind==='n',pos:dir(it.u,it.v).multiplyScalar(10)}});
+}
+function setNav(show){$('#navRow').hidden=!show}
+function intro(){
+  mode='tour';sel=-1;setNav(true);
+  card.innerHTML=`<p class="eyebrow">AlliedPath · Anaesthesia &amp; OT Technology</p><h2>Walk through a modern operation theatre</h2>
+   <p>Stand inside a fully equipped OT from five viewpoints. Tap a numbered point to study each piece of equipment, and use the teal buttons to move around the room.</p>
+   <p>The guided tour has ${TOPICS.length} stops, from the theatre doors to biomedical waste disposal. Finish with the 8-question quiz to check what you learned.</p>`;
+  $('#count').textContent=`${TOPICS.length} stops`;$('#prevBtn').disabled=true;$('#nextBtn').textContent='Start tour';
+  renderList();buildPins();
+}
+function select(i){
+  mode='tour';setNav(true);
+  const t=TOPICS[i];sel=i;seen.add(t.id);saveSeen();progress();
+  const photos=t.photos?`<div class="photos">${t.photos.map(([f,a])=>`<button type="button" data-full="img/${f}.jpg" aria-label="Enlarge photo: ${a}"><img src="img/${f}.jpg" alt="${a}" loading="lazy"></button>`).join('')}</div>`:'';
+  card.innerHTML=`<p class="eyebrow">${t.tag}</p><h2>${t.name}</h2>${photos}<p>${t.text}</p>
+    <h3>In practice</h3><ul>${t.points.map(p=>`<li>${p}</li>`).join('')}</ul>
+    <p class="tip"><strong>Tip</strong>${t.tip}</p><p class="where">Seen from: ${SCENES[t.at[0]].name}</p>`;
+  $('#count').textContent=`${i+1} / ${TOPICS.length}`;$('#prevBtn').disabled=false;
+  $('#nextBtn').textContent=i===TOPICS.length-1?'Take the quiz':'Next stop';
+  renderList();
+  const lb=list.querySelector(`button[data-i="${i}"]`);if(lb)lb.scrollIntoView({block:'nearest'});
+  $('#aside').scrollTop=0;
+  if($('#main').classList.contains('full'))toggleGuide(false);
+  const look=[t.at[1]/W,Math.min(.8,Math.max(.2,t.at[2]/H))];
+  if(cur===t.at[0]){lookAt(...look);buildPins()}else goScene(t.at[0],look);
+}
+$('#nextBtn').onclick=()=>{if(sel===TOPICS.length-1)return startQuiz();select(sel+1)};
+$('#prevBtn').onclick=()=>select(sel<=0?TOPICS.length-1:sel-1);
+document.addEventListener('keydown',e=>{
+  if(!lb.hidden){if(e.key==='Escape')closeLb();return}
+  if(!welcome.hidden||mode!=='tour')return;
+  if(e.key==='ArrowRight')$('#nextBtn').click();if(e.key==='ArrowLeft'&&sel>=0)$('#prevBtn').click()});
+
+/* ---------- quiz ---------- */
+let qi=0,qs=0;
+$('#quizBtn').onclick=startQuiz;
+function startQuiz(){mode='quiz';qi=0;qs=0;sel=-1;setNav(false);renderList();buildPins();showQ();$('#aside').scrollTop=0;if($('#main').classList.contains('full'))toggleGuide(false)}
+function showQ(){
+  const q=QUIZ[qi];
+  card.innerHTML=`<p class="eyebrow">Quiz · question ${qi+1} of ${QUIZ.length}</p><h2>${q.q}</h2>
+    <div class="q">${q.a.map((a,i)=>`<button type="button" data-a="${i}">${a}</button>`).join('')}</div><div id="fbBox"></div>`;
+  card.querySelectorAll('.q button').forEach(b=>b.onclick=()=>answer(+b.dataset.a));
+}
+function answer(i){
+  const q=QUIZ[qi],ok=i===q.c;if(ok)qs++;
+  card.querySelectorAll('.q button').forEach((b,j)=>{b.disabled=true;if(j===q.c)b.classList.add('right');else if(j===i)b.classList.add('wrong')});
+  $('#fbBox').innerHTML=`<p class="fb"><b class="${ok?'':'no'}">${ok?'Correct.':'Not quite.'}</b> ${q.e}</p>
+    <button class="btn primary" id="qNext" type="button">${qi===QUIZ.length-1?'See my score':'Next question'}</button>`;
+  $('#qNext').onclick=()=>{qi++;qi<QUIZ.length?showQ():result()};$('#qNext').focus();
+}
+function result(){
+  const pct=Math.round(qs/QUIZ.length*100);
+  const msg=pct>=88?'Excellent. You know your way around the OT.':pct>=63?'Good work. Revisit the stops you missed to sharpen your knowledge.':'Keep going. Take the guided tour again, then retry the quiz.';
+  card.innerHTML=`<p class="eyebrow">Quiz complete</p><div class="score">${qs} / ${QUIZ.length}</div><h2>${msg}</h2>
+    <p>Want structured classes, mentoring and placement guidance? AlliedPath faculty teach Anaesthesia &amp; OT Technology live.</p>
+    <div class="nav"><button class="btn primary" id="retry" type="button">Retry quiz</button><button class="btn" id="back" type="button">Back to the tour</button></div>`;
+  $('#retry').onclick=startQuiz;$('#back').onclick=intro;
+}
+
+/* ---------- lightbox ---------- */
+const lb=$('#lightbox');
+card.addEventListener('click',e=>{const b=e.target.closest('[data-full]');if(!b)return;const im=lb.querySelector('img');im.src=b.dataset.full;im.alt=b.querySelector('img').alt;lb.hidden=false;lb.querySelector('button').focus()});
+function closeLb(){lb.hidden=true}
+lb.addEventListener('click',closeLb);
+
+/* ---------- guide toggle, fullscreen ---------- */
+function toggleGuide(hide){const m=$('#main');const h=hide===undefined?!m.classList.contains('full'):hide;m.classList.toggle('full',h);
+  $('#guideBtn').textContent=h?'Show guide':'Hide guide';$('#guideBtn').setAttribute('aria-pressed',h)}
+$('#guideBtn').onclick=()=>toggleGuide();
+const fsOk=document.fullscreenEnabled||document.webkitFullscreenEnabled;
+if(fsOk){$('#fsBtn').hidden=false;$('#fsBtn').onclick=()=>{const d=document;
+  if(d.fullscreenElement||d.webkitFullscreenElement){(d.exitFullscreen||d.webkitExitFullscreen).call(d)}
+  else{const el=d.documentElement;const r=(el.requestFullscreen||el.webkitRequestFullscreen).call(el);if(r&&r.catch)r.catch(()=>{$('#fsBtn').hidden=true})}};
+  document.addEventListener('fullscreenchange',()=>{$('#fsBtn').textContent=document.fullscreenElement?'Exit fullscreen':'Fullscreen'})}
+
+/* ---------- move-phone-to-look (gyroscope) ---------- */
+let gyroOn=false,gyroCal=null,lastOri=null;
+const touch=window.matchMedia('(pointer:coarse)').matches;
+if(GL&&touch&&'DeviceOrientationEvent' in window){$('#gyroBtn').hidden=false;
+  $('#gyroBtn').onclick=async()=>{
+    if(gyroOn){gyroOn=false;$('#gyroBtn').setAttribute('aria-pressed','false');$('#gyroBtn').textContent='Move phone to look';return}
+    try{if(typeof DeviceOrientationEvent.requestPermission==='function'){const r=await DeviceOrientationEvent.requestPermission();if(r!=='granted')throw 0}
+      gyroOn=true;gyroCal=null;$('#gyroBtn').setAttribute('aria-pressed','true');$('#gyroBtn').textContent='Motion on';
+    }catch(e){$('#gyroBtn').textContent='Motion not allowed';$('#gyroBtn').disabled=true}};
+  window.addEventListener('deviceorientation',e=>{if(!gyroOn||e.alpha==null)return;lastOri=e;
+    if(!gyroCal){gyroCal={a:e.alpha,u:view.u};return}
+    let da=e.alpha-gyroCal.a;if(da>180)da-=360;if(da<-180)da+=360;
+    view.u=gyroCal.u-da/360;view.v=.5-(e.beta-90)/180;tween=null;clampV()});
+}
+
+/* ---------- VR ---------- */
+const vrBtn=$('#vrBtn');let xs=null;
+if(GL&&navigator.xr&&navigator.xr.isSessionSupported){navigator.xr.isSessionSupported('immersive-vr').then(ok=>{if(ok)vrBtn.hidden=false}).catch(()=>{})}
+vrBtn.onclick=async()=>{if(xs){xs.end();return}
+  try{xs=await navigator.xr.requestSession('immersive-vr');await renderer.xr.setSession(xs);vrBtn.textContent='Exit VR';
+    xs.addEventListener('end',()=>{xs=null;vrBtn.textContent='Enter VR'})}
+  catch(e){vrBtn.textContent='VR unavailable';vrBtn.disabled=true}};
+
+/* ---------- loop ---------- */
+if(GL){
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
+new ResizeObserver(resize).observe(stage);resize();
+const clock=new THREE.Clock(),pv=new THREE.Vector3(),ease=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
+renderer.setAnimationLoop(()=>{
+  const dt=Math.min(clock.getDelta(),.05);
+  if(tween){tween.t=Math.min(1,tween.t+dt/.8);const e=ease(tween.t);view.u=tween.u0+tween.du*e;view.v=tween.v0+tween.dv*e;clampV();if(tween.t>=1){tween=null;if(gyroOn&&lastOri)gyroCal={a:lastOri.alpha,u:view.u}}}
+  if(!renderer.xr.isPresenting){
+    if(Math.abs(camera.fov-view.fov)>.01){camera.fov+=(view.fov-camera.fov)*.25;camera.updateProjectionMatrix()}
+    camera.lookAt(dir(view.u,view.v));}
+  const w=stage.clientWidth,h=stage.clientHeight;
+  pinEls.forEach(p=>{pv.copy(p.pos).project(camera);const hide=renderer.xr.isPresenting||pv.z>1||Math.abs(pv.x)>1.1||Math.abs(pv.y)>1.1;
+    p.el.hidden=hide;if(!hide)p.el.style.transform=`translate(${(pv.x+1)/2*w}px,${(1-pv.y)/2*h}px)`+(p.go?' translateX(-50%)':'')});
+  renderer.render(scene,camera);
+});
+}
+progress();intro();goScene('entrance');
+})();
+</script>
+</body>
+</html>
