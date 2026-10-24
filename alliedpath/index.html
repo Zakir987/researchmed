@@ -28,7 +28,7 @@
 <link rel="stylesheet" href="prog-fx.css?v=20261020b">
 <link rel="stylesheet" href="site-fx.css?v=20261020g">
 <link rel="stylesheet" href="hero.css?v=20261017c">
-<link rel="stylesheet" href="ot360.css?v=20261024a">
+<link rel="stylesheet" href="ot360.css?v=20261024b">
 <link rel="preload" as="image" href="../media/alliedpath/hero-ot.webp" imagesrcset="../media/alliedpath/hero-ot-sm.webp 900w, ../media/alliedpath/hero-ot.webp 2000w" imagesizes="100vw">
 </head>
 <body data-ap="home">
@@ -64,19 +64,31 @@
   <span class="lamp" aria-hidden="true"></span><span class="shade" aria-hidden="true"></span><span class="scan" aria-hidden="true"></span>
   <a class="credit" href="https://unsplash.com/photos/people-wearing-surgical-clothes-inside-operating-room-y5hQCIn1c6o" target="_blank" rel="noopener">Photo: Piron Guillaume / Unsplash</a>
   <div class="wrap hx-top">
+  <div class="hx-copy">
     <span class="eyebrow fx" style="--d:.05s">Allied health only · NCAHP-aligned</span>
     <h1 id="hero-h" style="margin-top:16px">From your first class to <em>your first job.</em></h1>
     <p class="lead fx" style="--d:.75s">AlliedPath teaches and mentors allied health students wherever they are. Learn with faculty who teach it every day, clear every doubt, do real research, walk into interviews prepared, and get guidance on where to get placed.</p>
     <div class="ctas fx" style="--d:.9s">
-      <a class="btn btn-main" href="#join">Register your interest <span class="arr" aria-hidden="true">→</span></a>
+      <a class="btn btn-main" href="ot-tour/">Enter the 360° OT <span class="arr" aria-hidden="true">→</span></a>
+      <a class="btn btn-ghost" href="#join">Register your interest</a>
       <a class="btn btn-ghost" href="#join" data-want="demo">Book a free demo class</a>
-      <a class="btn btn-ghost" href="portal/">Student &amp; staff login</a>
     </div>
     <ul class="chips fx" style="--d:1.05s" aria-label="Highlights">
       <li>Online, for students in any country</li>
       <li>Taught by allied health faculty</li>
       <li>Teaching &amp; mentoring, no certificates</li>
     </ul>
+  </div>
+  <div class="hx360 fx" style="--d:.6s">
+    <a class="hx360-win" id="hx360" href="ot-tour/" aria-label="Open the 360° operation theatre tour">
+      <span class="hx360-fb" style="background-image:url('ot-tour/img/pano-head.jpg')"></span>
+      <canvas id="hx360c" aria-hidden="true"></canvas>
+      <span class="hx360-live"><i></i>Live 360° OT</span>
+      <span class="hx360-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 12H3m0 0 3-3m-3 3 3 3M16 12h5m0 0-3-3m3 3-3 3"/></svg>Drag to look around</span>
+      <span class="hx360-go"><b aria-hidden="true">▶</b><span>Step inside the operation theatre<small>5 viewpoints · 15 equipment stops · voice guide · quiz</small></span></span>
+    </a>
+    <div class="hx360-tags" aria-label="Tour highlights"><span>Free for every student</span><span>Phone, laptop &amp; VR</span><span>🔊 Voice-guided</span></div>
+  </div>
   </div>
   <div class="mon fx" style="--d:1.2s" role="img" aria-label="The AlliedPath journey: Learn, clear doubts, do research, ace the interview, get placed">
     <div class="mon-h"><b><i></i>Your AlliedPath journey</b><span class="bpm">72 bpm</span></div>
@@ -392,5 +404,28 @@
 <script src="prog-fx.js?v=20261020b" defer></script>
 <script src="site-fx.js?v=20261020e" defer></script>
 <script src="hero.js?v=20261020f" defer></script>
+<script>
+(function(){var win=document.getElementById('hx360'),cv=document.getElementById('hx360c');if(!win||!cv)return;
+  var red=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches,started=false;
+  function load(){if(started)return;started=true;if(window.THREE)return init();var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';s.async=true;s.onload=init;document.head.appendChild(s)}
+  function init(){var r;try{r=new THREE.WebGLRenderer({canvas:cv,antialias:true})}catch(e){return}
+    r.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+    var sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(72,1,.1,100),g=new THREE.SphereGeometry(50,48,32);g.scale(-1,1,1);
+    var m=new THREE.MeshBasicMaterial({color:0xffffff});sc.add(new THREE.Mesh(g,m));
+    new THREE.TextureLoader().load('ot-tour/img/pano-head.jpg',function(t){t.anisotropy=r.capabilities.getMaxAnisotropy();m.map=t;m.needsUpdate=true;win.classList.add('ready')});
+    var lon=150,lat=-6,drag=null,moved=0,last=0,vis=true;
+    function size(){var w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;r.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+    if(window.ResizeObserver)new ResizeObserver(size).observe(cv);size();
+    cv.addEventListener('pointerdown',function(e){drag={x:e.clientX,y:e.clientY,lon:lon,lat:lat};moved=0});
+    window.addEventListener('pointermove',function(e){if(!drag)return;var dx=e.clientX-drag.x,dy=e.clientY-drag.y;moved=Math.max(moved,Math.abs(dx)+Math.abs(dy));lon=drag.lon-dx*.2;lat=Math.max(-45,Math.min(35,drag.lat+dy*.15))});
+    window.addEventListener('pointerup',function(){drag=null});window.addEventListener('pointercancel',function(){drag=null});
+    win.addEventListener('click',function(e){if(moved>6){e.preventDefault();moved=0}});
+    if(window.IntersectionObserver)new IntersectionObserver(function(es){vis=es[0].isIntersecting}).observe(win);
+    function loop(t){requestAnimationFrame(loop);if(!vis)return;var dt=last?Math.min(t-last,50):16;last=t;if(!drag&&!red)lon+=dt*.0045;
+      var phi=(90-lat)*Math.PI/180,th=lon*Math.PI/180;cam.lookAt(Math.sin(phi)*Math.cos(th),Math.cos(phi),Math.sin(phi)*Math.sin(th));r.render(sc,cam)}
+    requestAnimationFrame(loop)}
+  if(document.readyState==='complete')setTimeout(load,200);else window.addEventListener('load',function(){setTimeout(load,200)});
+})();
+</script>
 </body>
 </html>
