@@ -344,15 +344,19 @@ function saveSeen(){try{localStorage.setItem(KEY,JSON.stringify([...seen]))}catc
 /* ---------- voice guide ---------- */
 const synth=('speechSynthesis' in window)?window.speechSynthesis:null;
 let voiceOn=false,auto=false,vq=0,voice=null,autoTimer=null;
-function pickVoice(){const vs=synth?synth.getVoices():[];voice=vs.find(v=>/en[-_]IN/i.test(v.lang))||vs.find(v=>/en[-_]GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null}
+function pickVoice(){const vs=synth?synth.getVoices():[];const en=vs.filter(v=>/^en/i.test(v.lang));const by=(re,loc)=>en.find(v=>re.test(v.lang)&&(loc===undefined||v.localService===loc));voice=by(/en[-_]IN/i,true)||by(/en[-_]GB/i,true)||by(/en[-_]US/i,true)||en.find(v=>v.localService)||by(/en[-_]IN/i)||en[0]||null}
 if(synth){pickVoice();try{synth.addEventListener('voiceschanged',pickVoice)}catch(e){synth.onvoiceschanged=pickVoice}}
 function sayable(t){return String(t).replace(/<[^>]+>/g,' ').replace(/&amp;/g,'and').replace(/SpO₂/g,'S P O 2').replace(/CO₂/g,'carbon dioxide').replace(/N₂O/g,'nitrous oxide').replace(/O₂/g,'oxygen').replace(/±/g,' plus or minus ').replace(/°C/g,' degrees Celsius').replace(/°/g,' degrees').replace(/→/g,' to ').replace(/–/g,' to ').replace(/\bOT\b/g,'O T').replace(/\bIV\b/g,'I V').replace(/\bECG\b/g,'E C G').replace(/\bNIBP\b/g,'N I B P').replace(/\bCVP\b/g,'C V P').replace(/\bABP\b/g,'A B P').replace(/\bAGSS\b/g,'A G S S').replace(/\bHEPA\b/g,'hepa').replace(/\bBMW\b/g,'biomedical waste').replace(/\s+/g,' ').trim()}
-function speak(text,done){const id=++vq;clearTimeout(autoTimer);if(synth)synth.cancel();
-  if(!synth||!voiceOn){$('#speaking').hidden=true;if(done)autoTimer=setTimeout(()=>{if(id===vq)done()},Math.min(14000,2500+text.length*45));return}
-  const parts=sayable(text).match(/[^.!?]+[.!?]*/g)||[sayable(text)];let i=0;$('#speaking').hidden=false;
-  const next=()=>{if(id!==vq)return;if(i>=parts.length){$('#speaking').hidden=true;if(done)done();return}
-    const u=new SpeechSynthesisUtterance(parts[i++].trim());if(voice){u.voice=voice;u.lang=voice.lang}else u.lang='en-IN';u.rate=.95;u.onend=next;u.onerror=next;synth.speak(u)};
-  next()}
+function chunks(t){const ss=sayable(t).match(/[^.!?]+[.!?]*/g)||[sayable(t)];const out=[];let cur='';
+  for(const p of ss){const x=p.trim();if(!x)continue;if(cur&&(cur.length+x.length+1)>220){out.push(cur);cur=x}else cur=cur?cur+' '+x:x}
+  if(cur)out.push(cur);return out}
+function speak(text,done){const id=++vq;clearTimeout(autoTimer);
+  if(!synth||!voiceOn){if(synth)synth.cancel();$('#speaking').hidden=true;if(done)autoTimer=setTimeout(()=>{if(id===vq)done()},Math.min(14000,2500+text.length*45));return}
+  const go=()=>{if(id!==vq)return;const parts=chunks(text);$('#speaking').hidden=false;
+    parts.forEach((p,k)=>{const u=new SpeechSynthesisUtterance(p);if(voice){u.voice=voice;u.lang=voice.lang}else u.lang='en-IN';u.rate=1;u.pitch=1;
+      if(k===parts.length-1){const fin=()=>{if(id!==vq)return;$('#speaking').hidden=true;if(done)done()};u.onend=fin;u.onerror=e=>{if(e&&(e.error==='interrupted'||e.error==='canceled'))return;fin()}}
+      synth.speak(u)})};
+  if(synth.speaking||synth.pending){synth.cancel();setTimeout(go,90)}else go()}
 function hush(){vq++;clearTimeout(autoTimer);if(synth)synth.cancel();$('#speaking').hidden=true}
 function setVoice(on){voiceOn=on;$('#voiceBtn').setAttribute('aria-pressed',on);$('#voiceBtn').textContent=on?'🔊 Voice on':'🔇 Voice off';if(!on){hush();setAuto(false)}}
 function setAuto(on){auto=on;$('#autoBtn').setAttribute('aria-pressed',on);$('#autoBtn').textContent=on?'❚❚ Pause tour':'▶ Play guided tour';if(!on){clearTimeout(autoTimer)}}
@@ -377,12 +381,12 @@ setTimeout(()=>$('#startVoice').focus({preventScroll:true}),50);
 const stage=$('#stage');
 let renderer=null,glMsg='';
 if(!window.THREE)glMsg='The 360° viewer could not load. Check your connection and reload. The guide, photos and quiz below still work.';
-else{try{renderer=new THREE.WebGLRenderer({antialias:true})}catch(e){glMsg='This device cannot show the 360° view. The guide, photos and quiz still work.'}}
+else{try{renderer=new THREE.WebGLRenderer({antialias:!(window.matchMedia&&matchMedia('(max-width:820px), (pointer:coarse)').matches),powerPreference:'low-power'})}catch(e){glMsg='This device cannot show the 360° view. The guide, photos and quiz still work.'}}
 const GL=!!renderer;
 let scene,camera,sphereMat,loader;const texCache={};
 if(!GL){$('#loading').textContent=glMsg;$('#loading').style.width='min(90%,420px)'}
 else{
-renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,phone?1.5:2));
 renderer.xr.enabled=true;
 stage.prepend(renderer.domElement);
 scene=new THREE.Scene();
@@ -423,7 +427,7 @@ function renderList(){list.innerHTML=TOPICS.map((t,i)=>`<li><button type="button
 list.addEventListener('click',e=>{const b=e.target.closest('button');if(b)userPick(+b.dataset.i)});
 function progress(){const n=TOPICS.filter(t=>seen.has(t.id)).length;$('#progTxt').textContent=`${n} / ${TOPICS.length} explored`;$('#progBar').style.width=(n/TOPICS.length*100)+'%'}
 const arrow='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>';
-let pinEls=[];
+let pinEls=[],pinGen=0;
 
 async function goScene(id,look){
   if(cur===id){if(look)lookAt(...look);return}
@@ -444,7 +448,7 @@ function buildPins(){
   const items=[];
   TOPICS.forEach((t,i)=>{if(t.at[0]===cur)items.push({kind:'t',i,u:t.at[1]/W,v:t.at[2]/H})});
   SCENES[cur].nav.forEach(([to,x,y])=>items.push({kind:'n',to,u:x/W,v:y/H}));
-  pins.innerHTML='';pinEls=items.map(it=>{const b=document.createElement('button');b.type='button';
+  pinGen++;pins.innerHTML='';pinEls=items.map(it=>{const b=document.createElement('button');b.type='button';
     if(it.kind==='t'){const t=TOPICS[it.i];b.className='pin'+(it.i===sel&&mode==='tour'?' on':'')+(seen.has(t.id)?' seen':'');b.textContent=it.i+1;b.setAttribute('aria-label',t.name);b.onclick=()=>userPick(it.i)}
     else{b.className='go';b.innerHTML=arrow+'Go to '+SCENES[it.to].name;b.onclick=()=>goScene(it.to)}
     pins.appendChild(b);return {el:b,go:it.kind==='n',pos:dir(it.u,it.v).multiplyScalar(10)}});
@@ -554,7 +558,7 @@ vrBtn.onclick=async()=>{if(xs){xs.end();return}
 if(GL){
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
 new ResizeObserver(resize).observe(stage);resize();
-const clock=new THREE.Clock(),pv=new THREE.Vector3(),ease=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
+let lastKey='';const clock=new THREE.Clock(),pv=new THREE.Vector3(),ease=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
 renderer.setAnimationLoop(()=>{
   const dt=Math.min(clock.getDelta(),.05);
   if(tween){tween.t=Math.min(1,tween.t+dt/.8);const e=ease(tween.t);view.u=tween.u0+tween.du*e;view.v=tween.v0+tween.dv*e;clampV();if(tween.t>=1){tween=null;if(gyroOn&&lastOri)gyroCal={a:lastOri.alpha,u:view.u}}}
@@ -562,6 +566,8 @@ renderer.setAnimationLoop(()=>{
     if(Math.abs(camera.fov-view.fov)>.01){camera.fov+=(view.fov-camera.fov)*.25;camera.updateProjectionMatrix()}
     camera.lookAt(dir(view.u,view.v));}
   const w=stage.clientWidth,h=stage.clientHeight;
+  const key=view.u.toFixed(5)+','+view.v.toFixed(5)+','+camera.fov.toFixed(3)+','+w+'x'+h+','+(sphereMat.map?sphereMat.map.uuid:'-')+','+pinGen;
+  if(!renderer.xr.isPresenting&&key===lastKey)return;lastKey=key;
   pinEls.forEach(p=>{pv.copy(p.pos).project(camera);const hide=renderer.xr.isPresenting||pv.z>1||Math.abs(pv.x)>1.1||Math.abs(pv.y)>1.1;
     p.el.hidden=hide;if(!hide)p.el.style.transform=`translate(${(pv.x+1)/2*w}px,${(1-pv.y)/2*h}px)`+(p.go?' translateX(-50%)':'')});
   renderer.render(scene,camera);
