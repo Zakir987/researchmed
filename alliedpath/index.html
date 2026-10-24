@@ -23,11 +23,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Inter:wght@400;500;600;700&display=swap">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"EducationalOrganization","name":"AlliedPath","url":"https://researchmed.in/alliedpath/","description":"Teaching, mentoring and career guidance for allied health students. Allied health programs only.","parentOrganization":{"@type":"Organization","name":"ResearchMed Connect","url":"https://researchmed.in/"},"founder":{"@type":"Person","name":"Dr. Zakir Hussain Parray"},"email":"info@researchmed.in"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"EducationalOrganization","name":"AlliedPath","url":"https://researchmed.in/alliedpath/","description":"Teaching, mentoring and career guidance for allied health students. Allied health programs only.","parentOrganization":{"@type":"Organization","name":"ResearchMed Connect","url":"https://researchmed.in/"},"founder":{"@type":"Person","name":"Dr. Zakir Hussain Parray"},"email":"alliedpath@researchmed.in"}</script>
 <link rel="stylesheet" href="ap.css?v=20261020g">
 <link rel="stylesheet" href="prog-fx.css?v=20261020b">
 <link rel="stylesheet" href="site-fx.css?v=20261020g">
 <link rel="stylesheet" href="hero.css?v=20261017c">
+<link rel="stylesheet" href="ot360.css?v=20261024a">
 <link rel="preload" as="image" href="../media/alliedpath/hero-ot.webp" imagesrcset="../media/alliedpath/hero-ot-sm.webp 900w, ../media/alliedpath/hero-ot.webp 2000w" imagesizes="100vw">
 </head>
 <body data-ap="home">
@@ -44,6 +45,7 @@
       <a href="#batches">Batches</a>
       <a href="#faculty">Faculty</a>
       <a href="resources.html">Resources</a>
+      <a href="ot-tour/" class="nav-new">360° Tour</a>
       <a href="#faq">FAQs</a>
       <a href="portal/" class="portal-link">Portal login</a>
       <a class="ext" href="../">ResearchMed ↗</a>
@@ -135,6 +137,47 @@
     </div></div></div>
     </div>
   </div>
+</section>
+
+<section class="ot360 on-dark" id="ot-tour" aria-labelledby="ot360-h">
+  <div class="wrap ot360-grid">
+    <div class="rv">
+      <span class="eyebrow"><span class="ot360-new">NEW</span> Free for every student</span>
+      <h2 id="ot360-h">Step inside an operation theatre, <em>in 360°</em></h2>
+      <p class="lead">Walk through a fully equipped OT from five viewpoints. Tap any equipment to see close-up photos, how it works and the checks every OT technologist must know, then test yourself with a quiz.</p>
+      <ul class="ot360-stats" aria-label="Tour at a glance">
+        <li><b>5</b><span>viewpoints</span></li>
+        <li><b>15</b><span>equipment stops</span></li>
+        <li><b>8</b><span>quiz questions</span></li>
+      </ul>
+      <ul class="ot360-list">
+        <li>Anaesthesia workstation, monitor, diathermy, suction and crash cart</li>
+        <li>Medical gases, laminar airflow and biomedical waste segregation</li>
+        <li>Works on phone, laptop and VR headset. No sign-up needed.</li>
+      </ul>
+      <div class="ot360-ctas">
+        <a class="btn btn-main" href="ot-tour/">Start the 360° tour <span class="arr" aria-hidden="true">→</span></a>
+        <button class="btn btn-ghost" type="button" id="ot360-share">Share with classmates</button>
+      </div>
+      <p class="ot360-note" id="ot360-note" aria-live="polite"></p>
+    </div>
+    <a class="ot360-win rv" href="ot-tour/" aria-label="Open the 360° OT walkthrough">
+      <span class="ot360-pano" style="background-image:url('ot-tour/img/pano-entrance.jpg')"></span>
+      <span class="ot360-badge">360° tour</span>
+      <span class="ot360-pin" style="left:30%;top:57%">4</span>
+      <span class="ot360-pin p2" style="left:52%;top:36%">3</span>
+      <span class="ot360-pin p3" style="left:72%;top:60%">13</span>
+      <span class="ot360-play"><i>▶</i><span>Enter the theatre<small>Drag to look around · tap the numbers</small></span></span>
+    </a>
+  </div>
+  <script>
+  (function(){var b=document.getElementById('ot360-share'),n=document.getElementById('ot360-note');if(!b)return;
+    var url=new URL('ot-tour/',location.href).href.split('#')[0];
+    b.addEventListener('click',function(){
+      if(navigator.share){navigator.share({title:'AlliedPath 360° OT Walkthrough',text:'Explore a full operation theatre in 360°, free.',url:url}).catch(function(){});return}
+      var ok=function(){n.textContent='Link copied: '+url},no=function(){n.textContent='Share this link: '+url};
+      if(navigator.clipboard)navigator.clipboard.writeText(url).then(ok,no);else no();});})();
+  </script>
 </section>
 
 <section id="batches" aria-labelledby="batch-h">
@@ -338,7 +381,7 @@
 <footer>
   <div class="wrap">
     <div><strong style="color:#fff;font:650 1.2rem var(--serif)">AlliedPath</strong><br>Teaching &amp; mentoring for allied health students.<br>A platform by <a href="../">ResearchMed Connect</a>.</div>
-    <div>Email: <a href="mailto:info@researchmed.in?subject=AlliedPath">info@researchmed.in</a><br>WhatsApp: <a data-ap-wa href="https://wa.me/919596830800?text=Hello%2C%20I%27m%20interested%20in%20AlliedPath">+91 95968 30800</a></div>
+    <div>Email: <a href="mailto:alliedpath@researchmed.in?subject=AlliedPath">alliedpath@researchmed.in</a><br>WhatsApp: <a data-ap-wa href="https://wa.me/919596830800?text=Hello%2C%20I%27m%20interested%20in%20AlliedPath">+91 95968 30800</a></div>
     <div><a href="resources.html">Free resources</a> · <a href="policies.html">Terms &amp; refunds</a> · <a href="policies.html#privacy">Privacy</a><br><a href="../">ResearchMed Connect</a> <a data-ap-community hidden href="#">· AlliedPath WhatsApp community</a></div>
     <p class="fine">© <span id="yr">2026</span> AlliedPath by ResearchMed Connect. Teaching and mentoring only; no certificates, diplomas or degrees are issued.</p>
   </div>
