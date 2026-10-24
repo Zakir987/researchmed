@@ -18,8 +18,9 @@
 :root{
   --navy:#0a1a2e; --panel:#0f2238; --raise:#16304d; --line:#23415f;
   --fg:#eef5f8; --muted:#9cb1c3; --teal:#2fd5c0; --teal-ink:#03241f; --warn:#f5b94c; --ok:#5fe39a; --bad:#ff7a6b;
-  --f-display:"Poppins","Segoe UI",system-ui,sans-serif;
-  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-ind:"Nirmala UI";
+  --f-display:"Poppins",var(--f-ind),"Segoe UI",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible",var(--f-ind),system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
   color-scheme:dark;
 }
@@ -155,6 +156,12 @@ aside{min-height:0;overflow-y:auto;background:var(--panel);border-left:1px solid
 .wlang label{font:500 12px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .wlang .langsel{width:100%;max-width:none;font:600 16px var(--f-body);padding:10px 12px}
 .vnote{font-size:13px;line-height:1.45;color:var(--warn);margin:8px 0 0!important}
+.vnote small{display:block;color:var(--muted);margin-top:4px;font-size:12px}
+#voiceMiss{margin:0 0 10px!important;border:1px solid rgba(245,185,76,.35);background:rgba(245,185,76,.08);border-radius:8px;padding:8px 10px}
+:lang(ur){font-family:"Noto Nastaliq Urdu","Jameel Noori Nastaleeq","Urdu Typesetting",var(--f-body);line-height:2.1}
+#card :lang(ur) h2{line-height:1.9}
+.topics [dir=rtl]{text-align:right}
+body.busy .wbtns .btn{opacity:.6;pointer-events:none}
 #card [lang]{line-height:1.7}
 #voiceBtn[aria-pressed="true"]{background:var(--teal);color:var(--teal-ink);border-color:var(--teal)}
 #autoBtn[aria-pressed="true"]{background:var(--warn);color:#2b1a00;border-color:var(--warn)}
@@ -188,43 +195,44 @@ aside{min-height:0;overflow-y:auto;background:var(--panel);border-left:1px solid
 <body>
 <div id="app">
   <header>
-    <a class="brand" href="https://researchmed.in/alliedpath/"><img src="img/alliedpath-logo.png" alt="AlliedPath"><div><b>Allied<em>Path</em> OT Walkthrough</b><span>360° operation theatre tour</span></div></a>
-    <a class="btn" id="hdrSite" href="https://researchmed.in/alliedpath/">AlliedPath home</a>
+    <a class="brand" href="https://researchmed.in/alliedpath/"><img src="img/alliedpath-logo.png" alt="AlliedPath"><div><b>Allied<em>Path</em> OT Walkthrough</b><span data-i="brandSub">360° operation theatre tour</span></div></a>
+    <a class="btn" id="hdrSite" href="https://researchmed.in/alliedpath/" data-i="home">AlliedPath home</a>
     <select class="langsel" id="langTop" aria-label="Voice and text language"></select>
     <button class="btn" id="guideBtn" type="button" aria-pressed="false">Hide guide</button>
   </header>
   <main id="main">
     <div id="stage">
-      <div id="loading">Loading theatre view…</div>
+      <div id="loading" data-i="loading">Loading theatre view…</div>
       <div id="pins"></div>
       <div class="scene-tag"><small id="sceneNum">View 1 of 5</small><b id="sceneName">Entrance</b></div>
       <div class="tools">
         <button class="btn" id="gyroBtn" type="button" aria-pressed="false" hidden>Move phone to look</button>
         <button class="btn" id="fsBtn" type="button" hidden>Fullscreen</button>
-        <button class="btn" id="vrBtn" type="button" hidden>Enter VR</button>
+        <button class="btn" id="vrBtn" type="button" hidden data-i="vr">Enter VR</button>
         <button class="btn" id="voiceBtn" type="button" aria-pressed="false" hidden>🔊 Voice</button>
       </div>
-      <div class="hint">Drag to look around · scroll or pinch to zoom · tap a numbered point</div>
+      <div class="hint" data-i="hint">Drag to look around · scroll or pinch to zoom · tap a numbered point</div>
       <nav class="strip" id="strip" aria-label="Viewpoints"></nav>
-      <div class="speaking" id="speaking" hidden><i><b></b><b></b><b></b></i>Voice guide speaking</div>
+      <div class="speaking" id="speaking" hidden><i><b></b><b></b><b></b></i><span data-i="speaking">Voice guide speaking</span></div>
       <div id="fade"></div>
     </div>
     <aside id="aside">
-      <div class="progress"><div class="lab"><span>Your progress</span><span id="progTxt">0 / 15 explored</span></div><div class="bar"><i id="progBar"></i></div></div>
+      <div class="progress"><div class="lab"><span data-i="yourProgress">Your progress</span><span id="progTxt">0 / 15 explored</span></div><div class="bar"><i id="progBar"></i></div></div>
+      <p class="vnote" id="voiceMiss" hidden></p>
       <section id="card" aria-live="polite"></section>
       <div class="nav" id="navRow">
         <span class="count" id="count"></span>
-        <button class="btn" id="prevBtn" type="button">Previous</button>
+        <button class="btn" id="prevBtn" type="button" data-i="prev">Previous</button>
         <button class="btn" id="autoBtn" type="button" aria-pressed="false" hidden>▶ Play guided tour</button>
         <button class="btn primary" id="nextBtn" type="button">Start tour</button>
       </div>
-      <section class="topics"><h3>Tour stops</h3><ol id="topicList"></ol>
-        <button class="btn quizbtn" id="quizBtn" type="button">Test yourself: 8-question quiz</button></section>
+      <section class="topics"><h3 data-i="tourStops">Tour stops</h3><ol id="topicList"></ol>
+        <button class="btn quizbtn" id="quizBtn" type="button" data-i="quizBtn">Test yourself: 8-question quiz</button></section>
       <section class="cta">
         <div class="who"><img src="img/alliedpath-logo.png" alt=""><div><b>Allied<em>Path</em></b><span>TEACH · MENTOR · GUIDE</span></div></div>
-        <p>Live classes, mentoring, research guidance and placement preparation for allied health students, aligned with NCAHP curricula.</p>
+        <p data-i="ctaText">Live classes, mentoring, research guidance and placement preparation for allied health students, aligned with NCAHP curricula.</p>
         <div class="links">
-          <a class="btn primary" href="https://researchmed.in/alliedpath/" target="_blank" rel="noopener">Join AlliedPath</a>
+          <a class="btn primary" href="https://researchmed.in/alliedpath/" target="_blank" rel="noopener" data-i="join">Join AlliedPath</a>
           <a class="btn" href="https://wa.me/919596830800" target="_blank" rel="noopener">WhatsApp</a>
           <a class="btn" href="https://instagram.com/allied_path" target="_blank" rel="noopener">Instagram</a>
           <a class="btn" href="https://www.youtube.com/@AlliedPath" target="_blank" rel="noopener">YouTube</a>
@@ -238,23 +246,23 @@ aside{min-height:0;overflow-y:auto;background:var(--panel);border-left:1px solid
 <div id="welcome" role="dialog" aria-modal="true" aria-labelledby="wTitle">
   <div class="wcard">
     <img src="img/alliedpath-logo.png" alt="AlliedPath">
-    <h1 id="wTitle">Step inside a modern <em>operation theatre</em></h1>
-    <p>A free 360° walkthrough for Anaesthesia &amp; Operation Theatre Technology students.</p>
-    <div class="facts"><div><b>5</b>viewpoints</div><div><b>15</b>equipment stops</div><div><b>8</b>quiz questions</div></div>
+    <h1 id="wTitle" data-h="wTitle">Step inside a modern <em>operation theatre</em></h1>
+    <p data-i="wSub">A 360° walkthrough for Anaesthesia &amp; Operation Theatre Technology students.</p>
+    <div class="facts"><div><b>5</b><span data-i="fViews">viewpoints</span></div><div><b>15</b><span data-i="fStops">equipment stops</span></div><div><b>8</b><span data-i="fQuiz">quiz questions</span></div></div>
     <ol class="how">
-      <li><i>1</i><span><b>Look around.</b> Drag the view, or pinch and scroll to zoom. On a phone you can also move the phone itself.</span></li>
-      <li><i>2</i><span><b>Tap a numbered point</b> to study that equipment, with close-up photos and the checks every OT technologist must know.</span></li>
-      <li><i>3</i><span><b>Walk the room</b> with the teal buttons, or press <b>Next stop</b> for the guided tour. Finish with the quiz.</span></li>
+      <li><i>1</i><span data-h="how1"><b>Look around.</b> Drag the view, or pinch and scroll to zoom. On a phone you can also move the phone itself.</span></li>
+      <li><i>2</i><span data-h="how2"><b>Tap a numbered point</b> to study that equipment, with close-up photos and the checks every OT technologist must know.</span></li>
+      <li><i>3</i><span data-h="how3"><b>Walk the room</b> with the teal buttons, or press <b>Next stop</b> for the guided tour. Finish with the quiz.</span></li>
     </ol>
-    <div class="wlang"><label for="langSel">Choose your language · भाषा चुनें</label><select class="langsel" id="langSel"></select><p class="vnote" id="langNote" hidden></p></div>
+    <div class="wlang"><label for="langSel">Choose your language · भाषा चुनें · <span data-i="langLabel"></span></label><select class="langsel" id="langSel"></select><p class="vnote" id="langNote" hidden></p></div>
     <div class="wbtns">
-      <button class="btn primary" id="startVoice" type="button">🔊 Start the voice-guided tour</button>
-      <button class="btn" id="startBtn" type="button">Explore on my own</button>
+      <button class="btn primary" id="startVoice" type="button" data-i="startVoice">🔊 Start the voice-guided tour</button>
+      <button class="btn" id="startBtn" type="button" data-i="startOwn">Explore on my own</button>
     </div>
-    <p class="wnote">Turn your sound on · Opens full screen on phones</p>
+    <p class="wnote" data-i="wNote">Turn your sound on · Opens full screen on phones</p>
   </div>
 </div>
-<div id="lightbox" hidden><img alt=""><button class="btn" type="button">Close</button></div>
+<div id="lightbox" hidden><img alt=""><button class="btn" type="button" data-i="close">Close</button></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -346,20 +354,59 @@ const QUIZ=[
 
 /* ---------- languages ---------- */
 const LANGS=[['en','English','en-IN'],['hi','हिन्दी · Hindi','hi-IN'],['bn','বাংলা · Bengali','bn-IN'],['mr','मराठी · Marathi','mr-IN'],['te','తెలుగు · Telugu','te-IN'],['ta','தமிழ் · Tamil','ta-IN'],['gu','ગુજરાતી · Gujarati','gu-IN'],['kn','ಕನ್ನಡ · Kannada','kn-IN'],['ml','മലയാളം · Malayalam','ml-IN'],['pa','ਪੰਜਾਬੀ · Punjabi','pa-IN'],['or','ଓଡ଼ିଆ · Odia','or-IN'],['ur','اردو · Urdu','ur-IN']];
-const UI_EN={stop:'Stop',tip:'Tip',inPractice:'In practice',seenFrom:'Seen from',question:'Question',option:'Option',correct:'Correct.',notQuite:'Not quite.',score:'You scored {s} out of {n}.',r1:'Excellent. You know your way around the OT.',r2:'Good work. Revisit the stops you missed to sharpen your knowledge.',r3:'Keep going. Take the guided tour again, then retry the quiz.'};
-let lang='en',LD=null;const langCache={};
+const UI_EN={stop:'Stop',tip:'Tip',inPractice:'In practice',seenFrom:'Seen from',question:'Question',option:'Option',correct:'Correct.',notQuite:'Not quite.',score:'You scored {s} out of {n}.',r1:'Excellent. You know your way around the OT.',r2:'Good work. Revisit the stops you missed to sharpen your knowledge.',r3:'Keep going. Take the guided tour again, then retry the quiz.',
+ wTitle:'Step inside a modern <em>operation theatre</em>',wSub:'A 360° walkthrough for Anaesthesia &amp; Operation Theatre Technology students.',fViews:'viewpoints',fStops:'equipment stops',fQuiz:'quiz questions',
+ how1:'<b>Look around.</b> Drag the view, or pinch and scroll to zoom. On a phone you can also move the phone itself.',how2:'<b>Tap a numbered point</b> to study that equipment, with close-up photos and the checks every OT technologist must know.',how3:'<b>Walk the room</b> with the teal buttons, or press <b>Next stop</b> for the guided tour. Finish with the quiz.',
+ langLabel:'',startVoice:'🔊 Start the voice-guided tour',startOwn:'Explore on my own',wNote:'Turn your sound on · Opens full screen on phones',
+ brandSub:'360° operation theatre tour',home:'AlliedPath home',hideGuide:'Hide guide',showGuide:'Show guide',loading:'Loading theatre view…',hint:'Drag to look around · scroll or pinch to zoom · tap a numbered point',viewOf:'View {a} of {b}',
+ gyro:'Move phone to look',gyroOn:'Motion on',fs:'Fullscreen',fsExit:'Exit fullscreen',vr:'Enter VR',voiceOn:'🔊 Voice on',voiceOff:'🔇 Voice off',play:'▶ Play guided tour',pause:'❚❚ Pause tour',speaking:'Voice guide speaking',
+ yourProgress:'Your progress',explored:'{n} / {t} explored',prev:'Previous',startTour:'Start tour',nextStop:'Next stop',takeQuiz:'Take the quiz',tourStops:'Tour stops',quizBtn:'Test yourself: 8-question quiz',goTo:'Go to {x}',
+ introTitle:'Walk through a modern operation theatre',intro1:'Stand inside a fully equipped OT from five viewpoints. Tap a numbered point to study each piece of equipment, and use the teal buttons to move around the room.',intro2:'The guided tour has {n} stops, from the theatre doors to biomedical waste disposal. Finish with the 8-question quiz to check what you learned.',stopsN:'{n} stops',
+ quizOf:'Quiz · question {a} of {b}',nextQ:'Next question',seeScore:'See my score',quizDone:'Quiz complete',ctaQuiz:'Want structured classes, mentoring and placement guidance? AlliedPath faculty teach Anaesthesia &amp; OT Technology live.',retry:'Retry quiz',back:'Back to the tour',
+ ctaText:'Live classes, mentoring, research guidance and placement preparation for allied health students, aligned with NCAHP curricula.',join:'Join AlliedPath',close:'Close',
+ noVoice:'This device has no {lang} voice yet, so the guide is shown as {lang} text.',
+ sc_entrance:'Entrance',sc_head:'Head end',sc_side:'Table side',sc_foot:'Foot end',sc_emergency:'Emergency corner'};
+let lang='en',LD=null,UX=null,uxP=null;const langCache={};
 try{const s0=localStorage.getItem('alliedpath-ot-lang');if(s0&&LANGS.some(l=>l[0]===s0))lang=s0}catch(e){}
-function ui(k){return (LD&&LD.ui&&LD.ui[k])||UI_EN[k]}
+function ui(k){return (LD&&LD.ui&&LD.ui[k])||(UX&&UX[lang]&&UX[lang][k])||UI_EN[k]||''}
+function fmt(k,o){return ui(k).replace(/\{(\w+)\}/g,(m,x)=>o[x]!=null?o[x]:m)}
+function scName(id){return ui('sc_'+id)||SCENES[id].name}
+function tagOf(t){return (UX&&UX[lang]&&UX[lang]['tag_'+t.id])||t.tag}
 function T(t){const x=LD&&LD.stops&&LD.stops[t.id];return x?Object.assign({},t,x):t}
 function Q(i){const x=LD&&LD.quiz&&LD.quiz[i];return x?Object.assign({},QUIZ[i],x):QUIZ[i]}
-function langName(c){return ((LANGS.find(l=>l[0]===c)||[])[1]||'').split(' · ').pop()}
-function langNote(){const n=$('#langNote');if(!n)return;const miss=lang!=='en'&&!!synth&&!voice;n.hidden=!miss;
-  if(miss)n.textContent=`No ${langName(lang)} voice found on this device, so the text will show in ${langName(lang)}. To hear it on Android: Settings → Text-to-speech → Speech Services by Google → install ${langName(lang)}.`}
-async function setLang(code){lang=code;try{localStorage.setItem('alliedpath-ot-lang',code)}catch(e){}
-  if(code==='en')LD=null;else{try{LD=langCache[code]||(langCache[code]=await (await fetch('lang/'+code+'.json',{cache:'no-cache'})).json())}catch(e){LD=null}}
+function la(){return lang==='en'?'':` lang="${lang}"${lang==='ur'?' dir="rtl"':''}`}
+function langName(c){return ((LANGS.find(l=>l[0]===c)||[])[1]||'English').split(' · ').pop()}
+const UA=navigator.userAgent,isAndroid=/Android/i.test(UA),isIOS=/iPhone|iPad|iPod/i.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1),isEdge=/Edg\//.test(UA);
+function howTo(n){if(isAndroid)return `To hear ${n}: phone Settings → search “Text-to-speech” → Speech Services by Google → ⚙ → Install voice data → ${n}. Then reload this page.`;
+  if(isIOS)return `To hear ${n}: Settings → Accessibility → Spoken Content → Voices → ${n} (if listed), then reload. ${n} voice also works in Chrome on Android phones.`;
+  if(!isEdge)return `To hear ${n} on a computer, open this page in Microsoft Edge, which includes voices for most Indian languages, or use Chrome on an Android phone.`;
+  return `${n} voice works in Chrome on Android phones (Speech Services by Google).`}
+function langNote(){const miss=lang!=='en'&&!!synth&&voicesKnown&&!voice;const n=langName(lang),nat=((LANGS.find(l=>l[0]===lang)||[])[1]||'').split(' · ')[0];
+  const html=miss?`<span${la()}>${fmt('noVoice',{lang:nat}).replace(/</g,'&lt;')}</span><small>${howTo(n)}</small>`:'';
+  ['#langNote','#voiceMiss'].forEach(q=>{const el=$(q);if(!el)return;el.hidden=!miss||(q==='#voiceMiss'&&!voiceOn);el.innerHTML=html})}
+const FONTS={hi:'Noto+Sans+Devanagari',mr:'Noto+Sans+Devanagari',bn:'Noto+Sans+Bengali',te:'Noto+Sans+Telugu',ta:'Noto+Sans+Tamil',gu:'Noto+Sans+Gujarati',kn:'Noto+Sans+Kannada',ml:'Noto+Sans+Malayalam',pa:'Noto+Sans+Gurmukhi',or:'Noto+Sans+Oriya',ur:'Noto+Nastaliq+Urdu'};
+function loadFont(c){const f=FONTS[c];if(!f)return;const id='font-'+f;if(!document.getElementById(id)){const l=document.createElement('link');l.id=id;l.rel='stylesheet';l.href=`https://fonts.googleapis.com/css2?family=${f}:wght@400;600;700&display=swap`;document.head.appendChild(l)}
+  document.documentElement.style.setProperty('--f-ind',`"${f.replace(/\+/g,' ')}","Nirmala UI"`)}
+function getUX(){return uxP||(uxP=fetch('lang/ui.json',{cache:'no-cache'}).then(r=>r.json()).then(j=>{UX=j}).catch(()=>{UX={}}))}
+function applyUI(){const L=lang==='en'?'':lang;
+  document.querySelectorAll('[data-i]').forEach(el=>{const v=ui(el.dataset.i);el.textContent=v.replace(/&amp;/g,'&');if(L){el.lang=lang;if(lang==='ur')el.dir='rtl';else el.removeAttribute('dir')}else{el.removeAttribute('lang');el.removeAttribute('dir')}});
+  document.querySelectorAll('[data-h]').forEach(el=>{el.innerHTML=ui(el.dataset.h);if(L){el.lang=lang;if(lang==='ur')el.dir='rtl';else el.removeAttribute('dir')}else{el.removeAttribute('lang');el.removeAttribute('dir')}});
+  const lab=document.querySelector('[data-i="langLabel"]');if(lab)lab.hidden=!ui('langLabel');
+  $('#strip').innerHTML=ORDER.map((id,i)=>`<button type="button" data-s="${id}"${la()}${cur===id?' aria-current="true"':''}><span class="n">${i+1}</span>${scName(id)}</button>`).join('');
+  if(cur){$('#sceneName').textContent=scName(cur);$('#sceneNum').textContent=fmt('viewOf',{a:ORDER.indexOf(cur)+1,b:ORDER.length})}
+  const m=$('#main');if(m)$('#guideBtn').textContent=m.classList.contains('full')?ui('showGuide'):ui('hideGuide');
+  if(synth){$('#voiceBtn').textContent=voiceOn?ui('voiceOn'):ui('voiceOff');$('#autoBtn').textContent=auto?ui('pause'):ui('play')}
+  $('#fsBtn').textContent=(document.fullscreenElement||document.webkitFullscreenElement)?ui('fsExit'):ui('fs');
+  if(!$('#gyroBtn').disabled)$('#gyroBtn').textContent=gyroOn?ui('gyroOn'):ui('gyro');
+  progress();renderList();if(cur)buildPins()}
+let langReq=0;
+async function setLang(code){const my=++langReq;lang=code;try{localStorage.setItem('alliedpath-ot-lang',code)}catch(e){}
   ['#langSel','#langTop'].forEach(q=>{const el=$(q);if(el)el.value=code});
-  pickVoice();renderList();
-  if(mode==='tour'&&sel>=0)select(sel);else if(mode==='quiz')showQ()}
+  hush();document.body.classList.add('busy');
+  if(code==='en')LD=null;else{loadFont(code);try{const [d]=await Promise.all([langCache[code]||(langCache[code]=fetch('lang/'+code+'.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw 0;return r.json()})),getUX()]);if(my!==langReq)return;LD=d}catch(e){delete langCache[code];if(my!==langReq)return;LD=null}}
+  document.body.classList.remove('busy');
+  pickVoice();applyUI();
+  if(mode==='tour'&&sel>=0)select(sel);else if(mode==='tour')intro();else if(mode==='quiz')showQ()}
 function fillLang(){const o=LANGS.map(([c,n])=>`<option value="${c}">${n}</option>`).join('');['#langSel','#langTop'].forEach(q=>{const el=$(q);el.innerHTML=o;el.value=lang;el.onchange=()=>setLang(el.value)})}
 
 /* ---------- storage (optional) ---------- */
@@ -369,27 +416,33 @@ function saveSeen(){try{localStorage.setItem(KEY,JSON.stringify([...seen]))}catc
 
 /* ---------- voice guide ---------- */
 const synth=('speechSynthesis' in window)?window.speechSynthesis:null;
-let voiceOn=false,auto=false,vq=0,voice=null,autoTimer=null;
-function pickVoice(){const vs=synth?synth.getVoices():[];
-  if(lang!=='en'){const pre=new RegExp('^'+lang+'([-_]|$)','i');const c=vs.filter(v=>pre.test(v.lang));voice=c.find(v=>v.localService)||c[0]||null;langNote();return}
+let voiceOn=false,auto=false,vq=0,voice=null,autoTimer=null,voicesKnown=false;
+const NAMES={hi:['hindi','हिन्दी','हिंदी'],bn:['bengali','bangla','বাংলা'],mr:['marathi','मराठी'],te:['telugu','తెలుగు'],ta:['tamil','தமிழ்'],gu:['gujarati','ગુજરાતી'],kn:['kannada','ಕನ್ನಡ'],ml:['malayalam','മലയാളം'],pa:['punjabi','panjabi','ਪੰਜਾਬੀ'],or:['odia','oriya','ଓଡ଼ିଆ'],ur:['urdu','اردو']};
+function vlang(v){return String(v.lang||'').replace('_','-').toLowerCase()}
+function pickVoice(){const vs=synth?synth.getVoices():[];if(vs.length)voicesKnown=true;
+  if(lang!=='en'){const c=vs.filter(v=>{const l=vlang(v),nm=(v.name||'').toLowerCase();return l===lang||l.startsWith(lang+'-')||(NAMES[lang]||[]).some(k=>nm.includes(k.toLowerCase()))});
+    const ind=c.filter(v=>/-in$/.test(vlang(v))),pool=ind.length?ind:c;
+    voice=pool.find(v=>/natural|neural|online/i.test(v.name))||pool.find(v=>v.localService)||pool[0]||null;langNote();return}
   const en=vs.filter(v=>/^en/i.test(v.lang));const by=(re,loc)=>en.find(v=>re.test(v.lang)&&(loc===undefined||v.localService===loc));voice=by(/en[-_]IN/i,true)||by(/en[-_]GB/i,true)||by(/en[-_]US/i,true)||en.find(v=>v.localService)||by(/en[-_]IN/i)||en[0]||null;langNote()}
-if(synth){pickVoice();try{synth.addEventListener('voiceschanged',pickVoice)}catch(e){synth.onvoiceschanged=pickVoice}}
+if(synth){pickVoice();try{synth.addEventListener('voiceschanged',pickVoice)}catch(e){synth.onvoiceschanged=pickVoice}
+  let tries=0;const poll=setInterval(()=>{if(voicesKnown||++tries>20){clearInterval(poll);if(!voicesKnown){voicesKnown=true;pickVoice()}}else pickVoice()},250)}
+function canSpeak(){return lang==='en'||!!voice||!voicesKnown}
 function sayable(t){if(lang!=='en')return String(t).replace(/<[^>]+>/g,' ').replace(/₂/g,'2').replace(/\s+/g,' ').trim();return String(t).replace(/<[^>]+>/g,' ').replace(/&amp;/g,'and').replace(/SpO₂/g,'S P O 2').replace(/CO₂/g,'carbon dioxide').replace(/N₂O/g,'nitrous oxide').replace(/O₂/g,'oxygen').replace(/±/g,' plus or minus ').replace(/°C/g,' degrees Celsius').replace(/°/g,' degrees').replace(/→/g,' to ').replace(/–/g,' to ').replace(/\bOT\b/g,'O T').replace(/\bIV\b/g,'I V').replace(/\bECG\b/g,'E C G').replace(/\bNIBP\b/g,'N I B P').replace(/\bCVP\b/g,'C V P').replace(/\bABP\b/g,'A B P').replace(/\bAGSS\b/g,'A G S S').replace(/\bHEPA\b/g,'hepa').replace(/\bBMW\b/g,'biomedical waste').replace(/\s+/g,' ').trim()}
 function chunks(t){const ss=sayable(t).match(/[^.!?।॥؟]+[.!?।॥؟]*/g)||[sayable(t)];const out=[];let cur='';
   for(const p of ss){const x=p.trim();if(!x)continue;if(cur&&(cur.length+x.length+1)>220){out.push(cur);cur=x}else cur=cur?cur+' '+x:x}
   if(cur)out.push(cur);return out}
 function speak(text,done){const id=++vq;clearTimeout(autoTimer);
-  if(!synth||!voiceOn){if(synth)synth.cancel();$('#speaking').hidden=true;if(done)autoTimer=setTimeout(()=>{if(id===vq)done()},Math.min(14000,2500+text.length*45));return}
+  if(!synth||!voiceOn||!canSpeak()){if(synth)synth.cancel();$('#speaking').hidden=true;if(done)autoTimer=setTimeout(()=>{if(id===vq)done()},Math.min(14000,2500+text.length*45));return}
   const go=()=>{if(id!==vq)return;const parts=chunks(text);$('#speaking').hidden=false;
-    parts.forEach((p,k)=>{const u=new SpeechSynthesisUtterance(p);if(voice){u.voice=voice;u.lang=voice.lang}else u.lang=(LANGS.find(l=>l[0]===lang)||[0,0,'en-IN'])[2];u.rate=1;u.pitch=1;
+    parts.forEach((p,k)=>{const u=new SpeechSynthesisUtterance(p);u.lang=voice?String(voice.lang).replace('_','-'):(LANGS.find(l=>l[0]===lang)||[0,0,'en-IN'])[2];if(voice)u.voice=voice;u.rate=lang==='en'?1:.95;u.pitch=1;
       if(k===parts.length-1){const fin=()=>{if(id!==vq)return;$('#speaking').hidden=true;if(done)done()};u.onend=fin;u.onerror=e=>{if(e&&(e.error==='interrupted'||e.error==='canceled'))return;fin()}}
       synth.speak(u)})};
-  if(synth.speaking||synth.pending){synth.cancel();setTimeout(go,90)}else go()}
+  if(synth.paused)synth.resume();if(synth.speaking||synth.pending){synth.cancel();setTimeout(go,90)}else go()}
 function hush(){vq++;clearTimeout(autoTimer);if(synth)synth.cancel();$('#speaking').hidden=true}
-function setVoice(on){voiceOn=on;$('#voiceBtn').setAttribute('aria-pressed',on);$('#voiceBtn').textContent=on?'🔊 Voice on':'🔇 Voice off';if(!on){hush();setAuto(false)}}
-function setAuto(on){auto=on;$('#autoBtn').setAttribute('aria-pressed',on);$('#autoBtn').textContent=on?'❚❚ Pause tour':'▶ Play guided tour';if(!on){clearTimeout(autoTimer)}}
+function setVoice(on){voiceOn=on;$('#voiceBtn').setAttribute('aria-pressed',on);$('#voiceBtn').textContent=on?ui('voiceOn'):ui('voiceOff');if(!on){hush();setAuto(false)}langNote()}
+function setAuto(on){auto=on;$('#autoBtn').setAttribute('aria-pressed',on);$('#autoBtn').textContent=on?ui('pause'):ui('play');if(!on){clearTimeout(autoTimer)}}
 function narrate(i){const t=T(TOPICS[i]);speak(`${ui('stop')} ${i+1}. ${t.name}. ${t.text} ${t.points.join(' ')} ${ui('tip')}: ${t.tip}`,()=>{if(!auto)return;autoTimer=setTimeout(()=>{if(!auto)return;if(sel>=TOPICS.length-1){setAuto(false);startQuiz()}else select(sel+1)},1200)})}
-if(synth){$('#voiceBtn').hidden=false;$('#autoBtn').hidden=false;$('#voiceBtn').textContent='🔇 Voice off';
+if(synth){$('#voiceBtn').hidden=false;$('#autoBtn').hidden=false;$('#voiceBtn').textContent=ui('voiceOff');
   $('#voiceBtn').onclick=()=>{setVoice(!voiceOn);if(voiceOn&&sel>=0&&mode==='tour')narrate(sel)};
   $('#autoBtn').onclick=()=>{if(auto){setAuto(false);hush();return}setVoice(true);setAuto(true);select(sel<0||sel>=TOPICS.length-1?0:sel+1)}}
 function userPick(i){setAuto(false);select(i)}
@@ -398,7 +451,8 @@ function userPick(i){setAuto(false);select(i)}
 const welcome=$('#welcome');
 const phone=window.matchMedia('(max-width:820px), (pointer:coarse) and (max-width:1024px)').matches;
 function goFull(){const el=document.documentElement;try{const r=(el.requestFullscreen||el.webkitRequestFullscreen||function(){}).call(el,{navigationUI:'hide'});if(r&&r.catch)r.catch(()=>{})}catch(e){}}
-function begin(withVoice){welcome.hidden=true;if(phone)goFull();
+function unlockSpeech(){if(!synth||unlockSpeech.done)return;unlockSpeech.done=1;try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;synth.speak(u)}catch(e){}}
+function begin(withVoice){if(document.body.classList.contains('busy'))return;welcome.hidden=true;if(phone)goFull();if(withVoice)unlockSpeech();
   if(withVoice&&synth){setVoice(true);setAuto(true);select(0)}
   else{if(phone)toggleGuide(true);$('#nextBtn').focus({preventScroll:true})}}
 $('#startBtn').onclick=()=>begin(false);
@@ -449,11 +503,11 @@ stage.addEventListener('wheel',e=>{e.preventDefault();setFov(view.fov*(1+e.delta
 /* ---------- state + UI ---------- */
 let cur=null,sel=-1,mode='tour';
 const pins=$('#pins'),card=$('#card'),list=$('#topicList');
-$('#strip').innerHTML=ORDER.map((id,i)=>`<button type="button" data-s="${id}"><span class="n">${i+1}</span>${SCENES[id].name}</button>`).join('');
+$('#strip').innerHTML=ORDER.map((id,i)=>`<button type="button" data-s="${id}"><span class="n">${i+1}</span>${scName(id)}</button>`).join('');
 $('#strip').addEventListener('click',e=>{const b=e.target.closest('button');if(b)goScene(b.dataset.s)});
-function renderList(){list.innerHTML=TOPICS.map((t,i)=>`<li><button type="button" data-i="${i}" class="${i===sel&&mode==='tour'?'on':''}"><span class="n">${String(i+1).padStart(2,'0')}</span><span>${T(t).name}<span class="t">${SCENES[t.at[0]].name}</span></span><span class="ck">${seen.has(t.id)?'✓':''}</span></button></li>`).join('')}
+function renderList(){list.innerHTML=TOPICS.map((t,i)=>`<li><button type="button" data-i="${i}" class="${i===sel&&mode==='tour'?'on':''}"><span class="n">${String(i+1).padStart(2,'0')}</span><span${la()}>${T(t).name}<span class="t">${scName(t.at[0])}</span></span><span class="ck">${seen.has(t.id)?'✓':''}</span></button></li>`).join('')}
 list.addEventListener('click',e=>{const b=e.target.closest('button');if(b)userPick(+b.dataset.i)});
-function progress(){const n=TOPICS.filter(t=>seen.has(t.id)).length;$('#progTxt').textContent=`${n} / ${TOPICS.length} explored`;$('#progBar').style.width=(n/TOPICS.length*100)+'%'}
+function progress(){const n=TOPICS.filter(t=>seen.has(t.id)).length;$('#progTxt').textContent=fmt('explored',{n,t:TOPICS.length});$('#progBar').style.width=(n/TOPICS.length*100)+'%'}
 const arrow='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>';
 let pinEls=[],pinGen=0;
 
@@ -461,12 +515,12 @@ async function goScene(id,look){
   if(cur===id){if(look)lookAt(...look);return}
   const fade=$('#fade');
   if(cur){fade.classList.add('on');await new Promise(r=>setTimeout(r,reduce?0:330))}
-  if(!GL){cur=id;$('#sceneName').textContent=SCENES[id].name;$('#sceneNum').textContent=`View ${ORDER.indexOf(id)+1} of ${ORDER.length}`;document.querySelectorAll('#strip button').forEach(b=>b.setAttribute('aria-current',b.dataset.s===id));fade.classList.remove('on');return}
+  if(!GL){cur=id;$('#sceneName').textContent=scName(id);$('#sceneNum').textContent=fmt('viewOf',{a:ORDER.indexOf(id)+1,b:ORDER.length});document.querySelectorAll('#strip button').forEach(b=>b.setAttribute('aria-current',b.dataset.s===id));fade.classList.remove('on');return}
   let tex;try{tex=await getTex(id)}catch(e){$('#loading').hidden=false;$('#loading').textContent='This view could not load. Try another viewpoint.';fade.classList.remove('on');return}
   $('#loading').hidden=true;
   sphereMat.map=tex;sphereMat.needsUpdate=true;cur=id;
   const s=SCENES[id],st=look||[s.start[0]/W,s.start[1]/H];lookAt(st[0],st[1],true);view.fov=75;
-  $('#sceneName').textContent=s.name;$('#sceneNum').textContent=`View ${ORDER.indexOf(id)+1} of ${ORDER.length}`;
+  $('#sceneName').textContent=scName(id);$('#sceneNum').textContent=fmt('viewOf',{a:ORDER.indexOf(id)+1,b:ORDER.length});
   document.querySelectorAll('#strip button').forEach(b=>b.setAttribute('aria-current',b.dataset.s===id));
   buildPins();fade.classList.remove('on');gyroCal=null;
   s.nav.forEach(([n])=>getTex(n).catch(()=>{}));
@@ -477,29 +531,29 @@ function buildPins(){
   TOPICS.forEach((t,i)=>{if(t.at[0]===cur)items.push({kind:'t',i,u:t.at[1]/W,v:t.at[2]/H})});
   SCENES[cur].nav.forEach(([to,x,y])=>items.push({kind:'n',to,u:x/W,v:y/H}));
   pinGen++;pins.innerHTML='';pinEls=items.map(it=>{const b=document.createElement('button');b.type='button';
-    if(it.kind==='t'){const t=TOPICS[it.i];b.className='pin'+(it.i===sel&&mode==='tour'?' on':'')+(seen.has(t.id)?' seen':'');b.textContent=it.i+1;b.setAttribute('aria-label',t.name);b.onclick=()=>userPick(it.i)}
-    else{b.className='go';b.innerHTML=arrow+'Go to '+SCENES[it.to].name;b.onclick=()=>goScene(it.to)}
+    if(it.kind==='t'){const t=TOPICS[it.i];b.className='pin'+(it.i===sel&&mode==='tour'?' on':'')+(seen.has(t.id)?' seen':'');b.textContent=it.i+1;b.setAttribute('aria-label',T(t).name);b.onclick=()=>userPick(it.i)}
+    else{b.className='go';b.innerHTML=arrow+`<span${la()}>${fmt('goTo',{x:scName(it.to)})}</span>`;b.onclick=()=>goScene(it.to)}
     pins.appendChild(b);return {el:b,go:it.kind==='n',pos:dir(it.u,it.v).multiplyScalar(10)}});
 }
 function setNav(show){$('#navRow').hidden=!show}
 function intro(){
   hush();mode='tour';sel=-1;setNav(true);
-  card.innerHTML=`<p class="eyebrow">AlliedPath · Anaesthesia &amp; OT Technology</p><h2>Walk through a modern operation theatre</h2>
-   <p>Stand inside a fully equipped OT from five viewpoints. Tap a numbered point to study each piece of equipment, and use the teal buttons to move around the room.</p>
-   <p>The guided tour has ${TOPICS.length} stops, from the theatre doors to biomedical waste disposal. Finish with the 8-question quiz to check what you learned.</p>`;
-  $('#count').textContent=`${TOPICS.length} stops`;$('#prevBtn').disabled=true;$('#nextBtn').textContent='Start tour';
+  card.innerHTML=`<p class="eyebrow">AlliedPath · Anaesthesia &amp; OT Technology</p><div${la()}><h2>${ui('introTitle')}</h2>
+   <p>${ui('intro1')}</p>
+   <p>${fmt('intro2',{n:TOPICS.length})}</p></div>`;
+  $('#count').textContent=fmt('stopsN',{n:TOPICS.length});$('#prevBtn').disabled=true;$('#nextBtn').textContent=ui('startTour');
   renderList();buildPins();
 }
 function select(i){
   mode='tour';setNav(true);
   const t=TOPICS[i];sel=i;seen.add(t.id);saveSeen();progress();
   const photos=t.photos?`<div class="photos">${t.photos.map(([f,a])=>`<button type="button" data-full="img/${f}.jpg" aria-label="Enlarge photo: ${a}"><img src="img/${f}.jpg" alt="${a}" loading="lazy"></button>`).join('')}</div>`:'';
-  const L=T(t),la=lang==='en'?'':` lang="${lang}"${lang==='ur'?' dir="rtl"':''}`;
-  card.innerHTML=`<p class="eyebrow">${t.tag}</p><div${la}><h2>${L.name}</h2>${photos}<p>${L.text}</p>
+  const L=T(t);
+  card.innerHTML=`<p class="eyebrow"${la()}>${tagOf(t)}</p><div${la()}><h2>${L.name}</h2>${photos}<p>${L.text}</p>
     <h3>${ui('inPractice')}</h3><ul>${L.points.map(p=>`<li>${p}</li>`).join('')}</ul>
-    <p class="tip"><strong>${ui('tip')}</strong>${L.tip}</p></div><p class="where">${ui('seenFrom')}: ${SCENES[t.at[0]].name}</p>`;
+    <p class="tip"><strong>${ui('tip')}</strong>${L.tip}</p></div><p class="where"${la()}>${ui('seenFrom')}: ${scName(t.at[0])}</p>`;
   $('#count').textContent=`${i+1} / ${TOPICS.length}`;$('#prevBtn').disabled=false;
-  $('#nextBtn').textContent=i===TOPICS.length-1?'Take the quiz':'Next stop';
+  $('#nextBtn').textContent=i===TOPICS.length-1?ui('takeQuiz'):ui('nextStop');
   renderList();
   const lb=list.querySelector(`button[data-i="${i}"]`);if(lb)lb.scrollIntoView({block:'nearest'});
   $('#aside').scrollTop=0;
@@ -520,8 +574,8 @@ let qi=0,qs=0;
 $('#quizBtn').onclick=startQuiz;
 function startQuiz(){setAuto(false);hush();mode='quiz';qi=0;qs=0;sel=-1;setNav(false);renderList();buildPins();showQ();$('#aside').scrollTop=0;if($('#main').classList.contains('full'))toggleGuide(false)}
 function showQ(){
-  const q=Q(qi),la=lang==='en'?'':` lang="${lang}"${lang==='ur'?' dir="rtl"':''}`;
-  card.innerHTML=`<p class="eyebrow">Quiz · question ${qi+1} of ${QUIZ.length}</p><div${la}><h2>${q.q}</h2>
+  const q=Q(qi);
+  card.innerHTML=`<p class="eyebrow"${la()}>${fmt('quizOf',{a:qi+1,b:QUIZ.length})}</p><div${la()}><h2>${q.q}</h2>
     <div class="q">${q.a.map((a,i)=>`<button type="button" data-a="${i}">${a}</button>`).join('')}</div><div id="fbBox"></div></div>`;
   card.querySelectorAll('.q button').forEach(b=>b.onclick=()=>answer(+b.dataset.a));
   if(voiceOn)speak(`${ui('question')} ${qi+1}. ${q.q} ${q.a.map((a,i)=>ui('option')+' '+(i+1)+', '+a+'.').join(' ')}`);
@@ -530,16 +584,16 @@ function answer(i){
   const q=Q(qi),ok=i===q.c;if(ok)qs++;
   card.querySelectorAll('.q button').forEach((b,j)=>{b.disabled=true;if(j===q.c)b.classList.add('right');else if(j===i)b.classList.add('wrong')});
   $('#fbBox').innerHTML=`<p class="fb"><b class="${ok?'':'no'}">${ok?ui('correct'):ui('notQuite')}</b> ${q.e}</p>
-    <button class="btn primary" id="qNext" type="button">${qi===QUIZ.length-1?'See my score':'Next question'}</button>`;
+    <button class="btn primary" id="qNext" type="button"${la()}>${qi===QUIZ.length-1?ui('seeScore'):ui('nextQ')}</button>`;
   $('#qNext').onclick=()=>{qi++;qi<QUIZ.length?showQ():result()};$('#qNext').focus();
   if(voiceOn)speak((ok?ui('correct'):ui('notQuite'))+' '+q.e);
 }
 function result(){
   const pct=Math.round(qs/QUIZ.length*100);
   const msg=pct>=88?ui('r1'):pct>=63?ui('r2'):ui('r3');
-  card.innerHTML=`<p class="eyebrow">Quiz complete</p><div class="score">${qs} / ${QUIZ.length}</div><h2>${msg}</h2>
-    <p>Want structured classes, mentoring and placement guidance? AlliedPath faculty teach Anaesthesia &amp; OT Technology live.</p>
-    <div class="nav"><button class="btn primary" id="retry" type="button">Retry quiz</button><button class="btn" id="back" type="button">Back to the tour</button></div>`;
+  card.innerHTML=`<p class="eyebrow"${la()}>${ui('quizDone')}</p><div class="score">${qs} / ${QUIZ.length}</div><div${la()}><h2>${msg}</h2>
+    <p>${ui('ctaQuiz')}</p>
+    <div class="nav"><button class="btn primary" id="retry" type="button">${ui('retry')}</button><button class="btn" id="back" type="button">${ui('back')}</button></div></div>`;
   $('#retry').onclick=startQuiz;$('#back').onclick=intro;
   if(voiceOn)speak(ui('score').replace('{s}',qs).replace('{n}',QUIZ.length)+' '+msg);
 }
@@ -552,22 +606,22 @@ lb.addEventListener('click',closeLb);
 
 /* ---------- guide toggle, fullscreen ---------- */
 function toggleGuide(hide){const m=$('#main');const h=hide===undefined?!m.classList.contains('full'):hide;m.classList.toggle('full',h);
-  $('#guideBtn').textContent=h?'Show guide':'Hide guide';$('#guideBtn').setAttribute('aria-pressed',h)}
+  $('#guideBtn').textContent=h?ui('showGuide'):ui('hideGuide');$('#guideBtn').setAttribute('aria-pressed',h)}
 $('#guideBtn').onclick=()=>toggleGuide();
 const fsOk=document.fullscreenEnabled||document.webkitFullscreenEnabled;
 if(fsOk){$('#fsBtn').hidden=false;$('#fsBtn').onclick=()=>{const d=document;
   if(d.fullscreenElement||d.webkitFullscreenElement){(d.exitFullscreen||d.webkitExitFullscreen).call(d)}
   else{const el=d.documentElement;const r=(el.requestFullscreen||el.webkitRequestFullscreen).call(el);if(r&&r.catch)r.catch(()=>{$('#fsBtn').hidden=true})}};
-  document.addEventListener('fullscreenchange',()=>{$('#fsBtn').textContent=document.fullscreenElement?'Exit fullscreen':'Fullscreen'})}
+  document.addEventListener('fullscreenchange',()=>{$('#fsBtn').textContent=document.fullscreenElement?ui('fsExit'):ui('fs')})}
 
 /* ---------- move-phone-to-look (gyroscope) ---------- */
 let gyroOn=false,gyroCal=null,lastOri=null;
 const touch=window.matchMedia('(pointer:coarse)').matches;
 if(GL&&touch&&'DeviceOrientationEvent' in window){$('#gyroBtn').hidden=false;
   $('#gyroBtn').onclick=async()=>{
-    if(gyroOn){gyroOn=false;$('#gyroBtn').setAttribute('aria-pressed','false');$('#gyroBtn').textContent='Move phone to look';return}
+    if(gyroOn){gyroOn=false;$('#gyroBtn').setAttribute('aria-pressed','false');$('#gyroBtn').textContent=ui('gyro');return}
     try{if(typeof DeviceOrientationEvent.requestPermission==='function'){const r=await DeviceOrientationEvent.requestPermission();if(r!=='granted')throw 0}
-      gyroOn=true;gyroCal=null;$('#gyroBtn').setAttribute('aria-pressed','true');$('#gyroBtn').textContent='Motion on';
+      gyroOn=true;gyroCal=null;$('#gyroBtn').setAttribute('aria-pressed','true');$('#gyroBtn').textContent=ui('gyroOn');
     }catch(e){$('#gyroBtn').textContent='Motion not allowed';$('#gyroBtn').disabled=true}};
   window.addEventListener('deviceorientation',e=>{if(!gyroOn||e.alpha==null)return;lastOri=e;
     if(!gyroCal){gyroCal={a:e.alpha,u:view.u};return}
@@ -580,7 +634,7 @@ const vrBtn=$('#vrBtn');let xs=null;
 if(GL&&navigator.xr&&navigator.xr.isSessionSupported){navigator.xr.isSessionSupported('immersive-vr').then(ok=>{if(ok)vrBtn.hidden=false}).catch(()=>{})}
 vrBtn.onclick=async()=>{if(xs){xs.end();return}
   try{xs=await navigator.xr.requestSession('immersive-vr');await renderer.xr.setSession(xs);vrBtn.textContent='Exit VR';
-    xs.addEventListener('end',()=>{xs=null;vrBtn.textContent='Enter VR'})}
+    xs.addEventListener('end',()=>{xs=null;vrBtn.textContent=ui('vr')})}
   catch(e){vrBtn.textContent='VR unavailable';vrBtn.disabled=true}};
 
 /* ---------- loop ---------- */
@@ -602,7 +656,7 @@ renderer.setAnimationLoop(()=>{
   renderer.render(scene,camera);
 });
 }
-fillLang();progress();intro();goScene('entrance');if(lang!=='en')setLang(lang);
+fillLang();progress();intro();goScene('entrance');if(lang!=='en')setLang(lang);else applyUI();getUX();
 })();
 </script>
 </body>
