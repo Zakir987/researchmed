@@ -158,8 +158,10 @@ aside{min-height:0;overflow-y:auto;background:var(--panel);border-left:1px solid
 .vnote{font-size:13px;line-height:1.45;color:var(--warn);margin:8px 0 0!important}
 .vnote small{display:block;color:var(--muted);margin-top:4px;font-size:12px}
 #voiceMiss{margin:0 0 10px!important;border:1px solid rgba(245,185,76,.35);background:rgba(245,185,76,.08);border-radius:8px;padding:8px 10px}
-:lang(ur){font-family:"Noto Nastaliq Urdu","Jameel Noori Nastaleeq","Urdu Typesetting",var(--f-body);line-height:2.1}
-#card :lang(ur) h2{line-height:1.9}
+[lang]:not(html){letter-spacing:normal}
+:lang(ur){font-family:"Noto Naskh Arabic","Noto Nastaliq Urdu","Urdu Typesetting",var(--f-body)}
+#card :lang(ur){font-family:"Noto Nastaliq Urdu","Jameel Noori Nastaleeq","Noto Naskh Arabic",var(--f-body);line-height:2.05}
+#card :lang(ur) h2{line-height:1.8}
 .topics [dir=rtl]{text-align:right}
 body.busy .wbtns .btn{opacity:.6;pointer-events:none}
 #card [lang]{line-height:1.7}
@@ -369,7 +371,7 @@ const UI_EN={stop:'Stop',tip:'Tip',inPractice:'In practice',seenFrom:'Seen from'
 let lang='en',LD=null,UX=null,uxP=null;const langCache={};
 try{const s0=localStorage.getItem('alliedpath-ot-lang');if(s0&&LANGS.some(l=>l[0]===s0))lang=s0}catch(e){}
 function ui(k){return (LD&&LD.ui&&LD.ui[k])||(UX&&UX[lang]&&UX[lang][k])||UI_EN[k]||''}
-function fmt(k,o){return ui(k).replace(/\{(\w+)\}/g,(m,x)=>o[x]!=null?o[x]:m)}
+function fmt(k,o){return ui(k).replace(/\{(\w+)\}/g,(m,x)=>o[x]==null?m:(typeof o[x]==='number'?'\u2066'+o[x]+'\u2069':o[x]))}
 function scName(id){return ui('sc_'+id)||SCENES[id].name}
 function tagOf(t){return (UX&&UX[lang]&&UX[lang]['tag_'+t.id])||t.tag}
 function T(t){const x=LD&&LD.stops&&LD.stops[t.id];return x?Object.assign({},t,x):t}
@@ -384,7 +386,7 @@ function howTo(n){if(isAndroid)return `To hear ${n}: phone Settings → search �
 function langNote(){const miss=lang!=='en'&&!!synth&&voicesKnown&&!voice;const n=langName(lang),nat=((LANGS.find(l=>l[0]===lang)||[])[1]||'').split(' · ')[0];
   const html=miss?`<span${la()}>${fmt('noVoice',{lang:nat}).replace(/</g,'&lt;')}</span><small>${howTo(n)}</small>`:'';
   ['#langNote','#voiceMiss'].forEach(q=>{const el=$(q);if(!el)return;el.hidden=!miss||(q==='#voiceMiss'&&!voiceOn);el.innerHTML=html})}
-const FONTS={hi:'Noto+Sans+Devanagari',mr:'Noto+Sans+Devanagari',bn:'Noto+Sans+Bengali',te:'Noto+Sans+Telugu',ta:'Noto+Sans+Tamil',gu:'Noto+Sans+Gujarati',kn:'Noto+Sans+Kannada',ml:'Noto+Sans+Malayalam',pa:'Noto+Sans+Gurmukhi',or:'Noto+Sans+Oriya',ur:'Noto+Nastaliq+Urdu'};
+const FONTS={hi:'Noto+Sans+Devanagari',mr:'Noto+Sans+Devanagari',bn:'Noto+Sans+Bengali',te:'Noto+Sans+Telugu',ta:'Noto+Sans+Tamil',gu:'Noto+Sans+Gujarati',kn:'Noto+Sans+Kannada',ml:'Noto+Sans+Malayalam',pa:'Noto+Sans+Gurmukhi',or:'Noto+Sans+Oriya',ur:'Noto+Nastaliq+Urdu&family=Noto+Naskh+Arabic'};
 function loadFont(c){const f=FONTS[c];if(!f)return;const id='font-'+f;if(!document.getElementById(id)){const l=document.createElement('link');l.id=id;l.rel='stylesheet';l.href=`https://fonts.googleapis.com/css2?family=${f}:wght@400;600;700&display=swap`;document.head.appendChild(l)}
   document.documentElement.style.setProperty('--f-ind',`"${f.replace(/\+/g,' ')}","Nirmala UI"`)}
 function getUX(){return uxP||(uxP=fetch('lang/ui.json',{cache:'no-cache'}).then(r=>r.json()).then(j=>{UX=j}).catch(()=>{UX={}}))}
@@ -434,7 +436,7 @@ function chunks(t){const ss=sayable(t).match(/[^.!?।॥؟]+[.!?।॥؟]*/g)||
 function speak(text,done){const id=++vq;clearTimeout(autoTimer);
   if(!synth||!voiceOn||!canSpeak()){if(synth)synth.cancel();$('#speaking').hidden=true;if(done)autoTimer=setTimeout(()=>{if(id===vq)done()},Math.min(14000,2500+text.length*45));return}
   const go=()=>{if(id!==vq)return;const parts=chunks(text);$('#speaking').hidden=false;
-    parts.forEach((p,k)=>{const u=new SpeechSynthesisUtterance(p);u.lang=voice?String(voice.lang).replace('_','-'):(LANGS.find(l=>l[0]===lang)||[0,0,'en-IN'])[2];if(voice)u.voice=voice;u.rate=lang==='en'?1:.95;u.pitch=1;
+    parts.forEach((p,k)=>{const u=new SpeechSynthesisUtterance(p);u.lang=voice?String(voice.lang).replace('_','-'):(LANGS.find(l=>l[0]===lang)||[0,0,'en-IN'])[2];if(voice)try{u.voice=voice}catch(e){}u.rate=lang==='en'?1:.95;u.pitch=1;
       if(k===parts.length-1){const fin=()=>{if(id!==vq)return;$('#speaking').hidden=true;if(done)done()};u.onend=fin;u.onerror=e=>{if(e&&(e.error==='interrupted'||e.error==='canceled'))return;fin()}}
       synth.speak(u)})};
   if(synth.paused)synth.resume();if(synth.speaking||synth.pending){synth.cancel();setTimeout(go,90)}else go()}
