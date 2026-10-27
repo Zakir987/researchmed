@@ -443,7 +443,7 @@
     [/anaesthesia day|anesthesia day|ether day|\boffer|discount|\b2x\b|two papers|two chapters|\bdeal\b|special/i, "offer"],
     [/15.?min|free call|free consult|book (a )?call|schedule (a )?call|call ?back|talk to (a )?(mentor|expert|someone)|speak to (a )?(mentor|expert|someone)|appointment|\bmeeting\b|google meet|video call/i, "call"],
     [/ijaott|our journal|your journal|operation theatre technology journal|journal of anaes|editorial board|editor.in.chief|reviewer|peer review|submit (my |a )?(manuscript|paper|article) to|track (my )?(manuscript|submission|paper)|call for papers|inaugural issue|issn|\bapc\b/i, "journal"],
-    [/\bteam\b|founder|director|who (are|runs|owns|started)|zakir|harshitha|about (you|us|the company)/i, "team"],
+    [/\bteam\b|founder|director|who (are|runs|owns|started)|harshitha|about (you|us|the company)/i, "team"],
     [/\bnotes?\b|resources?|study material|free material|reading|learn|tutorial|blog/i, "notes"],
     [/\bfaqs?\b|common questions|frequently asked/i, "faq"],
     [/feedback|testimonial|review(s)? (of|about) you/i, "feedback"],

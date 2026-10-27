@@ -394,7 +394,7 @@
       hint: "Your profile as Founder &amp; Managing Director. It appears on the home page and the About page. Leave any box empty to hide that line.",
       fields: [
         { k: "show", l: "Show the founder section on the website", t: "check", def: () => true },
-        { k: "name", l: "Full name", t: "text", ph: "Dr. Zakir Hussain Parray" },
+        { k: "name", l: "Full name", t: "text", ph: "Dr. Full Name" },
         { k: "designation", l: "Designation", t: "text", ph: "Founder & Managing Director" },
         { k: "qualifications", l: "Qualifications", t: "text", ph: "Ph.D., M.Sc. Anaesthesia & OT Technology" },
         { k: "position", l: "Current position / institution (optional)", t: "text" },
