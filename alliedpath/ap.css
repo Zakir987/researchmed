@@ -73,7 +73,7 @@ h3{font-size:1.2rem}
     opacity:0;visibility:hidden;transform:translateY(-8px) scale(.98);transform-origin:top center;transition:opacity .25s,transform .3s,visibility 0s .3s}
   .nav.open{opacity:1;visibility:visible;transform:none;transition:opacity .25s,transform .3s}
   .nav a,.top.scrolled .nav a{color:#E8F2EF;padding:14px 16px;font-size:1.05rem;opacity:0;transform:translateY(6px);transition:opacity .3s,transform .3s,background .2s}
-  .nav.open a{opacity:1;transform:none}
+  .nav.open a,.top.scrolled .nav.open a{opacity:1;transform:none}
   .nav.open a:nth-child(2){transition-delay:.04s}.nav.open a:nth-child(3){transition-delay:.08s}.nav.open a:nth-child(4){transition-delay:.12s}.nav.open a:nth-child(5){transition-delay:.16s}.nav.open a:nth-child(6){transition-delay:.2s}.nav.open a:nth-child(7){transition-delay:.24s}
   .nav a:hover{background:rgba(255,255,255,.06)}
   .nav .ind{display:none}

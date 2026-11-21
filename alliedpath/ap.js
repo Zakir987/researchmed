@@ -161,7 +161,7 @@
         email: d.email,
         _subject: "AlliedPath " + WANTS[w].toLowerCase() + " " + ref + ": " + d.name + " \u00b7 " + d.program,
         _template: "table", _captcha: "false",
-        _autoresponse: "Dear " + first + ",\n\nThank you for contacting AlliedPath (reference " + ref + ").\n\nWe received your request: " + WANTS[w] + (w === "seat" ? " (" + d.batch + ")" : "") + ".\nWe will contact you personally" + (w === "demo" ? " to fix a time for your free demo class." : w === "doubt" ? " with an answer to your question." : " with the details and next steps.") + "\n\nPlease note: AlliedPath provides teaching and mentoring only and does not issue certificates.\n\nWarm regards,\nAlliedPath by ResearchMed Connect\nhttps://researchmed.in/alliedpath/"
+        _autoresponse: "Dear " + first + ",\n\nThank you for contacting AlliedPath (reference " + ref + ").\n\nWe received your request: " + WANTS[w] + (w === "seat" ? " (" + d.batch + ")" : "") + ".\nWe will contact you personally" + (w === "demo" ? " to fix a time for your free demo class." : w === "doubt" ? " with an answer to your question." : " with the details and next steps.") + "\n\nPlease note: AlliedPath provides teaching and mentoring, with webinar and participation certificates only (no diplomas or degrees).\n\nWarm regards,\nAlliedPath by ResearchMed Connect\nhttps://researchmed.in/alliedpath/"
       };
       btn.disabled = true; var label = btn.textContent; btn.textContent = "Sending\u2026"; st.hidden = true;
       fetch("https://formsubmit.co/ajax/" + ((settings && settings.email) || "info@researchmed.in"), { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(payload) })
@@ -311,7 +311,7 @@
         '<div class="pic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8.5" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div>' +
         '<h3>Your name here</h3><p class="b-d">This could be you</p>' +
         '<p class="b-q">Allied health educator or experienced clinician? We are building our faculty team now.</p>' +
-        '<div class="bf"><span class="bc" aria-hidden="true"></span><span class="bid">AP-F???</span><span class="flip">Apply to teach \u2192</span></div>' +
+        '<div class="bf"><span class="bc" aria-hidden="true"></span><span class="bid">Faculty</span><span class="flip">Apply to teach \u2192</span></div>' +
       "</div></div></div></a>";
   }
   var ytId = function (u) { var m = String(u || "").match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/); return m ? m[1] : ""; };
